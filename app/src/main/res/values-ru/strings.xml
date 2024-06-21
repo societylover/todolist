@@ -8,6 +8,7 @@
     <string name="todo_list_visibility_on_description">Иконка показа скрытых элементов списка дел</string>
     <string name="todo_list_visibility_off_description">Иконка скрытия элементов списка дел</string>
     <string name="todo_list_create_button_description">Иконка создания нового элемента списка задач</string>
+    <string name="todo_list_bottom_item_text">Новое</string>
 
     <!-- To-do item creating screen -->
     <string name="todo_item_create_text_input_hint">Что надо сделать...</string>
@@ -23,6 +24,14 @@
     <string name="todo_item_importance_urgent">!! Высокий</string>
 
     <!-- To-do calendar action buttons -->
-    <string name="todo_calendar_cancel_button_text">CANCEL</string>
-    <string name="todo_calendar_done_button_text">DONE</string>
+    <string name="todo_calendar_cancel_button_text">ОТМЕНА</string>
+    <string name="todo_calendar_done_button_text">ГОТОВО</string>
+
+    <!-- Descriptions -->
+    <string name="todo_item_importance_urgent_icon_description">Высокая важность</string>
+    <string name="todo_item_importance_low_icon_description">Низкая важность</string>
+    <string name="todo_item_importance_done_check_box_description">Задача выполнена</string>
+    <string name="todo_item_importance_done_icon_description">Выполнить задачу</string>
+    <string name="todo_item_importance_remove_icon_description">Удалить задачу</string>
+    <string name="todo_item_details_close_icon_description">Закрыть форму</string>
 </resources>

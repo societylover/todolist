@@ -1,9 +1,11 @@
-package com.homework.todolist
+package com.homework.todolist.data.repository
 
+import com.homework.todolist.data.model.Importance
+import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.data.model.TodoItemId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -11,7 +13,7 @@ import java.time.LocalDateTime
  * To do items repository implementation
  */
 class TodoItemsRepositoryImpl : TodoItemsRepository {
-    private val temporaryItems = mutableListOf(
+    private val temporaryItems = listOf(
         TodoItem(
             "1",
             "Необходимо покрасить забор",
@@ -160,7 +162,8 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         )
     )
 
-    private val _itemsFlow = MutableStateFlow<List<TodoItem>>(temporaryItems.toList())
+    private val _itemsFlow = MutableStateFlow(temporaryItems.toList())
+    private var _lastId = temporaryItems.last().id.toLong()
 
     override fun getItemsList(): Flow<List<TodoItem>> = _itemsFlow.asStateFlow()
 
@@ -168,8 +171,7 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         _itemsFlow.value.find { it.id == id }
 
     override suspend fun removeItemById(id: TodoItemId) {
-        temporaryItems.removeIf { it.id == id }
-        _itemsFlow.value = temporaryItems.toList()
+        _itemsFlow.value = _itemsFlow.value.filter { it.id != id }
     }
 
     override fun createItem(
@@ -178,14 +180,13 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         deadlineAt: LocalDate?
     ): TodoItemId {
         val newItem = TodoItem(
-            id = "${temporaryItems.size + 1}",
+            id = "${++_lastId}",
             text = text,
             done = false,
             importance = importance,
             deadlineAt = deadlineAt
         )
-        temporaryItems.add(newItem)
-        _itemsFlow.value = temporaryItems.toList()
+        _itemsFlow.value = _itemsFlow.value.toList() + newItem
         return newItem.id
     }
 
@@ -197,20 +198,20 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         deadlineAt: LocalDate?,
         updated: LocalDateTime
     ): Boolean {
-        val index = temporaryItems.indexOfFirst { it.id == id }
-        return if (index != -1) {
-            temporaryItems[index] = temporaryItems[index].copy(
-                text = text,
-                done = done,
-                importance = importance,
-                deadlineAt = deadlineAt,
-                updateAt = updated
-            )
-            _itemsFlow.value = temporaryItems.toList()
-            true
-        } else {
-            false
-        }
+        val listSnapshot = _itemsFlow.value.toMutableList()
+        val itemIndex = listSnapshot.indexOfFirst { it.id == id }
+
+        if (itemIndex == -1) return false
+
+        listSnapshot[itemIndex] = listSnapshot[itemIndex].copy(
+            text = text,
+            done = done,
+            importance = importance,
+            deadlineAt = deadlineAt,
+            updateAt = updated
+        )
+        _itemsFlow.value = listSnapshot
+        return true
     }
 
     override suspend fun updateItem(todoItem: TodoItem): Boolean {

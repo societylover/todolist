@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.homework.todolist.routing.TodoNavGraph
+import com.homework.todolist.navigation.TodoNavGraph
 import com.homework.todolist.ui.theme.TodolistTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,11 +17,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TodolistTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                    color = MaterialTheme.colorScheme.background)
+                {
                   TodoNavGraph()
                 }
             }

@@ -1,7 +1,7 @@
-package com.homework.todolist
+package com.homework.todolist.di
 
-import android.app.Application
-import android.content.Context
+import com.homework.todolist.data.repository.TodoItemsRepository
+import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,10 +11,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object TodosModule {
-
-//    @Provides
-//    fun provideContext(application: Application): Context =
-//        application.applicationContext
 
     @Provides
     @Singleton

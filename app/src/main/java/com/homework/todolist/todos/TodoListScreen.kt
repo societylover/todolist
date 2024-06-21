@@ -1,4 +1,4 @@
-package com.homework.todolist
+package com.homework.todolist.todos
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -62,18 +63,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.homework.todolist.ui.theme.LocalCustomColorsPalette
+import com.homework.todolist.R
+import com.homework.todolist.data.model.Importance
+import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.data.model.TodoItemId
+import com.homework.todolist.ui.theme.LocalTodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.ui.theme.Typography
 import com.homework.todolist.ui.theme.body
 import com.homework.todolist.ui.theme.subhead
 import com.homework.todolist.ui.theme.title
+import com.homework.todolist.util.DateFormatter.asString
 import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoListScreen(
+internal fun TodoListScreen(
     onItemClick: (TodoItemId) -> Unit,
     onCreateItemClick: () -> Unit,
     viewModel: TodoListViewModel = hiltViewModel()
@@ -84,7 +90,6 @@ fun TodoListScreen(
     )
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     val lazyListState = rememberLazyListState()
 
     Scaffold(
@@ -102,7 +107,7 @@ fun TodoListScreen(
                 scrollBehavior = scrollBehavior,
                 modifier = Modifier.shadow(elevation = if (scrollBehavior.isCollapsed) 0.dp else 30.dp),
                 colors = TopAppBarDefaults.largeTopAppBarColors().copy(
-                    scrolledContainerColor = LocalCustomColorsPalette.current.backPrimaryColor
+                    scrolledContainerColor = LocalTodoColorsPalette.current.backPrimaryColor
                 )
             )
         },
@@ -114,8 +119,8 @@ fun TodoListScreen(
                     bottom = dimensionResource(id = R.dimen.todo_list_fab_bottom_padding)
                 ),
                 shape = CircleShape.copy(CornerSize(dimensionResource(id = R.dimen.todo_list_fab_size))),
-                containerColor = LocalCustomColorsPalette.current.blueColor,
-                contentColor = LocalCustomColorsPalette.current.whiteColor
+                containerColor = LocalTodoColorsPalette.current.blueColor,
+                contentColor = LocalTodoColorsPalette.current.whiteColor
             )
             {
                 Icon(
@@ -128,18 +133,15 @@ fun TodoListScreen(
         Box(
             modifier = Modifier
                 .padding(paddings)
-                .padding(top = 2.dp)
                 .padding(horizontal = 8.dp)
-                .shadow(2.dp, RoundedCornerShape(8.dp))
-                .clip(RoundedCornerShape(3.dp))
-                .background(LocalCustomColorsPalette.current.backSecondaryColor)
         ) {
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier
             )
-            //.border(width = 1.dp, color = Color.Red, shape = RoundedCornerShape(1.dp)))
             {
+                item { TodosTopBorder() }
+
                 items(uiState.todoList, key = { it.id }) {
                     TodoListItem(
                         item = it,
@@ -147,10 +149,73 @@ fun TodoListScreen(
                         onItemDelete = { viewModel.removeTodo(it.id) },
                         onItemDoneStateChange = { viewModel.changeTodoDoneState(it) })
                 }
+
+                item {
+                    TodosNewItemView(
+                        modifier = Modifier
+                            .padding(vertical = 12.dp)
+                            .padding(start = 52.dp)
+                    ) {
+                        onCreateItemClick()
+                    }
+                }
+
+                item { TodosBottomBorder() }
             }
         }
     }
 }
+
+@Composable
+private fun TodosTopBorder() {
+    Box(
+        modifier = Modifier
+            .padding(top = 2.dp)
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(
+                color = LocalTodoColorsPalette.current.backSecondaryColor,
+                shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+            )
+    )
+}
+
+@Composable
+private fun TodosBottomBorder() {
+    Box(
+        modifier = Modifier
+            .padding(bottom = 28.dp)
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(
+                color = LocalTodoColorsPalette.current.backSecondaryColor,
+                shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
+            )
+    )
+}
+
+/**
+ * Bottom to-do item 'item'. Shortcut for item creating
+ * @param modifier Modifier
+ * @param onItemClick On item click callback
+ */
+@Composable
+private fun TodosNewItemView(
+    modifier: Modifier = Modifier,
+    onItemClick: () -> Unit
+) {
+    Text(
+        text = stringResource(id = R.string.todo_list_bottom_item_text),
+        color = LocalTodoColorsPalette.current.labelTertiaryColor,
+        style = MaterialTheme.typography.body(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(LocalTodoColorsPalette.current.backSecondaryColor)
+            .clickable { onItemClick() }
+            .then(modifier)
+    )
+}
+
 
 @Composable
 private fun TopAppBarContent(
@@ -164,6 +229,7 @@ private fun TopAppBarContent(
     } else {
         Pair(R.drawable.visibility_off_24, R.string.todo_list_visibility_off_description)
     }
+
     if (isCollapsed) {
         Column(modifier = Modifier.padding(start = 60.dp, end = 24.dp)) {
             Text(
@@ -174,17 +240,17 @@ private fun TopAppBarContent(
                 Text(
                     text = stringResource(
                         id = R.string.todo_list_completed_subtitle,
-                        completedCount),
-                    color = LocalCustomColorsPalette.current.labelTertiaryColor,
+                        completedCount
+                    ),
+                    color = LocalTodoColorsPalette.current.labelTertiaryColor,
                     style = Typography.body(),
                     modifier = Modifier.weight(1f)
                 )
-                IconButton(onClick = { onItemsVisibilityActionClicked() }) {
-                    Icon(
-                        painter = painterResource(id = visibilityIconResId),
-                        contentDescription = stringResource(id = descriptionResId),
-                        tint = LocalCustomColorsPalette.current.blueColor)
-                }
+                VisibilityButton(
+                    onItemsVisibilityActionClicked,
+                    visibilityIconResId,
+                    descriptionResId
+                )
             }
         }
     } else {
@@ -194,14 +260,26 @@ private fun TopAppBarContent(
                 style = Typography.title(),
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = { onItemsVisibilityActionClicked() }) {
-                Icon(
-                    painter = painterResource(id = visibilityIconResId),
-                    contentDescription = stringResource(id = descriptionResId),
-                    tint = LocalCustomColorsPalette.current.blueColor)
-            }
+            VisibilityButton(onItemsVisibilityActionClicked, visibilityIconResId, descriptionResId)
 
         }
+    }
+}
+
+@Composable
+private fun VisibilityButton(
+    onItemsVisibilityActionClicked: () -> Unit,
+    visibilityIconResId: Int,
+    descriptionResId: Int
+) {
+    IconButton(
+        modifier = Modifier.size(24.dp),
+        onClick = { onItemsVisibilityActionClicked() }) {
+        Icon(
+            painter = painterResource(id = visibilityIconResId),
+            contentDescription = stringResource(id = descriptionResId),
+            tint = LocalTodoColorsPalette.current.blueColor
+        )
     }
 }
 
@@ -214,27 +292,29 @@ fun TodoListScreenPreview() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-val TopAppBarScrollBehavior.isCollapsed: Boolean
-    get() = this.state.collapsedFraction < 0.9f
-//get() = this.state.collapsedFraction < 0.85f
+private val TopAppBarScrollBehavior.isCollapsed: Boolean
+    get() = this.state.collapsedFraction < 0.4f
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoListItem(
+private fun TodoListItem(
     item: TodoItem,
     onItemClick: () -> Unit,
     onItemDelete: () -> Unit,
-    onItemDoneStateChange: () -> Unit) {
+    onItemDoneStateChange: () -> Unit
+) {
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            when(it) {
+            when (it) {
                 StartToEnd -> {
                     onItemDoneStateChange()
                 }
+
                 EndToStart -> {
                     onItemDelete()
                 }
+
                 Settled -> return@rememberSwipeToDismissBoxState false
             }
             return@rememberSwipeToDismissBoxState true
@@ -244,19 +324,20 @@ fun TodoListItem(
 
     SwipeToDismissBox(
         state = dismissState,
-        backgroundContent = { DismissBackground(dismissState, item.done)},
-        enableDismissFromStartToEnd = !item.done)
+        backgroundContent = { DismissBackground(dismissState, item.done) },
+        enableDismissFromStartToEnd = !item.done
+    )
     {
         Row(
             modifier = Modifier
-                .background(LocalCustomColorsPalette.current.backSecondaryColor)
-                .padding(horizontal = 16.dp, vertical = 14.dp)
                 .fillMaxWidth()
-                .clickable { onItemClick() },
+                .clickable { onItemClick() }
+                .background(LocalTodoColorsPalette.current.backSecondaryColor)
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TodoStateBox(
-                item.importance, item.done, Modifier
+                importance = item.importance, done = item.done, modifier = Modifier
                     .padding(end = 12.dp)
             )
 
@@ -266,29 +347,35 @@ fun TodoListItem(
                     .weight(1f)
             ) {
                 Row {
-                   when(item.importance) {
-                       Importance.URGENT -> {
-                           Icon(painter = painterResource(id = R.drawable.importance_high),
-                               contentDescription = "high",
-                               modifier = Modifier.padding(end = 3.dp),
-                               tint = LocalCustomColorsPalette.current.redColor)
-                       }
-                       Importance.LOW -> {
-                           Icon(painter = painterResource(id = R.drawable.importance_low),
-                               contentDescription = "low",
-                               modifier = Modifier.padding(end = 3.dp),
-                               tint = LocalCustomColorsPalette.current.grayLightColor)
-                       }
-                       else -> { }
-                   }
+                    when (item.importance) {
+                        Importance.URGENT -> {
+                            Icon(
+                                painter = painterResource(id = R.drawable.importance_high),
+                                contentDescription = stringResource(id = R.string.todo_item_importance_urgent_icon_description),
+                                modifier = Modifier.padding(end = 3.dp),
+                                tint = LocalTodoColorsPalette.current.redColor
+                            )
+                        }
+
+                        Importance.LOW -> {
+                            Icon(
+                                painter = painterResource(id = R.drawable.importance_low),
+                                contentDescription = stringResource(id = R.string.todo_item_importance_low_icon_description),
+                                modifier = Modifier.padding(end = 3.dp),
+                                tint = LocalTodoColorsPalette.current.grayLightColor
+                            )
+                        }
+
+                        else -> {}
+                    }
                     Text(
                         text = item.text,
-                        color = if (item.done) LocalCustomColorsPalette.current.labelTertiaryColor
-                        else LocalCustomColorsPalette.current.labelPrimaryColor,
+                        color = if (item.done) LocalTodoColorsPalette.current.labelTertiaryColor
+                        else LocalTodoColorsPalette.current.labelPrimaryColor,
                         style = if (!item.done) LocalTextStyle.current
                         else LocalTextStyle.current.copy(
                             textDecoration = TextDecoration.LineThrough,
-                            color = LocalCustomColorsPalette.current.labelTertiaryColor
+                            color = LocalTodoColorsPalette.current.labelTertiaryColor
                         ),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
@@ -297,8 +384,8 @@ fun TodoListItem(
 
                 if (item.deadlineAt != null) {
                     Text(
-                        text = "01.01.1970", //dateFormat.format(item.deadlineAt),
-                        color = LocalCustomColorsPalette.current.labelTertiaryColor,
+                        text = item.deadlineAt.asString(),
+                        color = LocalTodoColorsPalette.current.labelTertiaryColor,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.subhead()
                     )
@@ -308,23 +395,21 @@ fun TodoListItem(
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = stringResource(id = R.string.todo_list_info_description),
-                tint = LocalCustomColorsPalette.current.labelTertiaryColor
+                tint = LocalTodoColorsPalette.current.labelTertiaryColor
             )
         }
     }
-
-
 }
 
 @Composable
-fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Modifier) {
-    val backgroundColor = if (done) LocalCustomColorsPalette.current.greenColor
-    else if (importance == Importance.URGENT) LocalCustomColorsPalette.current.redColor.copy(alpha = ContentAlpha.disabled)
+private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Modifier) {
+    val backgroundColor = if (done) LocalTodoColorsPalette.current.greenColor
+    else if (importance == Importance.URGENT) LocalTodoColorsPalette.current.redColor.copy(alpha = ContentAlpha.disabled)
     else Color.Transparent
 
     val borderColor = if (done) Color.Transparent
-    else if (importance == Importance.URGENT) LocalCustomColorsPalette.current.redColor
-    else LocalCustomColorsPalette.current.separatorColor
+    else if (importance == Importance.URGENT) LocalTodoColorsPalette.current.redColor
+    else LocalTodoColorsPalette.current.separatorColor
 
     Box(
         contentAlignment = Center,
@@ -337,8 +422,8 @@ fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Mod
         if (done) {
             Icon(
                 Icons.Default.Check,
-                contentDescription = "",
-                tint = LocalCustomColorsPalette.current.whiteColor
+                contentDescription = stringResource(id = R.string.todo_item_importance_done_check_box_description),
+                tint = LocalTodoColorsPalette.current.whiteColor
             )
         }
     }
@@ -347,31 +432,32 @@ fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Mod
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DismissBackground(dismissState: SwipeToDismissBoxState, itemIsDone: Boolean) {
+private fun DismissBackground(dismissState: SwipeToDismissBoxState, itemIsDone: Boolean) {
     val color = when (dismissState.dismissDirection) {
-        StartToEnd -> if (!itemIsDone) Color(LocalCustomColorsPalette.current.greenColor.value) else Color.Transparent
-        EndToStart -> Color(LocalCustomColorsPalette.current.redColor.value)
+        StartToEnd -> if (!itemIsDone) Color(LocalTodoColorsPalette.current.greenColor.value) else Color.Transparent
+        EndToStart -> Color(LocalTodoColorsPalette.current.redColor.value)
         Settled -> Color.Transparent
     }
 
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(color)
-            .padding(24.dp, 24.dp),
+            .background(color),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
             Icons.Default.Check,
-            contentDescription = "Done",
-            tint = LocalCustomColorsPalette.current.whiteColor
+            contentDescription = stringResource(id = R.string.todo_item_importance_done_icon_description),
+            tint = LocalTodoColorsPalette.current.whiteColor,
+            modifier = Modifier.padding(start = 24.dp).size(24.dp)
         )
         Spacer(modifier = Modifier)
         Icon(
             Icons.Default.Delete,
-            contentDescription = "Delete",
-            tint = LocalCustomColorsPalette.current.whiteColor
+            contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
+            tint = LocalTodoColorsPalette.current.whiteColor,
+            modifier = Modifier.padding(end = 24.dp).size(24.dp)
         )
     }
 }
@@ -379,7 +465,7 @@ fun DismissBackground(dismissState: SwipeToDismissBoxState, itemIsDone: Boolean)
 
 @Preview(showBackground = true)
 @Composable
-fun TodoListItemPreview() {
+private fun TodoListItemPreview() {
     TodolistTheme {
         TodoListItem(
             item = TodoItem(

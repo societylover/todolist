@@ -1,10 +1,13 @@
-package com.homework.todolist
+package com.homework.todolist.tododetails
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.homework.todolist.routing.TodoDestinationsArgs
+import com.homework.todolist.data.model.Importance
+import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.data.model.TodoItemId
+import com.homework.todolist.data.repository.TodoItemsRepository
+import com.homework.todolist.navigation.TodoDestinationsArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +21,7 @@ import javax.inject.Inject
  */
 data class TodoItemUiState (
     val text: String = "",
-    @StringRes val importanceResId: Int = R.string.todo_item_importance_ordinary,
+    val importance: Importance = Importance.ORDINARY,
     val isDone: Boolean = false,
     val id: TodoItemId? = null,
     val doUntil: LocalDate = LocalDate.now(),
@@ -43,12 +46,18 @@ class TodoDetailsViewModel @Inject constructor(
 
     /**
      * Update selected item or create new if it's not exist
+     * If text is empty and item is not exist do nothing
      */
-    fun updateItem() {
+    fun replaceItem() {
         if (todoItemState.value.id == null) {
+
+            // Do nothing if text is empty
+            if (_todoItemState.value.text.isEmpty()) return
+
             viewModelScope.launch(Dispatchers.IO) {
                 with(_todoItemState.value) {
-                    todoItemsRepository.createItem(text, getImportance(), doUntil)
+                    todoItemsRepository.createItem(text, importance,
+                        if (isDeadlineSet) doUntil else null)
                 }
             }
         } else {
@@ -59,7 +68,7 @@ class TodoDetailsViewModel @Inject constructor(
                             id = it,
                             text = text,
                             done = isDone,
-                            importance = getImportance(),
+                            importance = importance,
                             deadlineAt = if (isDeadlineSet) doUntil else null)
                     }
                 }
@@ -83,7 +92,7 @@ class TodoDetailsViewModel @Inject constructor(
      */
     fun setSnapshotImportance(importance: Importance) {
         _todoItemState.value = _todoItemState.value.copy(
-            importanceResId = importance.getImportanceStringResId()
+            importance = importance
         )
     }
 
@@ -119,27 +128,9 @@ class TodoDetailsViewModel @Inject constructor(
                 text = text,
                 id = id,
                 isDone = done,
-                importanceResId = importance.getImportanceStringResId(),
+                importance = importance,
                 doUntil = deadlineAt?: LocalDate.now(),
                 isDeadlineSet = deadlineAt != null
             )
-
-        /**
-         * Convert importance to it's string res representation
-         */
-        private fun Importance.getImportanceStringResId() =
-            when(this) {
-                Importance.URGENT -> { R.string.todo_item_importance_urgent }
-                Importance.ORDINARY -> { R.string.todo_item_importance_ordinary }
-                Importance.LOW -> { R.string.todo_item_importance_low }
-            }
-
-        private fun TodoItemUiState.getImportance() =
-            when(this.importanceResId) {
-                R.string.todo_item_importance_urgent -> Importance.URGENT
-                R.string.todo_item_importance_ordinary -> Importance.ORDINARY
-                else -> Importance.LOW
-            }
     }
-
 }

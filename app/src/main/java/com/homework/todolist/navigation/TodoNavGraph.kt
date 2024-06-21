@@ -1,4 +1,4 @@
-package com.homework.todolist.routing
+package com.homework.todolist.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.homework.todolist.TodoListDetailsScreen
-import com.homework.todolist.TodoListScreen
-import com.homework.todolist.routing.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.tododetails.TodoListDetailsScreen
+import com.homework.todolist.todos.TodoListScreen
+import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
 
 @Composable
 fun TodoNavGraph(

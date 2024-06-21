@@ -1,4 +1,4 @@
-package com.homework.todolist
+package com.homework.todolist.data.model
 
 /**
  * To Do list item importance

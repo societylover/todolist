@@ -1,11 +1,11 @@
-package com.homework.todolist.routing
+package com.homework.todolist.navigation
 
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.homework.todolist.TodoItemId
-import com.homework.todolist.routing.TodoDestinationsArgs.TODO_ID
-import com.homework.todolist.routing.TodoScreens.TODO_LIST_DETAILS
-import com.homework.todolist.routing.TodoScreens.TODO_LIST_SCREEN
+import com.homework.todolist.data.model.TodoItemId
+import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.navigation.TodoScreens.TODO_LIST_DETAILS
+import com.homework.todolist.navigation.TodoScreens.TODO_LIST_SCREEN
 
 /**
  * Screens used in application

@@ -63,5 +63,5 @@ data class TodoListColorsPalette(
     val backSecondaryColor: Color = Color.Unspecified,
     val backElevatedColor: Color = Color.Unspecified)
 
-internal val LocalCustomColorsPalette =
+internal val LocalTodoColorsPalette =
     staticCompositionLocalOf { TodoListColorsPalette() }

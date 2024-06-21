@@ -1,15 +1,16 @@
-package com.homework.todolist
+package com.homework.todolist.todos
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.data.model.TodoItemId
+import com.homework.todolist.data.repository.TodoItemsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,8 +28,6 @@ class TodoListViewModel @Inject constructor(
     private val todoListRepository: TodoItemsRepository
 ) : ViewModel() {
     private val _isDoneShown = MutableStateFlow(false)
-    // private val _todosList = todoListRepository.getItemsList()
-
     private var _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 

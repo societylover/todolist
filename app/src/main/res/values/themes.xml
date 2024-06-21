@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Todolist" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="CustomDatePickerDialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog">
+        <item name="android:datePickerStyle">@style/TodoDatePicker</item>
+    </style>
+
+    <style name="TodoDatePicker">
+        <item name="android:headerBackground">@color/purple_500</item>
+        <item name="android:calendarTextColor">@color/purple_700</item>
+        <item name="android:dayOfWeekBackground">@android:color/darker_gray</item>
+<!--        <item name="android:dayOfWeekTextAppearance">@style/CustomDayOfWeekTextAppearance</item>-->
+        <item name="android:selectedWeekBackgroundColor">@color/purple_500</item>
+        <item name="android:datePickerMode">calendar</item>
+<!--        <item name="android:buttonBarPositiveButtonStyle">@style/AppTheme.Alert.Button.Positive</item>-->
+<!--        <item name="android:buttonBarNegativeButtonStyle">@style/AppTheme.Alert.Button.Negative</item>-->
+    </style>
+
+<!--    <style name="AppTheme.Alert.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton">-->
+<!--        <item name="android:textColor">@color/buttonPositive</item>-->
+<!--    </style>-->
+
+<!--    <style name="AppTheme.Alert.Button.Negative" parent="Widget.MaterialComponents.Button.TextButton">-->
+<!--        <item name="android:textColor">@color/buttonNegative</item>-->
+<!--    </style>-->
+
+<!--    <style name="AppTheme.Alert.Button.Neutral" parent="Widget.MaterialComponents.Button.TextButton">-->
+<!--        <item name="android:textColor">@color/buttonNeutral</item>-->
+<!--    </style>-->
+
+</resources>

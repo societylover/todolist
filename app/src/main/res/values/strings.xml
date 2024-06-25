@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Todo list</string>
+
+    <!-- To-do list screen -->
+    <string name="todo_list_screen_title">My tasks</string>
+    <string name="todo_list_completed_subtitle">Completed - %d</string>
+    <string name="todo_list_visibility_on_description">Icon for showing hidden to-do list items</string>
+    <string name="todo_list_visibility_off_description">Hide to-do list icon</string>
+    <string name="todo_list_create_button_description">Create new todo item icon</string>
+    <string name="todo_list_info_description">Open todo list details</string>
+    <string name="todo_list_bottom_item_text">New</string>
+
+    <!-- To-do item creating screen -->
+    <string name="todo_item_create_text_input_hint">What need to do...</string>
+    <string name="todo_item_create_save_icon_text">SAVE</string>
+    <string name="todo_item_create_importance_title">Importance</string>
+    <string name="todo_item_create_do_until_title">Done until</string>
+    <string name="todo_item_create_delete_button_text">Delete</string>
+
+    <!-- To-do importance translates -->
+    <string name="todo_item_importance_ordinary">No</string>
+    <string name="todo_item_importance_low">Low</string>
+    <string name="todo_item_importance_urgent">!! High</string>
+
+    <!-- To-do calendar action buttons -->
+    <string name="todo_calendar_cancel_button_text">CANCEL</string>
+    <string name="todo_calendar_done_button_text">DONE</string>
+
+    <!-- Descriptions -->
+    <string name="todo_item_importance_urgent_icon_description">Urgent importance</string>
+    <string name="todo_item_importance_low_icon_description">Low importance</string>
+    <string name="todo_item_importance_done_check_box_description">Item is done</string>
+    <string name="todo_item_importance_done_icon_description">Done item</string>
+    <string name="todo_item_importance_remove_icon_description">Remove item</string>
+    <string name="todo_item_details_close_icon_description">Close form</string>
+
+
+</resources>

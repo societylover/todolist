@@ -52,7 +52,7 @@ internal class TodoNavigationActions(private val navController: NavHostControlle
      * Navigates to todo details
      * @param id Id of todo, or null if to-do must be created
      */
-    internal fun navigateToTodoDetails(id: TodoItemId? = null) {
+    internal fun navigateToTodoDetails(id: String? = null) {
         val isItemExist = id != null
         navController.navigate(
             TODO_LIST_DETAILS.let {

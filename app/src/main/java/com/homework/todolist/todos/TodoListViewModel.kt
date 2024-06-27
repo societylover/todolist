@@ -57,7 +57,7 @@ class TodoListViewModel @Inject constructor(
      * Delete to-do task by it's id
      * @param id To-do task identifier
      */
-    fun removeTodo(id: TodoItemId) {
+    fun removeTodo(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             todoListRepository.removeItemById(id)
         }

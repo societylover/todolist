@@ -78,7 +78,7 @@ import java.time.LocalDate
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TodoListScreen(
-    onItemClick: (TodoItemId) -> Unit,
+    onItemClick: (String) -> Unit,
     onCreateItemClick: () -> Unit,
     viewModel: TodoListViewModel = hiltViewModel()
 ) {

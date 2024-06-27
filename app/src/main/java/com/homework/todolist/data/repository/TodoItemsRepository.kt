@@ -2,7 +2,6 @@ package com.homework.todolist.data.repository
 
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -22,13 +21,13 @@ interface TodoItemsRepository {
      * @param id Item id
      * @return To-do item info or null
      */
-    fun getItemDetails(id: TodoItemId) : TodoItem?
+    fun getItemDetails(id: String) : TodoItem?
 
     /**
      * Remove item from list by it's id
      * @param id To do item id
      */
-    suspend fun removeItemById(id: TodoItemId)
+    suspend fun removeItemById(id: String)
 
     /**
      * Create new to do list item
@@ -41,7 +40,7 @@ interface TodoItemsRepository {
         text: String,
         importance: Importance,
         deadlineAt: LocalDate? = null
-    ): TodoItemId
+    ): String
 
     /**
      * Update to do item state
@@ -53,7 +52,7 @@ interface TodoItemsRepository {
      * @param updated Updated date
      * @return Update result, where true for success update
      */
-    suspend fun updateItem(id: TodoItemId,
+    suspend fun updateItem(id: String,
                            text: String,
                            done: Boolean,
                            importance: Importance,

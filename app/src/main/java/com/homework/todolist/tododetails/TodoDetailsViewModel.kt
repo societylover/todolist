@@ -23,7 +23,7 @@ data class TodoItemUiState (
     val text: String = "",
     val importance: Importance = Importance.ORDINARY,
     val isDone: Boolean = false,
-    val id: TodoItemId? = null,
+    val id: String? = null,
     val doUntil: LocalDate = LocalDate.now(),
     val isDeadlineSet: Boolean = false
 )

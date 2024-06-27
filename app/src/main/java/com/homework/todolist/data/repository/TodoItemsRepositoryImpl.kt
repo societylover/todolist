@@ -2,7 +2,6 @@ package com.homework.todolist.data.repository
 
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -168,10 +167,10 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
 
     override fun getItemsList(): Flow<List<TodoItem>> = _itemsFlow.asStateFlow()
 
-    override fun getItemDetails(id: TodoItemId): TodoItem? =
+    override fun getItemDetails(id: String): TodoItem? =
         _itemsFlow.value.find { it.id == id }
 
-    override suspend fun removeItemById(id: TodoItemId) {
+    override suspend fun removeItemById(id: String) {
         _itemsFlow.update {
             _itemsFlow.value.filter { it.id != id }
         }
@@ -181,7 +180,7 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         text: String,
         importance: Importance,
         deadlineAt: LocalDate?
-    ): TodoItemId {
+    ): String {
         val newItem = TodoItem(
             id = "${++_lastId}",
             text = text,
@@ -196,7 +195,7 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
     }
 
     override suspend fun updateItem(
-        id: TodoItemId,
+        id: String,
         text: String,
         done: Boolean,
         importance: Importance,

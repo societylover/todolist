@@ -22,7 +22,11 @@ android {
             useSupportLibrary = true
         }
 
-        buildConfigField("String", "API_KEY", API_KEY)
+        buildFeatures {
+            buildConfig = true
+        }
+
+        buildConfigField("String", "API_KEY", project.properties["API_KEY"].toString())
     }
 
     buildTypes {

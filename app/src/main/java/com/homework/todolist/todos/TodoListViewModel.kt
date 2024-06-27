@@ -8,9 +8,11 @@ import com.homework.todolist.data.repository.TodoItemsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,20 +29,19 @@ data class UiState(
 class TodoListViewModel @Inject constructor(
     private val todoListRepository: TodoItemsRepository
 ) : ViewModel() {
-    private val _isDoneShown = MutableStateFlow(false)
     private var _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            combine(_isDoneShown, todoListRepository.getItemsList()) { isDoneShown, items ->
+            combine(_uiState, todoListRepository.getItemsList()) { state, items ->
                 UiState(
-                    isDoneShown = isDoneShown,
-                    todoList = items.filter { isDoneShown || !it.done },
+                    isDoneShown = state.isDoneShown,
+                    todoList = items.filter { state.isDoneShown || !it.done },
                     doneCount = items.count { it.done }
                 )
             }.collectLatest {
-                _uiState.value = it
+                _uiState.update { it }
             }
         }
     }
@@ -49,7 +50,7 @@ class TodoListViewModel @Inject constructor(
      * Change items visibility state
      */
     fun triggerShowDoneItemsVisibilityState() {
-        _isDoneShown.value = !_isDoneShown.value
+        _uiState.update { it.copy(isDoneShown = !it.isDoneShown) }
     }
 
     /**
@@ -68,7 +69,12 @@ class TodoListViewModel @Inject constructor(
      */
     fun changeTodoDoneState(todoItem: TodoItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            todoListRepository.updateItem(todoItem.copy(done = !todoItem.done))
+            todoListRepository.updateItem(
+                id = todoItem.id,
+                text = todoItem.text,
+                done = todoItem.done,
+                importance = todoItem.importance,
+                deadlineAt = todoItem.deadlineAt)
         }
     }
 }

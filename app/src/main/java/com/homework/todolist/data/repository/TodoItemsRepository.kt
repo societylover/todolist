@@ -59,11 +59,4 @@ interface TodoItemsRepository {
                            importance: Importance,
                            deadlineAt: LocalDate?,
                            updated: LocalDateTime = LocalDateTime.now()) : Boolean
-
-    /**
-     * Update to do item state
-     * @param todoItem Item to update
-     * @return Update result, where true for success update
-     */
-    suspend fun updateItem(todoItem: TodoItem) : Boolean
 }

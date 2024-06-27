@@ -6,6 +6,7 @@ import com.homework.todolist.data.model.TodoItemId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -171,7 +172,9 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
         _itemsFlow.value.find { it.id == id }
 
     override suspend fun removeItemById(id: TodoItemId) {
-        _itemsFlow.value = _itemsFlow.value.filter { it.id != id }
+        _itemsFlow.update {
+            _itemsFlow.value.filter { it.id != id }
+        }
     }
 
     override fun createItem(
@@ -186,7 +189,9 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
             importance = importance,
             deadlineAt = deadlineAt
         )
-        _itemsFlow.value = _itemsFlow.value.toList() + newItem
+        _itemsFlow.update {
+            _itemsFlow.value + newItem
+        }
         return newItem.id
     }
 
@@ -200,9 +205,9 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
     ): Boolean {
         val listSnapshot = _itemsFlow.value.toMutableList()
         val itemIndex = listSnapshot.indexOfFirst { it.id == id }
-
-        if (itemIndex == -1) return false
-
+        if (itemIndex == -1) {
+            return false
+        }
         listSnapshot[itemIndex] = listSnapshot[itemIndex].copy(
             text = text,
             done = done,
@@ -210,17 +215,7 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
             deadlineAt = deadlineAt,
             updateAt = updated
         )
-        _itemsFlow.value = listSnapshot
+        _itemsFlow.update { listSnapshot }
         return true
-    }
-
-    override suspend fun updateItem(todoItem: TodoItem): Boolean {
-        return updateItem(
-            id = todoItem.id,
-            text = todoItem.text,
-            done = todoItem.done,
-            importance = todoItem.importance,
-            deadlineAt = todoItem.deadlineAt
-        )
     }
 }

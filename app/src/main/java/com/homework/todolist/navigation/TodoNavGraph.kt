@@ -12,8 +12,14 @@ import com.homework.todolist.tododetails.TodoListDetailsScreen
 import com.homework.todolist.todos.TodoListScreen
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
 
+/**
+ * Application navigation handler
+ * @param navController Application navigation controller
+ * @param startDestination Start destination of application
+ * @param navActions Available navigation actions
+ */
 @Composable
-fun TodoNavGraph(
+internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = TodoDestinations.TODO_LIST_ROUTE,
     navActions: TodoNavigationActions = remember(navController) { TodoNavigationActions(navController) })
@@ -29,6 +35,10 @@ fun TodoNavGraph(
                 onCreateItemClick = { navActions.navigateToTodoDetails() }
             )
         }
+
+        /* Navigation to details screen
+         * Open create form if null as item id passed
+         */
         composable(
             TodoDestinations.DETAILS_ROUTE,
             arguments = listOf(
@@ -39,6 +49,7 @@ fun TodoNavGraph(
                 }
             )
         ) { _ ->
+
             TodoListDetailsScreen(onActionClick = { navActions.navigateToTodoList() })
         }
     }

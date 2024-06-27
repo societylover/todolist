@@ -30,51 +30,6 @@ private val LightColorScheme = lightColorScheme(
     tertiary = LabelLightTertiaryColor,
     background = BackLightPrimaryColor,
     surface = BackLightPrimaryColor
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
-
-private val TodoListLightColors = TodoListColorsPalette(
-    separatorColor = LightSeparatorColor,
-    overlayColor = LightOverlayColor,
-    labelPrimaryColor = LabelLightPrimaryColor,
-    labelSecondaryColor = LabelLightSecondaryColor,
-    labelTertiaryColor = LabelLightTertiaryColor,
-    labelDisableColor = LabelLightDisableColor,
-    redColor = RedLightColor,
-    greenColor = GreenLightColor,
-    blueColor = BlueLightColor,
-    grayColor = GrayLightColor,
-    grayLightColor = GrayLightLightColor,
-    whiteColor = WhiteLightColor,
-    backPrimaryColor = BackLightPrimaryColor,
-    backSecondaryColor = BackLightSecondaryColor,
-    backElevatedColor = BackLightElevatedColor
-)
-
-private val TodoListDarkColors = TodoListColorsPalette(
-    separatorColor = DarkSeparatorColor,
-    overlayColor = DarkOverlayColor,
-    labelPrimaryColor = LabelDarkPrimaryColor,
-    labelSecondaryColor = LabelDarkSecondaryColor,
-    labelTertiaryColor = LabelDarkTertiaryColor,
-    labelDisableColor = LabelDarkDisableColor,
-    redColor = RedDarkColor,
-    greenColor = GreenDarkColor,
-    blueColor = BlueDarkColor,
-    grayColor = GrayDarkColor,
-    grayLightColor = GrayLightDarkColor,
-    whiteColor = WhiteDarkColor,
-    backPrimaryColor = BackDarkPrimaryColor,
-    backSecondaryColor = BackDarkSecondaryColor,
-    backElevatedColor = BackDarkElevatedColor
 )
 
 @Composable
@@ -102,10 +57,11 @@ fun TodolistTheme(
         }
     }
 
-    val customColorsPalette = if (darkTheme) TodoListDarkColors else TodoListLightColors
+    val customColorsPalette = if (darkTheme) TodoListDarkColors() else TodoListLightColors()
 
-
-    CompositionLocalProvider(LocalTodoColorsPalette provides customColorsPalette)
+    CompositionLocalProvider(
+        TodoColorsPalette provides customColorsPalette,
+        TodoAppTypography provides TodoTypography.Default)
     {
         MaterialTheme(
             colorScheme = colorScheme,

@@ -3,14 +3,12 @@ package com.homework.todolist.todos
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import com.homework.todolist.data.repository.TodoItemsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,7 +27,7 @@ data class UiState(
 class TodoListViewModel @Inject constructor(
     private val todoListRepository: TodoItemsRepository
 ) : ViewModel() {
-    private var _uiState = MutableStateFlow(UiState())
+    private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
     init {
@@ -40,8 +38,10 @@ class TodoListViewModel @Inject constructor(
                     todoList = items.filter { state.isDoneShown || !it.done },
                     doneCount = items.count { it.done }
                 )
-            }.collectLatest {
-                _uiState.update { it }
+            }.collect { newState ->
+                _uiState.update {
+                    newState
+                }
             }
         }
     }
@@ -66,13 +66,14 @@ class TodoListViewModel @Inject constructor(
     /**
      * Change to-do task done state
      * @param todoItem Item to state updating
+     * @param newDoneState New item done state
      */
-    fun changeTodoDoneState(todoItem: TodoItem) {
+    fun changeTodoDoneState(todoItem: TodoItem, newDoneState: Boolean = !todoItem.done) {
         viewModelScope.launch(Dispatchers.IO) {
             todoListRepository.updateItem(
                 id = todoItem.id,
                 text = todoItem.text,
-                done = todoItem.done,
+                done = newDoneState,
                 importance = todoItem.importance,
                 deadlineAt = todoItem.deadlineAt)
         }

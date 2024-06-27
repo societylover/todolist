@@ -2,7 +2,6 @@ package com.homework.todolist.navigation
 
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import com.homework.todolist.data.model.TodoItemId
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
 import com.homework.todolist.navigation.TodoScreens.TODO_LIST_DETAILS
 import com.homework.todolist.navigation.TodoScreens.TODO_LIST_SCREEN

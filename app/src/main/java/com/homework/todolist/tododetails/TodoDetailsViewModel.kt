@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.navigation.TodoDestinationsArgs
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -19,6 +19,7 @@ val BlueLightColor = Color(0xFF007AFF)
 val GrayLightColor = Color(0xFF8E8E93)
 val GrayLightLightColor = Color(0xFFD1D1D6)
 val WhiteLightColor = Color(0xFFFFFFFF)
+val YellowLightColor = Color(0xFFFFD600)
 
 val BackLightPrimaryColor = Color(0xFFF7F6F2)
 val BackLightSecondaryColor = Color(0xFFFFFFFF)
@@ -39,6 +40,8 @@ val BlueDarkColor = Color(0xFF0A84FF)
 val GrayDarkColor = Color(0xFF8E8E93)
 val GrayLightDarkColor = Color(0xFF48484A)
 val WhiteDarkColor = Color(0xFFFFFFFF)
+val YellowDarkColor = Color(0xFFFFAB00)
+
 
 val BackDarkPrimaryColor = Color(0xFF161618)
 val BackDarkSecondaryColor = Color(0xFF252528)
@@ -59,6 +62,7 @@ data class TodoListColorsPalette(
     val grayColor: Color = Color.Unspecified,
     val grayLightColor: Color = Color.Unspecified,
     val whiteColor: Color = Color.Unspecified,
+    val yellowColor: Color = Color.Unspecified,
     val backPrimaryColor: Color = Color.Unspecified,
     val backSecondaryColor: Color = Color.Unspecified,
     val backElevatedColor: Color = Color.Unspecified)
@@ -79,6 +83,7 @@ internal fun TodoListLightColors() = TodoListColorsPalette(
     grayColor = GrayLightColor,
     grayLightColor = GrayLightLightColor,
     whiteColor = WhiteLightColor,
+    yellowColor = YellowLightColor,
     backPrimaryColor = BackLightPrimaryColor,
     backSecondaryColor = BackLightSecondaryColor,
     backElevatedColor = BackLightElevatedColor)
@@ -99,6 +104,7 @@ internal fun TodoListDarkColors() = TodoListColorsPalette(
     grayColor = GrayDarkColor,
     grayLightColor = GrayLightDarkColor,
     whiteColor = WhiteDarkColor,
+    yellowColor = YellowDarkColor,
     backPrimaryColor = BackDarkPrimaryColor,
     backSecondaryColor = BackDarkSecondaryColor,
     backElevatedColor = BackDarkElevatedColor)

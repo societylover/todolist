@@ -1,5 +1,7 @@
 package com.homework.todolist.todos
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -25,6 +27,7 @@ import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,10 +36,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.SwipeToDismissBoxValue.EndToStart
 import androidx.compose.material3.SwipeToDismissBoxValue.Settled
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
@@ -46,6 +49,7 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -53,7 +57,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,7 +72,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
@@ -214,6 +219,10 @@ private fun TodosNewItemView(
     )
 }
 
+private data class VisibilityIconParams (
+    @DrawableRes val iconRes: Int,
+    @StringRes val textRes: Int
+)
 
 @Composable
 private fun TopAppBarContent(
@@ -222,18 +231,19 @@ private fun TopAppBarContent(
     isAllItemsShows: Boolean,
     onItemsVisibilityActionClicked: () -> Unit
 ) {
-    val (visibilityIconResId, descriptionResId) = if (!isAllItemsShows) {
-        Pair(R.drawable.visibility_24, R.string.todo_list_visibility_on_description)
-    } else {
-        Pair(R.drawable.visibility_off_24, R.string.todo_list_visibility_off_description)
+    val iconParams by derivedStateOf {
+        if (!isAllItemsShows) {
+            VisibilityIconParams(R.drawable.visibility_24, R.string.todo_list_visibility_on_description)
+        } else {
+            VisibilityIconParams(R.drawable.visibility_off_24, R.string.todo_list_visibility_off_description)
+        }
     }
 
     if (isCollapsed) {
         Column(modifier = Modifier.padding(start = 60.dp, end = 24.dp)) {
             Text(
                 text = stringResource(id = R.string.todo_list_screen_title),
-                style = Typography.titleLarge
-            )
+                style = Typography.titleLarge)
             Row {
                 Text(
                     text = stringResource(
@@ -242,13 +252,11 @@ private fun TopAppBarContent(
                     ),
                     color = TodoColorsPalette.current.labelTertiaryColor,
                     style = TodoAppTypography.current.body,
-                    modifier = Modifier.weight(1f)
-                )
+                    modifier = Modifier.weight(1f))
                 VisibilityButton(
-                    onItemsVisibilityActionClicked,
-                    visibilityIconResId,
-                    descriptionResId
-                )
+                    onItemsVisibilityActionClicked = onItemsVisibilityActionClicked,
+                    visibilityIconResId = iconParams.iconRes,
+                    descriptionResId = iconParams.textRes)
             }
         }
     } else {
@@ -258,8 +266,11 @@ private fun TopAppBarContent(
                 style = TodoAppTypography.current.body,
                 modifier = Modifier.weight(1f)
             )
-            VisibilityButton(onItemsVisibilityActionClicked, visibilityIconResId, descriptionResId)
 
+            VisibilityButton(
+                onItemsVisibilityActionClicked = onItemsVisibilityActionClicked,
+                visibilityIconResId = iconParams.iconRes,
+                descriptionResId = iconParams.textRes)
         }
     }
 }
@@ -299,33 +310,32 @@ private fun TodoListItem(
     item: TodoItem,
     onItemClick: () -> Unit,
     onItemDelete: () -> Unit,
-    onItemDoneStateChange: () -> Unit
+    onItemDoneStateChange: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-
-    val dismissState = rememberSwipeToDismissBoxState(
+    val dismissState = SwipeToDismissBoxState(
+        initialValue = Settled,
+        density = LocalDensity.current,
         confirmValueChange = {
             when (it) {
-                StartToEnd -> {
-                    onItemDoneStateChange()
-                }
-
-                EndToStart -> {
-                    onItemDelete()
-                }
-
-                Settled -> return@rememberSwipeToDismissBoxState false
+                StartToEnd -> { onItemDoneStateChange() }
+                EndToStart -> { onItemDelete() }
+                Settled -> return@SwipeToDismissBoxState false
             }
-            return@rememberSwipeToDismissBoxState true
+            return@SwipeToDismissBoxState false
         },
-        positionalThreshold = { it * .25f }
-    )
+        positionalThreshold = { it * .25f })
 
     SwipeToDismissBox(
         state = dismissState,
-        backgroundContent = { DismissBackground(dismissState, item.done) },
-        enableDismissFromStartToEnd = !item.done
-    )
-    {
+        modifier = modifier,
+        backgroundContent = {
+            DismissBackground(
+                dismissDirection = dismissState.dismissDirection,
+                startToEndIcon = if (item.done) Icons.Default.Close else Icons.Default.Check,
+                startToEndColor = if (item.done) TodoColorsPalette.current.yellowColor else
+                    TodoColorsPalette.current.greenColor) }
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -427,15 +437,20 @@ private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifi
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DismissBackground(
-    dismissState: SwipeToDismissBoxState, itemIsDone: Boolean) {
-    val color = when (dismissState.dismissDirection) {
-        StartToEnd -> if (!itemIsDone) Color(TodoColorsPalette.current.greenColor.value) else Color.Transparent
-        EndToStart -> Color(TodoColorsPalette.current.redColor.value)
-        Settled -> Color.Transparent
+    dismissDirection: SwipeToDismissBoxValue,
+    endToStartColor: Color = Color(TodoColorsPalette.current.redColor.value),
+    startToEndColor: Color = Color(TodoColorsPalette.current.greenColor.value),
+    startToEndIcon: ImageVector = Icons.Default.Check
+) {
+    val color by derivedStateOf {
+        when (dismissDirection) {
+            StartToEnd -> startToEndColor
+            EndToStart -> endToStartColor
+            Settled -> Color.Transparent
+        }
     }
 
     Row(
@@ -446,19 +461,41 @@ private fun DismissBackground(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Icon(
-            Icons.Default.Check,
+            imageVector = startToEndIcon,
             contentDescription = stringResource(id = R.string.todo_item_importance_done_icon_description),
             tint = TodoColorsPalette.current.whiteColor,
-            modifier = Modifier.padding(start = 24.dp).size(24.dp)
+            modifier = Modifier
+                .padding(start = 24.dp)
+                .size(24.dp)
         )
         Spacer(modifier = Modifier)
         Icon(
             Icons.Default.Delete,
             contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
             tint = TodoColorsPalette.current.whiteColor,
-            modifier = Modifier.padding(end = 24.dp).size(24.dp)
+            modifier = Modifier
+                .padding(end = 24.dp)
+                .size(24.dp)
         )
     }
+}
+
+@Composable
+private fun TodoListItemDefault(
+    modifier: Modifier = Modifier,
+    item: TodoItem = TodoItem(
+        id = "1",
+        text = "Test",
+        importance = Importance.URGENT,
+        done = true,
+        createdAt = LocalDate.now().minusDays(3),
+        deadlineAt = LocalDate.now().plusDays(2)
+    ),
+    onItemClick: () -> Unit = { },
+    onItemDelete: () -> Unit = { },
+    onItemDoneStateChange: () -> Unit = { },
+) {
+    TodoListItem(item, onItemClick, onItemDelete, onItemDoneStateChange, modifier)
 }
 
 
@@ -466,15 +503,6 @@ private fun DismissBackground(
 @Composable
 private fun TodoListItemPreview() {
     TodolistTheme {
-        TodoListItem(
-            item = TodoItem(
-                "2",
-                "Необходимо закупиться продуктами на неделю",
-                Importance.URGENT,
-                true,
-                LocalDate.now().minusDays(3),
-                LocalDate.now().plusDays(2)
-            ), { }, { }
-        ) { }
+        TodoListItemDefault()
     }
 }

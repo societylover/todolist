@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.homework.todolist.tododetails.TodoListDetailsScreen
-import com.homework.todolist.todos.TodoListScreen
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.tododetails.TodoDetailsScreenRef
+import com.homework.todolist.todos.TodoListScreen
 
 /**
  * Application navigation handler
@@ -50,7 +50,7 @@ internal fun TodoNavGraph(
             )
         ) { _ ->
 
-            TodoListDetailsScreen(onActionClick = { navActions.navigateToTodoList() })
+            TodoDetailsScreenRef(onActionClick = { navActions.navigateToTodoList() })
         }
     }
 }

@@ -65,7 +65,6 @@ internal data class TodoTypography(
     val subhead: TextStyle = TextStyle.Default
 ) {
     companion object {
-
         /**
          * Default todo typography
          */

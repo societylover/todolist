@@ -47,6 +47,7 @@ val BackDarkPrimaryColor = Color(0xFF161618)
 val BackDarkSecondaryColor = Color(0xFF252528)
 val BackDarkElevatedColor = Color(0xFF3C3C3F)
 
+
 // Colors container
 @Immutable
 data class TodoListColorsPalette(

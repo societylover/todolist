@@ -18,7 +18,7 @@ import javax.inject.Inject
 /**
  * To-do item UI state
  */
-data class TodoItemUiState (
+data class TodoItemUiStateOld(
     val text: String = "",
     val importance: Importance = Importance.ORDINARY,
     val isDone: Boolean = false,
@@ -30,9 +30,10 @@ data class TodoItemUiState (
 @HiltViewModel
 class TodoDetailsViewModel @Inject constructor(
     private val todoItemsRepository: TodoItemsRepository,
-    savedStateHandle: SavedStateHandle) : ViewModel() {
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val _todoItemState = MutableStateFlow(TodoItemUiState())
+    private val _todoItemState = MutableStateFlow(TodoItemUiStateOld())
     val todoItemState = _todoItemState.asStateFlow()
 
     init {
@@ -55,8 +56,10 @@ class TodoDetailsViewModel @Inject constructor(
 
             viewModelScope.launch(Dispatchers.IO) {
                 with(_todoItemState.value) {
-                    todoItemsRepository.createItem(text, importance,
-                        if (isDeadlineSet) doUntil else null)
+                    todoItemsRepository.createItem(
+                        text, importance,
+                        if (isDeadlineSet) doUntil else null
+                    )
                 }
             }
         } else {
@@ -68,7 +71,8 @@ class TodoDetailsViewModel @Inject constructor(
                             text = text,
                             done = isDone,
                             importance = importance,
-                            deadlineAt = if (isDeadlineSet) doUntil else null)
+                            deadlineAt = if (isDeadlineSet) doUntil else null
+                        )
                     }
                 }
             }
@@ -101,7 +105,7 @@ class TodoDetailsViewModel @Inject constructor(
      */
     fun setSnapshotDoUntil(doUntil: LocalDate?) {
         _todoItemState.value = _todoItemState.value.copy(
-            doUntil = doUntil?: LocalDate.now(),
+            doUntil = doUntil ?: LocalDate.now(),
             isDeadlineSet = doUntil != null
         )
     }
@@ -123,12 +127,12 @@ class TodoDetailsViewModel @Inject constructor(
          * Convert TodoItem to it's details ui state
          */
         private fun TodoItem.toItemUiState() =
-            TodoItemUiState(
+            TodoItemUiStateOld(
                 text = text,
                 id = id,
                 isDone = done,
                 importance = importance,
-                doUntil = deadlineAt?: LocalDate.now(),
+                doUntil = deadlineAt ?: LocalDate.now(),
                 isDeadlineSet = deadlineAt != null
             )
     }

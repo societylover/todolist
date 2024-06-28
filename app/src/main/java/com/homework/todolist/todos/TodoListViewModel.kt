@@ -1,81 +1,102 @@
 package com.homework.todolist.todos
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.homework.todolist.data.model.TodoItem
 import com.homework.todolist.data.repository.TodoItemsRepository
+import com.homework.todolist.shared.UiEffect
+import com.homework.todolist.shared.UiEvent
+import com.homework.todolist.shared.ViewModelBase
+import com.homework.todolist.todos.data.TodoListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 import javax.inject.Inject
+import com.homework.todolist.todos.TodoListViewModel.Companion.ListEvent
+import com.homework.todolist.todos.TodoListViewModel.Companion.ListItemEffects
 
-data class UiState(
-    val isDoneShown: Boolean = false,
-    val todoList: List<TodoItem> = emptyList(),
-    val doneCount: Int = 0
-)
-
-/**
- * To do list item viewmodel
- */
 @HiltViewModel
 class TodoListViewModel @Inject constructor(
-    private val todoListRepository: TodoItemsRepository
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState = _uiState.asStateFlow()
+    private val repository: TodoItemsRepository
+) : ViewModelBase<ListEvent, TodoListUiState, ListItemEffects>(
+    initialState = TodoListUiState()
+) {
+    private val scope = viewModelScope +
+            CoroutineExceptionHandler { _, _ -> setEffect { ListItemEffects.UnknownErrorToast } }
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            combine(_uiState, todoListRepository.getItemsList()) { state, items ->
-                UiState(
+        scope.launch(Dispatchers.IO) {
+            combine(state, repository.getItemsList()) { state, items ->
+                TodoListUiState(
                     isDoneShown = state.isDoneShown,
                     todoList = items.filter { state.isDoneShown || !it.done },
                     doneCount = items.count { it.done }
                 )
             }.collect { newState ->
-                _uiState.update {
-                    newState
-                }
+                setState { newState }
             }
         }
     }
 
-    /**
-     * Change items visibility state
-     */
-    fun triggerShowDoneItemsVisibilityState() {
-        _uiState.update { it.copy(isDoneShown = !it.isDoneShown) }
-    }
+    override fun handleEvent(event: UiEvent) {
+        when (event) {
+            is ListEvent.OnDeleteClicked -> {
+                deleteItem(event.id)
+            }
 
-    /**
-     * Delete to-do task by it's id
-     * @param id To-do task identifier
-     */
-    fun removeTodo(id: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            todoListRepository.removeItemById(id)
+            is ListEvent.OnStateChangeClicked -> {
+                changeTodoDoneState(event.todoItem)
+            }
+
+            is ListEvent.OnVisibilityStateClicked -> {
+                triggerShowDoneItemsVisibilityState()
+            }
         }
     }
 
-    /**
-     * Change to-do task done state
-     * @param todoItem Item to state updating
-     * @param newDoneState New item done state
-     */
-    fun changeTodoDoneState(todoItem: TodoItem, newDoneState: Boolean = !todoItem.done) {
+    private fun deleteItem(id: String) {
+        scope.launch(Dispatchers.IO) {
+            repository.removeItemById(id)
+        }
+    }
+
+    private fun changeTodoDoneState(todoItem: TodoItem, newDoneState: Boolean = !todoItem.done) {
         viewModelScope.launch(Dispatchers.IO) {
-            todoListRepository.updateItem(
+            repository.updateItem(
                 id = todoItem.id,
                 text = todoItem.text,
                 done = newDoneState,
                 importance = todoItem.importance,
-                deadlineAt = todoItem.deadlineAt)
+                deadlineAt = todoItem.deadlineAt
+            )
+        }
+    }
+
+    private fun triggerShowDoneItemsVisibilityState() {
+        setState { copy(isDoneShown = !isDoneShown) }
+    }
+
+    companion object {
+        /**
+         * List screen events
+         */
+        sealed class ListEvent : UiEvent {
+            data class OnDeleteClicked(val id: String) : ListEvent()
+            data class OnStateChangeClicked(
+                val todoItem: TodoItem,
+                val newDoneState: Boolean = !todoItem.done
+            ) : ListEvent()
+
+            object OnVisibilityStateClicked : ListEvent()
+        }
+
+        /**
+         * List screen effects
+         */
+        sealed class ListItemEffects : UiEffect {
+            object UnknownErrorToast : ListItemEffects()
         }
     }
 }

@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = LabelDarkPrimaryColor,
     secondary = LabelDarkSecondaryColor,
     tertiary = LabelDarkTertiaryColor,
@@ -24,7 +24,7 @@ private val DarkColorScheme = darkColorScheme(
     surface = BackDarkPrimaryColor
 )
 
-private val LightColorScheme = lightColorScheme(
+internal val LightColorScheme = lightColorScheme(
     primary = LabelLightPrimaryColor,
     secondary = LabelLightSecondaryColor,
     tertiary = LabelLightTertiaryColor,

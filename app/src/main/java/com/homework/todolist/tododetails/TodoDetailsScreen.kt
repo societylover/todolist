@@ -26,9 +26,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,25 +39,32 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
+import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
+import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModelR
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -65,17 +73,21 @@ import java.time.ZoneId
 @Composable
 internal fun TodoListDetailsScreen(
     onActionClick: () -> Unit,
-    viewModel: TodoDetailsViewModel = hiltViewModel()
+    viewModel: TodoDetailsViewModelR = hiltViewModel()
 ) {
-    val itemUiState by viewModel.todoItemState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val itemUiState by viewModel.state.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { },
                 modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
                 navigationIcon = {
-                    IconButton(onClick = onActionClick) {
+                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnCloseClick) }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
@@ -87,8 +99,7 @@ internal fun TodoListDetailsScreen(
                     if (!itemUiState.isDone) {
                         TextButton(
                             onClick = {
-                                viewModel.replaceItem()
-                                onActionClick()
+                                viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnSaveClick)
                             }
                         ) {
                             Text(
@@ -98,7 +109,8 @@ internal fun TodoListDetailsScreen(
                         }
                     }
                 })
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -112,7 +124,11 @@ internal fun TodoListDetailsScreen(
                     text = itemUiState.text,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotText(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModelR.Companion.DetailsEvent.OnDescriptionUpdate(
+                            it
+                        )
+                    )
                 }
 
                 ImportanceView(
@@ -122,7 +138,11 @@ internal fun TodoListDetailsScreen(
                     importance = itemUiState.importance,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotImportance(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModelR.Companion.DetailsEvent.OnImportanceChosen(
+                            it
+                        )
+                    )
                 }
 
                 HorizontalDivider(
@@ -138,7 +158,11 @@ internal fun TodoListDetailsScreen(
                     doUntil = itemUiState.doUntil,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotDoUntil(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModelR.Companion.DetailsEvent.OnDeadlinePicked(
+                            it
+                        )
+                    )
                 }
             }
 
@@ -148,17 +172,47 @@ internal fun TodoListDetailsScreen(
                 modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                 isActive = itemUiState.id != null
             ) {
-                if (itemUiState.id != null) {
-                    viewModel.deleteItem()
+                viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnDeleteClick)
+                onActionClick()
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is TodoDetailsViewModelR.Companion.DetailsEffects.UnknownErrorToast -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.todo_details_unknown_error_text))
+                    }
+                }
+
+                is TodoDetailsViewModelR.Companion.DetailsEffects.ShowSaveErrorToast -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.todo_details_save_error_text))
+                    }
+                }
+
+                is TodoDetailsViewModelR.Companion.DetailsEffects.OnItemSaved -> {
+                    onActionClick()
+                }
+
+                is TodoDetailsViewModelR.Companion.DetailsEffects.OnItemDeleted -> {
+                    onActionClick()
+                }
+
+                is TodoDetailsViewModelR.Companion.DetailsEffects.OnFormClosed -> {
                     onActionClick()
                 }
             }
+
         }
     }
 }
 
 @Composable
-private fun TodoTextInput(
+internal fun TodoTextInput(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     text: String,
@@ -193,7 +247,7 @@ private fun TodoTextInput(
 }
 
 @Composable
-private fun ImportanceView(
+internal fun ImportanceView(
     modifier: Modifier = Modifier,
     importance: Importance,
     enabled: Boolean,
@@ -307,7 +361,7 @@ private data class ImportanceProps(
 )
 
 @Composable
-private fun DoUntilView(
+internal fun DoUntilView(
     enabled: Boolean,
     modifier: Modifier = Modifier,
     isDoUntilSet: Boolean,
@@ -363,6 +417,7 @@ private fun DateSelectingView(
     onDateSelected: (LocalDate) -> Unit,
     onDismissed: () -> Unit
 ) {
+
     val datePickerState = rememberDatePickerState()
     DatePickerDialog(
         onDismissRequest = { onDismissed() },
@@ -395,9 +450,8 @@ private fun DateSelectingView(
             state = datePickerState,
             colors = DatePickerDefaults.colors(
                 titleContentColor = TodoColorsPalette.current.blueColor,
-                selectedDayContainerColor = TodoColorsPalette.current.blueColor,
-
-                )
+                selectedDayContainerColor = TodoColorsPalette.current.blueColor
+            )
         )
     }
 }
@@ -427,14 +481,15 @@ private fun DoUntilSwitch(
 }
 
 @Composable
-private fun DeleteTaskView(
+internal fun DeleteTaskView(
     modifier: Modifier = Modifier,
     isActive: Boolean,
     onDeleteClick: () -> Unit
 ) {
     Row(modifier = Modifier
         .then(modifier)
-        .clickable { onDeleteClick() }) {
+        .then(if (isActive) Modifier.clickable { onDeleteClick() } else Modifier))
+    {
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
@@ -450,11 +505,64 @@ private fun DeleteTaskView(
     }
 }
 
+@Composable
+private fun DeleteTaskViewPreview(
+    isThemeDark: Boolean = false,
+    isActive: Boolean = false,
+) {
+    TodolistTheme(
+        darkTheme = isThemeDark,
+        dynamicColor = false
+    ) {
+        Column {
+            Text("Is active: $isActive")
+            DeleteTaskView(
+                modifier = Modifier,
+                isActive = isActive,
+                onDeleteClick = { }
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
-private fun TodoListDetailsScreenPreview() {
-    TodolistTheme {
-        TodoListDetailsScreen({})
+private fun DeleteTaskViewLightPreview() {
+    Column {
+        DeleteTaskViewPreview(isThemeDark = false, isActive = true)
+        DeleteTaskViewPreview(isThemeDark = false, isActive = false)
     }
 }
+
+@Preview(showBackground = false)
+@Composable
+private fun DeleteTaskViewDarkPreview() {
+    Column {
+        DeleteTaskViewPreview(isThemeDark = true, isActive = true)
+        DeleteTaskViewPreview(isThemeDark = true, isActive = false)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TodoListDetailsWatchScreenPreview() {
+
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TodoListDetailsCreateScreenPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        TodoListDetailsScreen(
+            onActionClick = {},
+            viewModel = TodoDetailsViewModelR(
+                todoItemsRepository = TodoItemsRepositoryImpl(),
+                savedStateHandle = SavedStateHandle.createHandle(null, null)
+            )
+        )
+    }
+}
+

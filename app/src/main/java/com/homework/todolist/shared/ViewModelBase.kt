@@ -2,20 +2,23 @@ package com.homework.todolist.shared
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
 
 /**
  * Basic view model class
  */
 abstract class ViewModelBase<I: UiEvent, S: UiState, E: UiEffect> (initialState: S) : ViewModel() {
 
-    private val currentState
+    protected val currentState
         get() = state.value
 
     private val _state : MutableStateFlow<S> = MutableStateFlow(initialState)
@@ -51,7 +54,9 @@ abstract class ViewModelBase<I: UiEvent, S: UiState, E: UiEffect> (initialState:
      */
     protected fun setState(state: S.() -> S) {
         val newState = currentState.state()
-        _state.value = newState
+        _state.update {
+            newState
+        }
     }
 
     /**

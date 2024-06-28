@@ -2,7 +2,6 @@ package com.homework.todolist.shared
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,23 +10,23 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
 
 /**
  * Basic view model class
  */
-abstract class ViewModelBase<I: UiEvent, S: UiState, E: UiEffect> (initialState: S) : ViewModel() {
+abstract class ViewModelBase<I : UiEvent, S : UiState, E : UiEffect>(initialState: S) :
+    ViewModel() {
 
     protected val currentState
         get() = state.value
 
-    private val _state : MutableStateFlow<S> = MutableStateFlow(initialState)
+    private val _state: MutableStateFlow<S> = MutableStateFlow(initialState)
     val state = _state.asStateFlow()
 
-    private val _event : MutableSharedFlow<UiEvent> = MutableSharedFlow()
+    private val _event: MutableSharedFlow<UiEvent> = MutableSharedFlow()
     val event = _event.asSharedFlow()
 
-    private val _effect : Channel<UiEffect> = Channel()
+    private val _effect: Channel<UiEffect> = Channel()
     val effect = _effect.receiveAsFlow()
 
     init {
@@ -42,7 +41,7 @@ abstract class ViewModelBase<I: UiEvent, S: UiState, E: UiEffect> (initialState:
      * Set new event
      * @param event New event
      */
-    fun setEvent(event : I) {
+    fun setEvent(event: I) {
         val newEvent = event
         viewModelScope.launch { _event.emit(newEvent) }
     }
@@ -71,5 +70,5 @@ abstract class ViewModelBase<I: UiEvent, S: UiState, E: UiEffect> (initialState:
     /**
      * Main handling function for each event
      */
-    abstract fun handleEvent(event : UiEvent)
+    abstract fun handleEvent(event: UiEvent)
 }

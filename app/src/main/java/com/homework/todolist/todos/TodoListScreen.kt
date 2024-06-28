@@ -47,7 +47,6 @@ import androidx.compose.material3.SwipeToDismissBoxValue.EndToStart
 import androidx.compose.material3.SwipeToDismissBoxValue.Settled
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -66,7 +65,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,11 +73,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 @Composable
@@ -114,12 +117,14 @@ internal fun TodoListScreen(
     val fontSize by animateFloatAsState(
         targetValue = if (topBarHeight == expandedHeight) TodoAppTypography.current.largeTitle.fontSize.value else TodoAppTypography.current.title.fontSize.value,
         animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
-        label = "ExpandableTopAppBar.animateFloatAsState fontSize")
+        label = "ExpandableTopAppBar.animateFloatAsState fontSize"
+    )
 
     val fontWeight by animateIntAsState(
         targetValue = if (topBarHeight == expandedHeight) TodoAppTypography.current.largeTitle.fontWeight!!.weight else TodoAppTypography.current.title.fontWeight!!.weight,
         animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
-        label = "ExpandableTopAppBar.animateIntAsState fontWeight")
+        label = "ExpandableTopAppBar.animateIntAsState fontWeight"
+    )
 
     val dynamicTopPadding by animateDpAsState(
         targetValue = if (topBarHeight == expandedHeight) {
@@ -136,9 +141,15 @@ internal fun TodoListScreen(
 
     val iconParams by derivedStateOf {
         if (uiState.isDoneShown) {
-            VisibilityIconParams(R.drawable.visibility_24, R.string.todo_list_visibility_on_description)
+            VisibilityIconParams(
+                R.drawable.visibility_24,
+                R.string.todo_list_visibility_on_description
+            )
         } else {
-            VisibilityIconParams(R.drawable.visibility_off_24, R.string.todo_list_visibility_off_description)
+            VisibilityIconParams(
+                R.drawable.visibility_off_24,
+                R.string.todo_list_visibility_off_description
+            )
         }
     }
 
@@ -171,7 +182,8 @@ internal fun TodoListScreen(
                     VisibilityButton(
                         onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
                         visibilityIconResId = iconParams.iconRes,
-                        descriptionResId = iconParams.textRes)
+                        descriptionResId = iconParams.textRes
+                    )
                 }
             )
         },
@@ -211,8 +223,20 @@ internal fun TodoListScreen(
                     TodoListItem(
                         item = it,
                         onItemClick = { onItemClick(it.id) },
-                        onItemDelete = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnDeleteClicked(it.id)) },
-                        onItemDoneStateChange = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnStateChangeClicked(it)) })
+                        onItemDelete = {
+                            viewModel.handleEvent(
+                                TodoListViewModel.Companion.ListEvent.OnDeleteClicked(
+                                    it.id
+                                )
+                            )
+                        },
+                        onItemDoneStateChange = {
+                            viewModel.handleEvent(
+                                TodoListViewModel.Companion.ListEvent.OnStateChangeClicked(
+                                    it
+                                )
+                            )
+                        })
                 }
 
                 item {
@@ -231,10 +255,6 @@ internal fun TodoListScreen(
     }
 }
 
-private fun Dp.roundToPx(density: Density): Int {
-    return with(density) { this@roundToPx.roundToPx() }
-}
-
 @Composable
 private fun ExpandableTopAppBar(
     modifier: Modifier = Modifier,
@@ -245,12 +265,13 @@ private fun ExpandableTopAppBar(
     stiffness: Float = Spring.StiffnessHigh,
     collapsedContent: @Composable () -> Unit = { },
     expandedContent: @Composable () -> Unit = { },
-    action: @Composable () -> Unit = { } )
-{
+    action: @Composable () -> Unit = { }
+) {
     val animatedHeight by animateDpAsState(
         targetValue = topBarHeight,
         animationSpec = spring(dampingRatio = dampingRatio, stiffness = stiffness),
-        label = "ExpandableTopAppBar.animateDpAsState height")
+        label = "ExpandableTopAppBar.animateDpAsState height"
+    )
 
     Box(
         modifier = Modifier
@@ -287,7 +308,7 @@ private fun ExpandableTopAppBar(
 }
 
 @Composable
-internal fun TodosTopBorder() {
+private fun TodosTopBorder() {
     Box(
         modifier = Modifier
             .padding(top = 2.dp)
@@ -301,7 +322,7 @@ internal fun TodosTopBorder() {
 }
 
 @Composable
-internal fun TodosBottomBorder() {
+private fun TodosBottomBorder() {
     Box(
         modifier = Modifier
             .padding(bottom = 28.dp)
@@ -320,7 +341,7 @@ internal fun TodosBottomBorder() {
  * @param onItemClick On item click callback
  */
 @Composable
-internal fun TodosNewItemView(
+private fun TodosNewItemView(
     modifier: Modifier = Modifier,
     onItemClick: () -> Unit
 ) {
@@ -336,64 +357,13 @@ internal fun TodosNewItemView(
     )
 }
 
-internal data class VisibilityIconParams (
+private data class VisibilityIconParams(
     @DrawableRes val iconRes: Int,
     @StringRes val textRes: Int
 )
 
 @Composable
-private fun TopAppBarContent(
-    isCollapsed: Boolean,
-    completedCount: Int,
-    isAllItemsShows: Boolean,
-    onItemsVisibilityActionClicked: () -> Unit
-) {
-    val iconParams by derivedStateOf {
-        if (!isAllItemsShows) {
-            VisibilityIconParams(R.drawable.visibility_24, R.string.todo_list_visibility_on_description)
-        } else {
-            VisibilityIconParams(R.drawable.visibility_off_24, R.string.todo_list_visibility_off_description)
-        }
-    }
-
-    if (isCollapsed) {
-        Column(modifier = Modifier.padding(start = 60.dp, end = 24.dp)) {
-            Text(
-                text = stringResource(id = R.string.todo_list_screen_title),
-                style = TodoAppTypography.current.largeTitle)
-            Row {
-                Text(
-                    text = stringResource(
-                        id = R.string.todo_list_completed_subtitle,
-                        completedCount
-                    ),
-                    color = TodoColorsPalette.current.labelTertiaryColor,
-                    style = TodoAppTypography.current.body,
-                    modifier = Modifier.weight(1f))
-                VisibilityButton(
-                    onItemsVisibilityActionClicked = onItemsVisibilityActionClicked,
-                    visibilityIconResId = iconParams.iconRes,
-                    descriptionResId = iconParams.textRes)
-            }
-        }
-    } else {
-        Row(modifier = Modifier.padding(end = 24.dp)) {
-            Text(
-                text = stringResource(id = R.string.todo_list_screen_title),
-                style = TodoAppTypography.current.body,
-                modifier = Modifier.weight(1f)
-            )
-
-            VisibilityButton(
-                onItemsVisibilityActionClicked = onItemsVisibilityActionClicked,
-                visibilityIconResId = iconParams.iconRes,
-                descriptionResId = iconParams.textRes)
-        }
-    }
-}
-
-@Composable
-internal fun VisibilityButton(
+private fun VisibilityButton(
     onItemsVisibilityActionClicked: () -> Unit,
     visibilityIconResId: Int,
     descriptionResId: Int
@@ -409,21 +379,48 @@ internal fun VisibilityButton(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-fun TodoListScreenPreview() {
-    TodolistTheme {
-        TodoListScreen({}, {})
+private fun VisibilityButtonPreview(
+    iconParams: VisibilityIconParams = VisibilityIconParams(
+        R.drawable.visibility_24,
+        R.string.todo_list_visibility_on_description
+    ), darkTheme: Boolean = false
+) {
+    Column {
+        TodolistTheme(darkTheme = darkTheme, dynamicColor = false) {
+            VisibilityButton(
+                onItemsVisibilityActionClicked = { },
+                visibilityIconResId = iconParams.iconRes,
+                descriptionResId = iconParams.textRes
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun VisibilityButtonPreview() {
+    Column {
+        val iconVisible = VisibilityIconParams(
+            R.drawable.visibility_24,
+            R.string.todo_list_visibility_on_description
+        )
+        VisibilityButtonPreview(iconVisible, true)
+        VisibilityButtonPreview(iconVisible, false)
+
+        val iconInvisible = VisibilityIconParams(
+            R.drawable.visibility_off_24,
+            R.string.todo_list_visibility_off_description
+        )
+        VisibilityButtonPreview(iconInvisible, true)
+        VisibilityButtonPreview(iconInvisible, false)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-private val TopAppBarScrollBehavior.isCollapsed: Boolean
-    get() = this.state.collapsedFraction < 0.4f
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TodoListItem(
+private fun TodoListItem(
     item: TodoItem,
     onItemClick: () -> Unit,
     onItemDelete: () -> Unit,
@@ -435,8 +432,14 @@ internal fun TodoListItem(
         density = LocalDensity.current,
         confirmValueChange = {
             when (it) {
-                StartToEnd -> { onItemDoneStateChange() }
-                EndToStart -> { onItemDelete() }
+                StartToEnd -> {
+                    onItemDoneStateChange()
+                }
+
+                EndToStart -> {
+                    onItemDelete()
+                }
+
                 Settled -> return@SwipeToDismissBoxState false
             }
             return@SwipeToDismissBoxState false
@@ -451,7 +454,9 @@ internal fun TodoListItem(
                 dismissDirection = dismissState.dismissDirection,
                 startToEndIcon = if (item.done) Icons.Default.Close else Icons.Default.Check,
                 startToEndColor = if (item.done) TodoColorsPalette.current.yellowColor else
-                    TodoColorsPalette.current.greenColor) }
+                    TodoColorsPalette.current.greenColor
+            )
+        }
     ) {
         Row(
             modifier = Modifier
@@ -526,6 +531,48 @@ internal fun TodoListItem(
     }
 }
 
+@Preview
+@Composable
+private fun TodoListItemPreview() {
+    TodolistTheme(darkTheme = false, dynamicColor = false) {
+        Column {
+            TodoListItem(
+                item = TodoItem(
+                    id = "1",
+                    done = true,
+                    importance = Importance.URGENT,
+                    text = "Hello!",
+                    deadlineAt = LocalDate.now()
+                ),
+                onItemClick = { },
+                onItemDelete = { },
+                onItemDoneStateChange = { })
+            TodoListItem(
+                item = TodoItem(
+                    id = "1",
+                    done = false,
+                    importance = Importance.ORDINARY,
+                    text = "Hello!"
+                ),
+                onItemClick = { },
+                onItemDelete = { },
+                onItemDoneStateChange = { })
+            TodoListItem(
+                item = TodoItem(
+                    id = "1",
+                    done = false,
+                    importance = Importance.LOW,
+                    text = "Hi!",
+                    deadlineAt = LocalDate.now()
+                ),
+                onItemClick = { },
+                onItemDelete = { },
+                onItemDoneStateChange = { })
+        }
+
+    }
+}
+
 @Composable
 private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Modifier) {
     val backgroundColor = if (done) TodoColorsPalette.current.greenColor
@@ -553,6 +600,30 @@ private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifi
         }
     }
 }
+
+@Composable
+@Preview
+private fun TodoStateBoxPreview(darkTheme: Boolean = false) {
+    TodolistTheme(darkTheme = darkTheme, dynamicColor = false) {
+        Column {
+            TodoStateBox(Importance.LOW, false)
+            TodoStateBox(Importance.URGENT, false)
+            TodoStateBox(Importance.ORDINARY, false)
+
+            TodoStateBox(Importance.LOW, true)
+            TodoStateBox(Importance.URGENT, true)
+            TodoStateBox(Importance.ORDINARY, true)
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun TodoStateBoxPreview() {
+    TodoStateBoxPreview(false)
+    TodoStateBoxPreview(true)
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -598,28 +669,71 @@ private fun DismissBackground(
 }
 
 @Composable
-private fun TodoListItemDefault(
-    modifier: Modifier = Modifier,
-    item: TodoItem = TodoItem(
-        id = "1",
-        text = "Test",
-        importance = Importance.URGENT,
-        done = true,
-        createdAt = LocalDate.now().minusDays(3),
-        deadlineAt = LocalDate.now().plusDays(2)
-    ),
-    onItemClick: () -> Unit = { },
-    onItemDelete: () -> Unit = { },
-    onItemDoneStateChange: () -> Unit = { },
-) {
-    TodoListItem(item, onItemClick, onItemDelete, onItemDoneStateChange, modifier)
-}
+private fun TodoListWithThemePreview(darkTheme: Boolean = false) {
+    val repository = object : TodoItemsRepository {
 
+        val temporaryItems = listOf(
+            TodoItem(
+                id = "1",
+                done = true,
+                importance = Importance.URGENT,
+                text = "Hello!",
+                deadlineAt = LocalDate.now()
+            ),
+            TodoItem(
+                id = "2",
+                done = false,
+                importance = Importance.ORDINARY,
+                text = "Very long text!",
+                deadlineAt = LocalDate.now()
+            ),
+            TodoItem(id = "3", done = false, importance = Importance.LOW, text = "Short text!")
+        )
 
-@Preview(showBackground = true)
-@Composable
-private fun TodoListItemPreview() {
-    TodolistTheme {
-        TodoListItemDefault()
+        private val _itemsFlow = MutableStateFlow(temporaryItems.toList())
+
+        override fun getItemsList(): Flow<List<TodoItem>> = flowOf(temporaryItems)
+
+        override fun getItemDetails(id: String): TodoItem? = null
+
+        override suspend fun removeItemById(id: String) {}
+
+        override fun createItem(
+            text: String,
+            importance: Importance,
+            deadlineAt: LocalDate?
+        ): String = "123"
+
+        override suspend fun updateItem(
+            id: String,
+            text: String,
+            done: Boolean,
+            importance: Importance,
+            deadlineAt: LocalDate?,
+            updated: LocalDateTime
+        ): Boolean = false
+    }
+
+    TodolistTheme(darkTheme = darkTheme, dynamicColor = false) {
+        val vm = TodoListViewModel(repository)
+        TodoListScreen(
+            onItemClick = { },
+            onCreateItemClick = { },
+            viewModel = vm
+        )
+        vm.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked)
     }
 }
+
+@Preview(showBackground = false)
+@Composable
+private fun TodoListDarkTheme() {
+    TodoListWithThemePreview(true)
+}
+
+@Preview(showBackground = false)
+@Composable
+private fun TodoListLightTheme() {
+    TodoListWithThemePreview(false)
+}
+

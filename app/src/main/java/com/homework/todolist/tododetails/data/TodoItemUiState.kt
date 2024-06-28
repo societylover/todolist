@@ -8,7 +8,7 @@ import java.time.LocalDate
 /**
  * Todo item details state for UI
  */
-data class TodoItemUiState (
+data class TodoItemUiState(
     val id: String? = null,
     val text: String = "",
     val importance: Importance = Importance.ORDINARY,
@@ -26,6 +26,6 @@ internal fun TodoItem.toTodoItemUiState() =
         text = this.text,
         importance = this.importance,
         isDone = this.done,
-        doUntil = this.deadlineAt?: LocalDate.now(),
+        doUntil = this.deadlineAt ?: LocalDate.now(),
         isDeadlineSet = this.deadlineAt != null
     )

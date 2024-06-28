@@ -6,6 +6,8 @@ import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.shared.UiEffect
 import com.homework.todolist.shared.UiEvent
 import com.homework.todolist.shared.ViewModelBase
+import com.homework.todolist.todos.TodoListViewModel.Companion.ListEvent
+import com.homework.todolist.todos.TodoListViewModel.Companion.ListItemEffects
 import com.homework.todolist.todos.data.TodoListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -14,8 +16,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import javax.inject.Inject
-import com.homework.todolist.todos.TodoListViewModel.Companion.ListEvent
-import com.homework.todolist.todos.TodoListViewModel.Companion.ListItemEffects
 
 @HiltViewModel
 class TodoListViewModel @Inject constructor(

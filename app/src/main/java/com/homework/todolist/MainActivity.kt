@@ -19,9 +19,10 @@ class MainActivity : ComponentActivity() {
             TodolistTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background)
+                    color = MaterialTheme.colorScheme.background
+                )
                 {
-                  TodoNavGraph()
+                    TodoNavGraph()
                 }
             }
         }

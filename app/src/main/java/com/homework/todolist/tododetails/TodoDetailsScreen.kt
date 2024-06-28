@@ -59,7 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
-import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModelR
+import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
@@ -73,7 +73,7 @@ import java.time.ZoneId
 @Composable
 internal fun TodoListDetailsScreen(
     onActionClick: () -> Unit,
-    viewModel: TodoDetailsViewModelR = hiltViewModel()
+    viewModel: TodoDetailsViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -87,7 +87,7 @@ internal fun TodoListDetailsScreen(
                 title = { },
                 modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
                 navigationIcon = {
-                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnCloseClick) }) {
+                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseClick) }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
@@ -99,7 +99,7 @@ internal fun TodoListDetailsScreen(
                     if (!itemUiState.isDone) {
                         TextButton(
                             onClick = {
-                                viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnSaveClick)
+                                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveClick)
                             }
                         ) {
                             Text(
@@ -125,7 +125,7 @@ internal fun TodoListDetailsScreen(
                     enabled = !itemUiState.isDone
                 ) {
                     viewModel.handleEvent(
-                        TodoDetailsViewModelR.Companion.DetailsEvent.OnDescriptionUpdate(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnDescriptionUpdate(
                             it
                         )
                     )
@@ -139,7 +139,7 @@ internal fun TodoListDetailsScreen(
                     enabled = !itemUiState.isDone
                 ) {
                     viewModel.handleEvent(
-                        TodoDetailsViewModelR.Companion.DetailsEvent.OnImportanceChosen(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnImportanceChosen(
                             it
                         )
                     )
@@ -159,7 +159,7 @@ internal fun TodoListDetailsScreen(
                     enabled = !itemUiState.isDone
                 ) {
                     viewModel.handleEvent(
-                        TodoDetailsViewModelR.Companion.DetailsEvent.OnDeadlinePicked(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnDeadlinePicked(
                             it
                         )
                     )
@@ -172,7 +172,7 @@ internal fun TodoListDetailsScreen(
                 modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                 isActive = itemUiState.id != null
             ) {
-                viewModel.handleEvent(TodoDetailsViewModelR.Companion.DetailsEvent.OnDeleteClick)
+                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteClick)
                 onActionClick()
             }
         }
@@ -182,27 +182,27 @@ internal fun TodoListDetailsScreen(
     LaunchedEffect(key1 = Unit) {
         viewModel.effect.collect {
             when (it) {
-                is TodoDetailsViewModelR.Companion.DetailsEffects.UnknownErrorToast -> {
+                is TodoDetailsViewModel.Companion.DetailsEffects.UnknownErrorToast -> {
                     scope.launch {
                         snackbarHostState.showSnackbar(context.getString(R.string.todo_details_unknown_error_text))
                     }
                 }
 
-                is TodoDetailsViewModelR.Companion.DetailsEffects.ShowSaveErrorToast -> {
+                is TodoDetailsViewModel.Companion.DetailsEffects.ShowSaveErrorToast -> {
                     scope.launch {
                         snackbarHostState.showSnackbar(context.getString(R.string.todo_details_save_error_text))
                     }
                 }
 
-                is TodoDetailsViewModelR.Companion.DetailsEffects.OnItemSaved -> {
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnItemSaved -> {
                     onActionClick()
                 }
 
-                is TodoDetailsViewModelR.Companion.DetailsEffects.OnItemDeleted -> {
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnItemDeleted -> {
                     onActionClick()
                 }
 
-                is TodoDetailsViewModelR.Companion.DetailsEffects.OnFormClosed -> {
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnFormClosed -> {
                     onActionClick()
                 }
             }
@@ -212,7 +212,7 @@ internal fun TodoListDetailsScreen(
 }
 
 @Composable
-internal fun TodoTextInput(
+private fun TodoTextInput(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     text: String,
@@ -246,8 +246,36 @@ internal fun TodoTextInput(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-internal fun ImportanceView(
+private fun TodoTextInputPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        Column {
+            TodoTextInput(
+                enabled = false,
+                text = "Test text",
+                onValueChange = { }
+            )
+            TodoTextInput(
+                enabled = true,
+                modifier = Modifier.padding(vertical = 30.dp),
+                text = "Test text",
+                onValueChange = { }
+            )
+            TodoTextInput(
+                enabled = true,
+                text = "",
+                onValueChange = { }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ImportanceView(
     modifier: Modifier = Modifier,
     importance: Importance,
     enabled: Boolean,
@@ -330,6 +358,33 @@ internal fun ImportanceView(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun ImportanceViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        Column {
+            ImportanceView(
+                importance = Importance.LOW,
+                enabled = false,
+                setItemImportance = { }
+            )
+            ImportanceView(
+                importance = Importance.URGENT,
+                enabled = false,
+                setItemImportance = { }
+            )
+            ImportanceView(
+                importance = Importance.ORDINARY,
+                enabled = true,
+                setItemImportance = { }
+            )
+        }
+    }
+}
+
 private fun getImportanceValues(importance: Importance): ImportanceProps {
     return ImportanceProps(
         importance = importance,
@@ -361,7 +416,7 @@ private data class ImportanceProps(
 )
 
 @Composable
-internal fun DoUntilView(
+private fun DoUntilView(
     enabled: Boolean,
     modifier: Modifier = Modifier,
     isDoUntilSet: Boolean,
@@ -411,6 +466,21 @@ internal fun DoUntilView(
     }
 }
 
+@Preview
+@Composable
+private fun DoUntilViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        DoUntilView(
+            enabled = false,
+            isDoUntilSet = true,
+            doUntil = LocalDate.now(),
+            onDoUntilSelected = { })
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateSelectingView(
@@ -456,6 +526,17 @@ private fun DateSelectingView(
     }
 }
 
+@Preview
+@Composable
+private fun DateSelectingViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        DateSelectingView(onDateSelected = { }, onDismissed = { })
+    }
+}
+
 private fun convertMillisToLocalDate(millis: Long): LocalDate {
     val instant = Instant.ofEpochMilli(millis)
     return instant.atZone(ZoneId.systemDefault()).toLocalDate()
@@ -479,6 +560,32 @@ private fun DoUntilSwitch(
         )
     )
 }
+
+@Composable
+@Preview
+private fun DoUntilSwitchPreview() {
+    Column {
+        TodolistTheme(
+            darkTheme = false,
+            dynamicColor = false
+        ) {
+            Column {
+                DoUntilSwitch(enabled = false, isDoUntilSet = true) { }
+                DoUntilSwitch(enabled = true, isDoUntilSet = false) { }
+            }
+        }
+        TodolistTheme(
+            darkTheme = true,
+            dynamicColor = false
+        ) {
+            Column {
+                DoUntilSwitch(enabled = false, isDoUntilSet = true) { }
+                DoUntilSwitch(enabled = true, isDoUntilSet = false) { }
+            }
+        }
+    }
+}
+
 
 @Composable
 internal fun DeleteTaskView(
@@ -545,12 +652,6 @@ private fun DeleteTaskViewDarkPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun TodoListDetailsWatchScreenPreview() {
-
-}
-
-@Preview(showBackground = true)
-@Composable
 private fun TodoListDetailsCreateScreenPreview() {
     TodolistTheme(
         darkTheme = false,
@@ -558,11 +659,10 @@ private fun TodoListDetailsCreateScreenPreview() {
     ) {
         TodoListDetailsScreen(
             onActionClick = {},
-            viewModel = TodoDetailsViewModelR(
+            viewModel = TodoDetailsViewModel(
                 todoItemsRepository = TodoItemsRepositoryImpl(),
                 savedStateHandle = SavedStateHandle.createHandle(null, null)
             )
         )
     }
 }
-

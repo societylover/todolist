@@ -66,7 +66,8 @@ data class TodoListColorsPalette(
     val yellowColor: Color = Color.Unspecified,
     val backPrimaryColor: Color = Color.Unspecified,
     val backSecondaryColor: Color = Color.Unspecified,
-    val backElevatedColor: Color = Color.Unspecified)
+    val backElevatedColor: Color = Color.Unspecified
+)
 
 /**
  * Todo list light colors implementation
@@ -87,7 +88,8 @@ internal fun TodoListLightColors() = TodoListColorsPalette(
     yellowColor = YellowLightColor,
     backPrimaryColor = BackLightPrimaryColor,
     backSecondaryColor = BackLightSecondaryColor,
-    backElevatedColor = BackLightElevatedColor)
+    backElevatedColor = BackLightElevatedColor
+)
 
 /**
  * Todo list dark colors implementation
@@ -108,7 +110,8 @@ internal fun TodoListDarkColors() = TodoListColorsPalette(
     yellowColor = YellowDarkColor,
     backPrimaryColor = BackDarkPrimaryColor,
     backSecondaryColor = BackDarkSecondaryColor,
-    backElevatedColor = BackDarkElevatedColor)
+    backElevatedColor = BackDarkElevatedColor
+)
 
 internal val TodoColorsPalette =
     staticCompositionLocalOf { TodoListColorsPalette() }

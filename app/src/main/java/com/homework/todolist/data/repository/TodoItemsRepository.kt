@@ -21,7 +21,7 @@ interface TodoItemsRepository {
      * @param id Item id
      * @return To-do item info or null
      */
-    fun getItemDetails(id: String) : TodoItem?
+    fun getItemDetails(id: String): TodoItem?
 
     /**
      * Remove item from list by it's id
@@ -52,10 +52,12 @@ interface TodoItemsRepository {
      * @param updated Updated date
      * @return Update result, where true for success update
      */
-    suspend fun updateItem(id: String,
-                           text: String,
-                           done: Boolean,
-                           importance: Importance,
-                           deadlineAt: LocalDate?,
-                           updated: LocalDateTime = LocalDateTime.now()) : Boolean
+    suspend fun updateItem(
+        id: String,
+        text: String,
+        done: Boolean,
+        importance: Importance,
+        deadlineAt: LocalDate?,
+        updated: LocalDateTime = LocalDateTime.now()
+    ): Boolean
 }

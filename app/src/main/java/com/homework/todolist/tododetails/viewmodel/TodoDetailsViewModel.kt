@@ -10,8 +10,8 @@ import com.homework.todolist.shared.UiEvent
 import com.homework.todolist.shared.ViewModelBase
 import com.homework.todolist.tododetails.data.TodoItemUiState
 import com.homework.todolist.tododetails.data.toTodoItemUiState
-import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModelR.Companion.DetailsEffects
-import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModelR.Companion.DetailsEvent
+import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEffects
+import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ import javax.inject.Inject
  * @param savedStateHandle Passed state to viewmodel
  */
 @HiltViewModel
-class TodoDetailsViewModelR @Inject constructor(
+class TodoDetailsViewModel @Inject constructor(
     private val todoItemsRepository: TodoItemsRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModelBase<DetailsEvent, TodoItemUiState, DetailsEffects>(initialState = TodoItemUiState()) {
@@ -44,12 +44,29 @@ class TodoDetailsViewModelR @Inject constructor(
 
     override fun handleEvent(event: UiEvent) {
         when (event) {
-            is DetailsEvent.OnSaveClick -> { saveItem() }
-            is DetailsEvent.OnCloseClick -> { closeForm()  }
-            is DetailsEvent.OnImportanceChosen -> { chooseImportance(event.importance) }
-            is DetailsEvent.OnDescriptionUpdate -> { setDescription(event.text) }
-            is DetailsEvent.OnDeadlinePicked -> { setDeadlineDate(event.deadlineAt) }
-            is DetailsEvent.OnDeleteClick -> { deleteItem() }
+            is DetailsEvent.OnSaveClick -> {
+                saveItem()
+            }
+
+            is DetailsEvent.OnCloseClick -> {
+                closeForm()
+            }
+
+            is DetailsEvent.OnImportanceChosen -> {
+                chooseImportance(event.importance)
+            }
+
+            is DetailsEvent.OnDescriptionUpdate -> {
+                setDescription(event.text)
+            }
+
+            is DetailsEvent.OnDeadlinePicked -> {
+                setDeadlineDate(event.deadlineAt)
+            }
+
+            is DetailsEvent.OnDeleteClick -> {
+                deleteItem()
+            }
         }
     }
 
@@ -64,7 +81,7 @@ class TodoDetailsViewModelR @Inject constructor(
             return
         }
 
-        scope.launch (Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             if (itemUiState.id != null) {
                 todoItemsRepository.updateItem(
                     id = itemUiState.id,
@@ -89,7 +106,7 @@ class TodoDetailsViewModelR @Inject constructor(
             setEffect { DetailsEffects.ShowSaveErrorToast }
         } else {
             val itemId = currentState.id ?: return
-            scope.launch (Dispatchers.IO) {
+            scope.launch(Dispatchers.IO) {
                 todoItemsRepository.removeItemById(itemId)
                 setEffect { DetailsEffects.OnItemDeleted }
             }

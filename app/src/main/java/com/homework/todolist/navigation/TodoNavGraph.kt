@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
-import com.homework.todolist.tododetails.TodoDetailsScreenRef
+import com.homework.todolist.tododetails.TodoListDetailsScreen
 import com.homework.todolist.todos.TodoListScreen
 
 /**
@@ -22,8 +22,12 @@ import com.homework.todolist.todos.TodoListScreen
 internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = TodoDestinations.TODO_LIST_ROUTE,
-    navActions: TodoNavigationActions = remember(navController) { TodoNavigationActions(navController) })
-{
+    navActions: TodoNavigationActions = remember(navController) {
+        TodoNavigationActions(
+            navController
+        )
+    }
+) {
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -49,8 +53,7 @@ internal fun TodoNavGraph(
                 }
             )
         ) { _ ->
-
-            TodoDetailsScreenRef(onActionClick = { navActions.navigateToTodoList() })
+            TodoListDetailsScreen(onActionClick = { navActions.navigateToTodoList() })
         }
     }
 }

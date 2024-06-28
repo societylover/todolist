@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,14 +37,30 @@ private fun ColorPalettePreview(
         ColorRow(
             listOf(
                 ColorName(palette.separatorColor, "Support [$paletteName] / Separator"),
-                ColorName(palette.overlayColor, "Support [$paletteName] / Overlay", if (isDark) Color.White else Color.Black),
+                ColorName(
+                    palette.overlayColor,
+                    "Support [$paletteName] / Overlay",
+                    if (isDark) Color.White else Color.Black
+                ),
             )
         )
         ColorRow(
             listOf(
-                ColorName(palette.labelPrimaryColor, "Label [$paletteName] / Primary", if (isDark) Color.Black else Color.White),
-                ColorName(palette.labelSecondaryColor, "Label [$paletteName] / Secondary", if (isDark) Color.Black else Color.White),
-                ColorName(palette.labelTertiaryColor, "Label [$paletteName] / Tertiary", if (isDark) Color.Black else Color.White),
+                ColorName(
+                    palette.labelPrimaryColor,
+                    "Label [$paletteName] / Primary",
+                    if (isDark) Color.Black else Color.White
+                ),
+                ColorName(
+                    palette.labelSecondaryColor,
+                    "Label [$paletteName] / Secondary",
+                    if (isDark) Color.Black else Color.White
+                ),
+                ColorName(
+                    palette.labelTertiaryColor,
+                    "Label [$paletteName] / Tertiary",
+                    if (isDark) Color.Black else Color.White
+                ),
                 ColorName(palette.labelDisableColor, "Label [$paletteName] / Disable")
             )
         )
@@ -54,8 +69,16 @@ private fun ColorPalettePreview(
                 ColorName(palette.redColor, "Color [$paletteName] / Red", Color.White),
                 ColorName(palette.greenColor, "Color [$paletteName] / Green", Color.White),
                 ColorName(palette.blueColor, "Color [$paletteName] / Blue", Color.White),
-                ColorName(palette.grayColor, "Color [$paletteName] / Gray", if (isDark) Color.White else Color.Black),
-                ColorName(palette.grayLightColor, "Color [$paletteName] / Gray Light", if (isDark) Color.White else Color.Black),
+                ColorName(
+                    palette.grayColor,
+                    "Color [$paletteName] / Gray",
+                    if (isDark) Color.White else Color.Black
+                ),
+                ColorName(
+                    palette.grayLightColor,
+                    "Color [$paletteName] / Gray Light",
+                    if (isDark) Color.White else Color.Black
+                ),
                 ColorName(palette.whiteColor, "Color [$paletteName] / White"),
                 ColorName(palette.yellowColor, "Color [$paletteName] / Yellow")
             )
@@ -63,9 +86,21 @@ private fun ColorPalettePreview(
 
         ColorRow(
             listOf(
-                ColorName(palette.backPrimaryColor, "Back [$paletteName] / Primary", if (isDark) Color.White else Color.Black),
-                ColorName(palette.backSecondaryColor, "Back [$paletteName] / Secondary", if (isDark) Color.White else Color.Black),
-                ColorName(palette.backElevatedColor, "Back [$paletteName] / Elevated", if (isDark) Color.White else Color.Black)
+                ColorName(
+                    palette.backPrimaryColor,
+                    "Back [$paletteName] / Primary",
+                    if (isDark) Color.White else Color.Black
+                ),
+                ColorName(
+                    palette.backSecondaryColor,
+                    "Back [$paletteName] / Secondary",
+                    if (isDark) Color.White else Color.Black
+                ),
+                ColorName(
+                    palette.backElevatedColor,
+                    "Back [$paletteName] / Elevated",
+                    if (isDark) Color.White else Color.Black
+                )
             )
         )
     }
@@ -92,10 +127,12 @@ private fun ColorRow(list: List<ColorName>) {
                     .fillMaxHeight(),
                 contentAlignment = Alignment.BottomStart
             ) {
-                Text(text = it.name,
+                Text(
+                    text = it.name,
                     modifier = Modifier.padding(start = 12.dp, bottom = 10.dp),
                     fontSize = 10.sp,
-                    color = it.textColor)
+                    color = it.textColor
+                )
             }
         }
     }
@@ -109,9 +146,11 @@ private fun ColorRow(colorName: String, color: Color) {
             .height(40.dp)
             .padding(4.dp)
     ) {
-        Text(text = colorName, modifier = Modifier
-            .weight(1f)
-            .padding(8.dp))
+        Text(
+            text = colorName, modifier = Modifier
+                .weight(1f)
+                .padding(8.dp)
+        )
         Box(
             modifier = Modifier
                 .weight(1f)

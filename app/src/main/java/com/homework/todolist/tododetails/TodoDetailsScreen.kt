@@ -26,9 +26,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -38,27 +39,32 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
-import com.homework.todolist.ui.theme.LocalTodoColorsPalette
+import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
+import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel
+import com.homework.todolist.ui.theme.TodoAppTypography
+import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
-import com.homework.todolist.ui.theme.body
-import com.homework.todolist.ui.theme.button
-import com.homework.todolist.ui.theme.subhead
-import com.homework.todolist.util.DateFormatter.asString
+import com.homework.todolist.utils.DateFormatter.asString
+import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -69,19 +75,23 @@ internal fun TodoListDetailsScreen(
     onActionClick: () -> Unit,
     viewModel: TodoDetailsViewModel = hiltViewModel()
 ) {
-    val itemUiState by viewModel.todoItemState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val itemUiState by viewModel.state.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { },
                 modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
                 navigationIcon = {
-                    IconButton(onClick = onActionClick) {
+                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseClick) }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
-                            tint = LocalTodoColorsPalette.current.labelPrimaryColor
+                            tint = TodoColorsPalette.current.labelPrimaryColor
                         )
                     }
                 },
@@ -89,18 +99,18 @@ internal fun TodoListDetailsScreen(
                     if (!itemUiState.isDone) {
                         TextButton(
                             onClick = {
-                                viewModel.replaceItem()
-                                onActionClick()
+                                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveClick)
                             }
                         ) {
                             Text(
                                 text = stringResource(id = R.string.todo_item_create_save_icon_text),
-                                color = LocalTodoColorsPalette.current.blueColor
+                                color = TodoColorsPalette.current.blueColor
                             )
                         }
                     }
                 })
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -114,7 +124,11 @@ internal fun TodoListDetailsScreen(
                     text = itemUiState.text,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotText(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnDescriptionUpdate(
+                            it
+                        )
+                    )
                 }
 
                 ImportanceView(
@@ -124,12 +138,16 @@ internal fun TodoListDetailsScreen(
                     importance = itemUiState.importance,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotImportance(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnImportanceChosen(
+                            it
+                        )
+                    )
                 }
 
                 HorizontalDivider(
                     modifier = Modifier,
-                    color = LocalTodoColorsPalette.current.separatorColor
+                    color = TodoColorsPalette.current.separatorColor
                 )
 
                 DoUntilView(
@@ -140,21 +158,55 @@ internal fun TodoListDetailsScreen(
                     doUntil = itemUiState.doUntil,
                     enabled = !itemUiState.isDone
                 ) {
-                    viewModel.setSnapshotDoUntil(it)
+                    viewModel.handleEvent(
+                        TodoDetailsViewModel.Companion.DetailsEvent.OnDeadlinePicked(
+                            it
+                        )
+                    )
                 }
             }
 
-            HorizontalDivider(color = LocalTodoColorsPalette.current.separatorColor)
+            HorizontalDivider(color = TodoColorsPalette.current.separatorColor)
 
             DeleteTaskView(
                 modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                 isActive = itemUiState.id != null
             ) {
-                if (itemUiState.id != null) {
-                    viewModel.deleteItem()
+                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteClick)
+                onActionClick()
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is TodoDetailsViewModel.Companion.DetailsEffects.UnknownErrorToast -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.todo_details_unknown_error_text))
+                    }
+                }
+
+                is TodoDetailsViewModel.Companion.DetailsEffects.ShowSaveErrorToast -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.todo_details_save_error_text))
+                    }
+                }
+
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnItemSaved -> {
+                    onActionClick()
+                }
+
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnItemDeleted -> {
+                    onActionClick()
+                }
+
+                is TodoDetailsViewModel.Companion.DetailsEffects.OnFormClosed -> {
                     onActionClick()
                 }
             }
+
         }
     }
 }
@@ -175,22 +227,50 @@ private fun TodoTextInput(
             value = text, onValueChange = onValueChange, placeholder = {
                 Text(
                     text = stringResource(id = R.string.todo_item_create_text_input_hint),
-                    color = LocalTodoColorsPalette.current.labelTertiaryColor
+                    color = TodoColorsPalette.current.labelTertiaryColor
                 )
             },
             enabled = enabled,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = LocalTodoColorsPalette.current.backSecondaryColor,
-                unfocusedContainerColor = LocalTodoColorsPalette.current.backSecondaryColor,
+                focusedContainerColor = TodoColorsPalette.current.backSecondaryColor,
+                unfocusedContainerColor = TodoColorsPalette.current.backSecondaryColor,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
-                disabledContainerColor = LocalTodoColorsPalette.current.backSecondaryColor
+                disabledContainerColor = TodoColorsPalette.current.backSecondaryColor
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 104.dp)
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TodoTextInputPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        Column {
+            TodoTextInput(
+                enabled = false,
+                text = "Test text",
+                onValueChange = { }
+            )
+            TodoTextInput(
+                enabled = true,
+                modifier = Modifier.padding(vertical = 30.dp),
+                text = "Test text",
+                onValueChange = { }
+            )
+            TodoTextInput(
+                enabled = true,
+                text = "",
+                onValueChange = { }
+            )
+        }
     }
 }
 
@@ -211,70 +291,87 @@ private fun ImportanceView(
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.background(LocalTodoColorsPalette.current.backElevatedColor)
+                modifier = Modifier.background(TodoColorsPalette.current.backElevatedColor)
             ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_ordinary),
-                            style = MaterialTheme.typography.body()
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.ORDINARY)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = LocalTodoColorsPalette.current.labelPrimaryColor
-                    )
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_low),
-                            style = MaterialTheme.typography.body()
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.LOW)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = LocalTodoColorsPalette.current.labelPrimaryColor
-                    )
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_urgent),
-                            style = MaterialTheme.typography.body()
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.URGENT)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = LocalTodoColorsPalette.current.redColor
-                    )
-                )
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_ordinary, TodoColorsPalette.current.labelPrimaryColor) {
+                    setItemImportance(Importance.ORDINARY)
+                    expanded = false
+                }
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_low, TodoColorsPalette.current.labelPrimaryColor) {
+                    setItemImportance(Importance.LOW)
+                    expanded = false
+                }
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_urgent, TodoColorsPalette.current.redColor) {
+                    setItemImportance(Importance.URGENT)
+                    expanded = false
+                }
             }
         }
 
         Text(
             text = stringResource(id = R.string.todo_item_create_importance_title),
-            color = LocalTodoColorsPalette.current.labelPrimaryColor,
-            style = MaterialTheme.typography.body()
+            color = TodoColorsPalette.current.labelPrimaryColor,
+            style = TodoAppTypography.current.body
         )
 
         val importanceProps = getImportanceValues(importance = importance)
 
         Text(
             text = stringResource(id = importanceProps.stringRes),
-            color = if (importance == Importance.URGENT) LocalTodoColorsPalette.current.redColor
-            else LocalTodoColorsPalette.current.labelTertiaryColor,
-            style = MaterialTheme.typography.subhead()
+            color = if (importance == Importance.URGENT) TodoColorsPalette.current.redColor
+            else TodoColorsPalette.current.labelTertiaryColor,
+            style = TodoAppTypography.current.subhead
         )
+    }
+}
+
+@Composable
+private fun ImportanceDropdownMenuItem(
+    @StringRes importanceResId: Int,
+    importanceTextColor: Color,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        text = {
+            Text(
+                text = stringResource(id = importanceResId),
+                style = TodoAppTypography.current.body
+            )
+        },
+        onClick = onClick,
+        colors = MenuDefaults.itemColors(
+            textColor = importanceTextColor
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ImportanceViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        Column {
+            ImportanceView(
+                importance = Importance.LOW,
+                enabled = false,
+                setItemImportance = { }
+            )
+            ImportanceView(
+                importance = Importance.URGENT,
+                enabled = false,
+                setItemImportance = { }
+            )
+            ImportanceView(
+                importance = Importance.ORDINARY,
+                enabled = true,
+                setItemImportance = { }
+            )
+        }
     }
 }
 
@@ -326,19 +423,19 @@ private fun DoUntilView(
         ) {
             Text(
                 text = stringResource(id = R.string.todo_item_create_do_until_title),
-                color = LocalTodoColorsPalette.current.labelPrimaryColor,
-                style = MaterialTheme.typography.body()
+                color = TodoColorsPalette.current.labelPrimaryColor,
+                style = TodoAppTypography.current.body
             )
             if (isDoUntilSet) {
                 Text(
                     text = doUntil.asString(),
-                    color = LocalTodoColorsPalette.current.blueColor,
-                    style = MaterialTheme.typography.subhead()
+                    color = TodoColorsPalette.current.blueColor,
+                    style = TodoAppTypography.current.subhead
                 )
             }
         }
 
-        DoUntilSwitch(enabled = enabled, isDoUntilSet) { newState ->
+        DoUntilSwitch(enabled = enabled, isDoUntilSet) {
             if (isDoUntilSet) {
                 showDatePicker = false
                 onDoUntilSelected(null)
@@ -359,12 +456,28 @@ private fun DoUntilView(
     }
 }
 
+@Preview
+@Composable
+private fun DoUntilViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        DoUntilView(
+            enabled = false,
+            isDoUntilSet = true,
+            doUntil = LocalDate.now(),
+            onDoUntilSelected = { })
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateSelectingView(
     onDateSelected: (LocalDate) -> Unit,
     onDismissed: () -> Unit
 ) {
+
     val datePickerState = rememberDatePickerState()
     DatePickerDialog(
         onDismissRequest = { onDismissed() },
@@ -378,8 +491,8 @@ private fun DateSelectingView(
             ) {
                 Text(
                     text = stringResource(id = R.string.todo_calendar_done_button_text),
-                    color = LocalTodoColorsPalette.current.blueColor,
-                    style = MaterialTheme.typography.button()
+                    color = TodoColorsPalette.current.blueColor,
+                    style = TodoAppTypography.current.button
                 )
             }
         },
@@ -387,8 +500,8 @@ private fun DateSelectingView(
             TextButton(onClick = onDismissed) {
                 Text(
                     text = stringResource(id = R.string.todo_calendar_cancel_button_text),
-                    color = LocalTodoColorsPalette.current.blueColor,
-                    style = MaterialTheme.typography.button()
+                    color = TodoColorsPalette.current.blueColor,
+                    style = TodoAppTypography.current.button
                 )
             }
         }
@@ -396,11 +509,21 @@ private fun DateSelectingView(
         DatePicker(
             state = datePickerState,
             colors = DatePickerDefaults.colors(
-                titleContentColor = LocalTodoColorsPalette.current.blueColor,
-                selectedDayContainerColor = LocalTodoColorsPalette.current.blueColor,
-
-                )
+                titleContentColor = TodoColorsPalette.current.blueColor,
+                selectedDayContainerColor = TodoColorsPalette.current.blueColor
+            )
         )
+    }
+}
+
+@Preview
+@Composable
+private fun DateSelectingViewPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        DateSelectingView(onDateSelected = { }, onDismissed = { })
     }
 }
 
@@ -413,50 +536,123 @@ private fun convertMillisToLocalDate(millis: Long): LocalDate {
 private fun DoUntilSwitch(
     enabled: Boolean,
     isDoUntilSet: Boolean,
-    onClick: (Boolean) -> Unit
+    onClick: () -> Unit
 ) {
     Switch(
         enabled = enabled,
         checked = isDoUntilSet,
-        onCheckedChange = { onClick(!isDoUntilSet) },
+        onCheckedChange = { onClick() },
         colors = SwitchDefaults.colors(
-            checkedThumbColor = LocalTodoColorsPalette.current.blueColor,
-            checkedTrackColor = LocalTodoColorsPalette.current.blueColor.copy(ContentAlpha.disabled),
-            uncheckedThumbColor = LocalTodoColorsPalette.current.backElevatedColor,
-            uncheckedTrackColor = LocalTodoColorsPalette.current.overlayColor,
+            checkedThumbColor = TodoColorsPalette.current.blueColor,
+            checkedTrackColor = TodoColorsPalette.current.blueColor.copy(ContentAlpha.disabled),
+            uncheckedThumbColor = TodoColorsPalette.current.backElevatedColor,
+            uncheckedTrackColor = TodoColorsPalette.current.overlayColor,
         )
     )
 }
 
 @Composable
-private fun DeleteTaskView(
+@Preview
+private fun DoUntilSwitchPreview() {
+    Column {
+        TodolistTheme(
+            darkTheme = false,
+            dynamicColor = false
+        ) {
+            Column {
+                DoUntilSwitch(enabled = false, isDoUntilSet = true) { }
+                DoUntilSwitch(enabled = true, isDoUntilSet = false) { }
+            }
+        }
+        TodolistTheme(
+            darkTheme = true,
+            dynamicColor = false
+        ) {
+            Column {
+                DoUntilSwitch(enabled = false, isDoUntilSet = true) { }
+                DoUntilSwitch(enabled = true, isDoUntilSet = false) { }
+            }
+        }
+    }
+}
+
+
+@Composable
+internal fun DeleteTaskView(
     modifier: Modifier = Modifier,
     isActive: Boolean,
     onDeleteClick: () -> Unit
 ) {
     Row(modifier = Modifier
         .then(modifier)
-        .clickable { onDeleteClick() }) {
+        .then(if (isActive) Modifier.clickable { onDeleteClick() } else Modifier))
+    {
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
-            tint = if (isActive) LocalTodoColorsPalette.current.redColor
-            else LocalTodoColorsPalette.current.labelDisableColor
+            tint = if (isActive) TodoColorsPalette.current.redColor
+            else TodoColorsPalette.current.labelDisableColor
         )
 
         Text(
             text = stringResource(id = R.string.todo_item_create_delete_button_text),
-            color = if (isActive) LocalTodoColorsPalette.current.redColor
-            else LocalTodoColorsPalette.current.labelDisableColor
+            color = if (isActive) TodoColorsPalette.current.redColor
+            else TodoColorsPalette.current.labelDisableColor
         )
     }
 }
 
+@Composable
+private fun DeleteTaskViewPreview(
+    isThemeDark: Boolean = false,
+    isActive: Boolean = false,
+) {
+    TodolistTheme(
+        darkTheme = isThemeDark,
+        dynamicColor = false
+    ) {
+        Column {
+            Text("Is active: $isActive")
+            DeleteTaskView(
+                modifier = Modifier,
+                isActive = isActive,
+                onDeleteClick = { }
+            )
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
-private fun TodoListDetailsScreenPreview() {
-    TodolistTheme {
-        TodoListDetailsScreen({})
+private fun DeleteTaskViewLightPreview() {
+    Column {
+        DeleteTaskViewPreview(isThemeDark = false, isActive = true)
+        DeleteTaskViewPreview(isThemeDark = false, isActive = false)
+    }
+}
+
+@Preview(showBackground = false)
+@Composable
+private fun DeleteTaskViewDarkPreview() {
+    Column {
+        DeleteTaskViewPreview(isThemeDark = true, isActive = true)
+        DeleteTaskViewPreview(isThemeDark = true, isActive = false)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TodoListDetailsCreateScreenPreview() {
+    TodolistTheme(
+        darkTheme = false,
+        dynamicColor = false
+    ) {
+        TodoListDetailsScreen(
+            onActionClick = {},
+            viewModel = TodoDetailsViewModel(
+                todoItemsRepository = TodoItemsRepositoryImpl(),
+                savedStateHandle = SavedStateHandle.createHandle(null, null)
+            )
+        )
     }
 }

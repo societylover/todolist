@@ -34,4 +34,8 @@
     <string name="todo_item_importance_done_icon_description">Выполнить задачу</string>
     <string name="todo_item_importance_remove_icon_description">Удалить задачу</string>
     <string name="todo_item_details_close_icon_description">Закрыть форму</string>
+
+    <!-- Error messages -->
+    <string name="todo_details_save_error_text">Ошибка сохранения данного элемента</string>
+    <string name="todo_details_unknown_error_text">Неизвестная ошибка</string>
 </resources>

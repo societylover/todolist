@@ -293,51 +293,21 @@ private fun ImportanceView(
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.background(TodoColorsPalette.current.backElevatedColor)
             ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_ordinary),
-                            style = TodoAppTypography.current.body
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.ORDINARY)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = TodoColorsPalette.current.labelPrimaryColor
-                    )
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_low),
-                            style = TodoAppTypography.current.body
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.LOW)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = TodoColorsPalette.current.labelPrimaryColor
-                    )
-                )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.todo_item_importance_urgent),
-                            style = TodoAppTypography.current.body
-                        )
-                    },
-                    onClick = {
-                        setItemImportance(Importance.URGENT)
-                        expanded = false
-                    },
-                    colors = MenuDefaults.itemColors(
-                        textColor = TodoColorsPalette.current.redColor
-                    )
-                )
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_ordinary, TodoColorsPalette.current.labelPrimaryColor) {
+                    setItemImportance(Importance.ORDINARY)
+                    expanded = false
+                }
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_low, TodoColorsPalette.current.labelPrimaryColor) {
+                    setItemImportance(Importance.LOW)
+                    expanded = false
+                }
+
+                ImportanceDropdownMenuItem(R.string.todo_item_importance_urgent, TodoColorsPalette.current.redColor) {
+                    setItemImportance(Importance.URGENT)
+                    expanded = false
+                }
             }
         }
 
@@ -356,6 +326,26 @@ private fun ImportanceView(
             style = TodoAppTypography.current.subhead
         )
     }
+}
+
+@Composable
+private fun ImportanceDropdownMenuItem(
+    @StringRes importanceResId: Int,
+    importanceTextColor: Color,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(
+        text = {
+            Text(
+                text = stringResource(id = importanceResId),
+                style = TodoAppTypography.current.body
+            )
+        },
+        onClick = onClick,
+        colors = MenuDefaults.itemColors(
+            textColor = importanceTextColor
+        )
+    )
 }
 
 @Preview(showBackground = true)

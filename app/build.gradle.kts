@@ -26,7 +26,7 @@ android {
             buildConfig = true
         }
 
-        buildConfigField("String", "API_KEY", project.properties["API_KEY"].toString())
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = project.properties["CLIENT_ID"].toString()
     }
 
     buildTypes {
@@ -76,6 +76,8 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
     implementation(libs.compose.lifecycle)
+
+    implementation(libs.auth.sdk)
 
     implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)

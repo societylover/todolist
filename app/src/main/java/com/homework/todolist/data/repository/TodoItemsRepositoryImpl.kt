@@ -2,10 +2,10 @@ package com.homework.todolist.data.repository
 
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.model.TodoItemId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -167,18 +167,20 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
 
     override fun getItemsList(): Flow<List<TodoItem>> = _itemsFlow.asStateFlow()
 
-    override fun getItemDetails(id: TodoItemId): TodoItem? =
+    override fun getItemDetails(id: String): TodoItem? =
         _itemsFlow.value.find { it.id == id }
 
-    override suspend fun removeItemById(id: TodoItemId) {
-        _itemsFlow.value = _itemsFlow.value.filter { it.id != id }
+    override suspend fun removeItemById(id: String) {
+        _itemsFlow.update {
+            _itemsFlow.value.filter { it.id != id }
+        }
     }
 
     override fun createItem(
         text: String,
         importance: Importance,
         deadlineAt: LocalDate?
-    ): TodoItemId {
+    ): String {
         val newItem = TodoItem(
             id = "${++_lastId}",
             text = text,
@@ -186,12 +188,14 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
             importance = importance,
             deadlineAt = deadlineAt
         )
-        _itemsFlow.value = _itemsFlow.value.toList() + newItem
+        _itemsFlow.update {
+            _itemsFlow.value + newItem
+        }
         return newItem.id
     }
 
     override suspend fun updateItem(
-        id: TodoItemId,
+        id: String,
         text: String,
         done: Boolean,
         importance: Importance,
@@ -200,9 +204,9 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
     ): Boolean {
         val listSnapshot = _itemsFlow.value.toMutableList()
         val itemIndex = listSnapshot.indexOfFirst { it.id == id }
-
-        if (itemIndex == -1) return false
-
+        if (itemIndex == -1) {
+            return false
+        }
         listSnapshot[itemIndex] = listSnapshot[itemIndex].copy(
             text = text,
             done = done,
@@ -210,17 +214,7 @@ class TodoItemsRepositoryImpl : TodoItemsRepository {
             deadlineAt = deadlineAt,
             updateAt = updated
         )
-        _itemsFlow.value = listSnapshot
+        _itemsFlow.update { listSnapshot }
         return true
-    }
-
-    override suspend fun updateItem(todoItem: TodoItem): Boolean {
-        return updateItem(
-            id = todoItem.id,
-            text = todoItem.text,
-            done = todoItem.done,
-            importance = todoItem.importance,
-            deadlineAt = todoItem.deadlineAt
-        )
     }
 }

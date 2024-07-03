@@ -14,6 +14,6 @@ object TodosModule {
 
     @Provides
     @Singleton
-    fun provideTodoItemsRepository() : TodoItemsRepository =
+    fun provideTodoItemsRepository(): TodoItemsRepository =
         TodoItemsRepositoryImpl()
 }

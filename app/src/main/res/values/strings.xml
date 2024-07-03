@@ -35,5 +35,7 @@
     <string name="todo_item_importance_remove_icon_description">Remove item</string>
     <string name="todo_item_details_close_icon_description">Close form</string>
 
-
+    <!-- Error messages -->
+    <string name="todo_details_save_error_text">Error while saving this item</string>
+    <string name="todo_details_unknown_error_text">Unknown error</string>
 </resources>

@@ -17,6 +17,9 @@ ksp = "1.8.10-1.0.9"
 compose-lifecycle = "2.6.2"
 material = "1.6.8"
 authsdk = "3.1.0"
+ktor = "2.3.12"
+kotlinx-serialization = "1.6.3"
+data-store = "1.1.1"
 
 
 [libraries]
@@ -41,13 +44,25 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt-navigation-compose" }
 compose-lifecycle = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
+
 auth-sdk = { group = "com.yandex.android", name = "authsdk", version.ref = "authsdk" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-serialization = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" } # will remove it in production
+ktor-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+data-store = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "data-store" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "org-jetbrains-kotlin-android" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
-
+ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-logging", "ktor-serialization", "ktor-negotiation"]

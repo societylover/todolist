@@ -38,4 +38,14 @@
     <!-- Error messages -->
     <string name="todo_details_save_error_text">Error while saving this item</string>
     <string name="todo_details_unknown_error_text">Unknown error</string>
+🤬
+    <!-- Auth screen messages -->
+    <string name="start_auth_not_authed_text">Необходима аутентифицироваться в приложении</string>
+    <string name="start_auth_unknown_error">An unknown error occurred during authentication 😔</string>
+    <string name="start_auth_successfully_text">You have been successfully authenticated in the service! 😍</string>
+    <string name="start_auth_failure_text">This will not work. You won\'t pass! 🤬</string>
+    <string name="start_auth_cancel_text">You shouldn\'t be so... 🤨</string>
+    <string name="start_already_authed_text">Wonderful. You are already authenticated! 🥹</string>
+    <string name="start_auth_start_text">Authentication process starts...</string>
+
 </resources>

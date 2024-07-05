@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization).apply(false)
     kotlin("kapt")
 }
 
@@ -22,11 +23,10 @@ android {
             useSupportLibrary = true
         }
 
-        buildFeatures {
-            buildConfig = true
-        }
-
+        // Replace with client_id like: manifestPlaceholders["YANDEX_CLIENT_ID"] = "123"
         manifestPlaceholders["YANDEX_CLIENT_ID"] = project.properties["CLIENT_ID"].toString()
+        // Replace with basic url like: buildConfigField("String", "BASE_URL", "https://www.example.com/list")
+        buildConfigField("String", "BASE_URL", project.properties["BASE_URL"].toString())
     }
 
     buildTypes {
@@ -43,6 +43,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -77,9 +78,15 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.compose.lifecycle)
 
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.data.store)
+
     implementation(libs.auth.sdk)
+    implementation(libs.bundles.ktor)
 
     implementation(libs.androidx.navigation.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

@@ -5,9 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.navigation.TodoDestinationsArgs
-import com.homework.todolist.shared.UiEffect
-import com.homework.todolist.shared.UiEvent
-import com.homework.todolist.shared.ViewModelBase
+import com.homework.todolist.shared.data.result.Result
+import com.homework.todolist.shared.ui.UiEffect
+import com.homework.todolist.shared.ui.UiEvent
+import com.homework.todolist.shared.ui.ViewModelBase
 import com.homework.todolist.tododetails.data.TodoItemUiState
 import com.homework.todolist.tododetails.data.toTodoItemUiState
 import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEffects
@@ -36,19 +37,28 @@ class TodoDetailsViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>(TodoDestinationsArgs.TODO_ID)?.also { id ->
-            todoItemsRepository.getItemDetails(id)?.also { item ->
-                setState { item.toTodoItemUiState() }
+            scope.launch {
+                todoItemsRepository.getItemDetails(id).also { item ->
+                    if (item is Result.Error) {
+                        handleError(item)
+                        return@launch
+                    }
+
+                    if (item is Result.Success && item.data != null) {
+                        setState { item.data.toTodoItemUiState() }
+                    }
+                }
             }
         }
     }
 
     override fun handleEvent(event: UiEvent) {
         when (event) {
-            is DetailsEvent.OnSaveClick -> {
+            is DetailsEvent.OnSaveEvent -> {
                 saveItem()
             }
 
-            is DetailsEvent.OnCloseClick -> {
+            is DetailsEvent.OnCloseEvent -> {
                 closeForm()
             }
 
@@ -64,7 +74,7 @@ class TodoDetailsViewModel @Inject constructor(
                 setDeadlineDate(event.deadlineAt)
             }
 
-            is DetailsEvent.OnDeleteClick -> {
+            is DetailsEvent.OnDeleteEvent -> {
                 deleteItem()
             }
         }
@@ -82,7 +92,7 @@ class TodoDetailsViewModel @Inject constructor(
         }
 
         scope.launch(Dispatchers.IO) {
-            if (itemUiState.id != null) {
+            val result = if (itemUiState.id != null) {
                 todoItemsRepository.updateItem(
                     id = itemUiState.id,
                     text = itemUiState.text,
@@ -97,7 +107,17 @@ class TodoDetailsViewModel @Inject constructor(
                     deadlineAt = if (itemUiState.isDeadlineSet) itemUiState.doUntil else null
                 )
             }
-            setEffect { DetailsEffects.OnItemSaved }
+
+            if (result is Result.Error) {
+                handleError(result)
+                return@launch
+            }
+
+            if (result is Result.Success) {
+                setEffect { DetailsEffects.OnItemSaved }
+            } else {
+                handleUnknownActionError(DetailsEvent.OnSaveEvent)
+            }
         }
     }
 
@@ -113,6 +133,14 @@ class TodoDetailsViewModel @Inject constructor(
         }
     }
 
+    private suspend fun handleError(error: Result.Error) {
+
+    }
+
+    private suspend fun handleUnknownActionError(event: DetailsEvent) {
+
+    }
+
     private fun setDeadlineDate(selectedDate: LocalDate?) {
         if (selectedDate == null) {
             setState { copy(doUntil = LocalDate.now(), isDeadlineSet = false) }
@@ -121,6 +149,7 @@ class TodoDetailsViewModel @Inject constructor(
 
         setState { copy(doUntil = selectedDate, isDeadlineSet = true) }
     }
+
 
     private fun setDescription(description: String) {
         setState { copy(text = description) }
@@ -135,12 +164,12 @@ class TodoDetailsViewModel @Inject constructor(
          * Details screen events
          */
         sealed class DetailsEvent : UiEvent {
-            object OnSaveClick : DetailsEvent()
-            object OnCloseClick : DetailsEvent()
+            object OnSaveEvent : DetailsEvent()
+            object OnCloseEvent : DetailsEvent()
             data class OnImportanceChosen(val importance: Importance) : DetailsEvent()
             data class OnDescriptionUpdate(val text: String) : DetailsEvent()
             data class OnDeadlinePicked(val deadlineAt: LocalDate? = null) : DetailsEvent()
-            object OnDeleteClick : DetailsEvent()
+            object OnDeleteEvent : DetailsEvent()
         }
 
         /**

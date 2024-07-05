@@ -74,6 +74,8 @@ import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
 import com.homework.todolist.data.repository.TodoItemsRepository
+import com.homework.todolist.data.repository.TodoItemsRepositoryStub
+import com.homework.todolist.shared.data.result.Result
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
@@ -670,52 +672,8 @@ private fun DismissBackground(
 
 @Composable
 private fun TodoListWithThemePreview(darkTheme: Boolean = false) {
-    val repository = object : TodoItemsRepository {
-
-        val temporaryItems = listOf(
-            TodoItem(
-                id = "1",
-                done = true,
-                importance = Importance.URGENT,
-                text = "Hello!",
-                deadlineAt = LocalDate.now()
-            ),
-            TodoItem(
-                id = "2",
-                done = false,
-                importance = Importance.ORDINARY,
-                text = "Very long text!",
-                deadlineAt = LocalDate.now()
-            ),
-            TodoItem(id = "3", done = false, importance = Importance.LOW, text = "Short text!")
-        )
-
-        private val _itemsFlow = MutableStateFlow(temporaryItems.toList())
-
-        override fun getItemsList(): Flow<List<TodoItem>> = flowOf(temporaryItems)
-
-        override fun getItemDetails(id: String): TodoItem? = null
-
-        override suspend fun removeItemById(id: String) {}
-
-        override fun createItem(
-            text: String,
-            importance: Importance,
-            deadlineAt: LocalDate?
-        ): String = "123"
-
-        override suspend fun updateItem(
-            id: String,
-            text: String,
-            done: Boolean,
-            importance: Importance,
-            deadlineAt: LocalDate?,
-            updated: LocalDateTime
-        ): Boolean = false
-    }
-
     TodolistTheme(darkTheme = darkTheme, dynamicColor = false) {
-        val vm = TodoListViewModel(repository)
+        val vm = TodoListViewModel(TodoItemsRepositoryStub())
         TodoListScreen(
             onItemClick = { },
             onCreateItemClick = { },

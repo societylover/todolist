@@ -3,9 +3,9 @@ package com.homework.todolist.todos
 import androidx.lifecycle.viewModelScope
 import com.homework.todolist.data.model.TodoItem
 import com.homework.todolist.data.repository.TodoItemsRepository
-import com.homework.todolist.shared.UiEffect
-import com.homework.todolist.shared.UiEvent
-import com.homework.todolist.shared.ViewModelBase
+import com.homework.todolist.shared.ui.UiEffect
+import com.homework.todolist.shared.ui.UiEvent
+import com.homework.todolist.shared.ui.ViewModelBase
 import com.homework.todolist.todos.TodoListViewModel.Companion.ListEvent
 import com.homework.todolist.todos.TodoListViewModel.Companion.ListItemEffects
 import com.homework.todolist.todos.data.TodoListUiState

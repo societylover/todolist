@@ -57,6 +57,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
+import com.homework.todolist.data.datasource.local.LocalDataSourceStub
+import com.homework.todolist.data.datasource.remote.RemoteDataSourceStub
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
 import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel
@@ -87,7 +89,7 @@ internal fun TodoListDetailsScreen(
                 title = { },
                 modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
                 navigationIcon = {
-                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseClick) }) {
+                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseEvent) }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
@@ -99,7 +101,7 @@ internal fun TodoListDetailsScreen(
                     if (!itemUiState.isDone) {
                         TextButton(
                             onClick = {
-                                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveClick)
+                                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveEvent)
                             }
                         ) {
                             Text(
@@ -172,7 +174,7 @@ internal fun TodoListDetailsScreen(
                 modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                 isActive = itemUiState.id != null
             ) {
-                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteClick)
+                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
                 onActionClick()
             }
         }
@@ -650,7 +652,7 @@ private fun TodoListDetailsCreateScreenPreview() {
         TodoListDetailsScreen(
             onActionClick = {},
             viewModel = TodoDetailsViewModel(
-                todoItemsRepository = TodoItemsRepositoryImpl(),
+                todoItemsRepository = TodoItemsRepositoryImpl(LocalDataSourceStub(), RemoteDataSourceStub()),
                 savedStateHandle = SavedStateHandle.createHandle(null, null)
             )
         )

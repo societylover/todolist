@@ -42,6 +42,7 @@ class TodoItemsRepositoryImpl @Inject constructor(
     override suspend fun removeItemById(id: String): Result<Boolean> {
         val deleteResult = remoteDataSource.deleteTodoById(id)
         return if (deleteResult is Result.Error) {
+
             deleteResult
         } else {
             val localDeleteResult = localDataSource.removeItemById(id)
@@ -81,7 +82,7 @@ class TodoItemsRepositoryImpl @Inject constructor(
         val existItem = localDataSource.getItemDetails(id)
             ?: return Result.Error(errorType = LocalErrors.NOT_FOUND, "Item not found locally")
         val updateResult = remoteDataSource.updateTodoById(TodoItem(id, text, importance, done,
-            createdAt = existItem.createdAt, deadlineAt = deadlineAt, updateAt = updated))
+            createdAt = existItem.createdAt, deadlineAt = deadlineAt, updatedAt = updated))
         return if (updateResult is Result.Error) {
             updateResult
         } else {

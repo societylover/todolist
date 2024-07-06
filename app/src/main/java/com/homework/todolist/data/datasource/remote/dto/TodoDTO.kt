@@ -2,12 +2,10 @@ package com.homework.todolist.data.datasource.remote.dto
 
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
+import com.homework.todolist.utils.LocalDateConverter.toLocalDate
+import com.homework.todolist.utils.LocalDateConverter.toMillis
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 @Serializable
 data class TodoDTO(
@@ -39,7 +37,7 @@ internal fun TodoDTO.toTodo() : TodoItem =
         done = done,
         createdAt = createdAt.toLocalDate(),
         deadlineAt = deadline.toLocalDate(),
-        updateAt = changedAt.toLocalDate())
+        updatedAt = changedAt.toLocalDate())
 
 internal fun Importance.toDtoImportance() : String =
     when(this) {
@@ -55,7 +53,7 @@ internal fun TodoItem.toTodoDTO(androidId: String) : TodoDTO =
         importance = importance.toDtoImportance(),
         deadline = deadlineAt.toMillis(),
         createdAt = createdAt.toMillis(),
-        changedAt = updateAt.toMillis(),
+        changedAt = updatedAt.toMillis(),
         done = done,
         lastUpdatedBy = androidId)
 
@@ -65,15 +63,3 @@ private fun TodoDTO.getImportance() : Importance =
         "basic" -> Importance.ORDINARY
         else -> Importance.URGENT
     }
-
-private fun Long?.toLocalDate() : LocalDate? =
-    this?.toLocalDate()
-
-private fun Long.toLocalDate() : LocalDate =
-    Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
-
-private fun LocalDate?.toMillis() : Long? =
-    this?.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
-
-private fun LocalDate.toMillis() : Long =
-    this.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0L

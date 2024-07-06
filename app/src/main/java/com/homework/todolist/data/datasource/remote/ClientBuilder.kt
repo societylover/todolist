@@ -6,6 +6,7 @@ import com.homework.todolist.data.provider.ApiParamsProvider
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.engine.okhttp.OkHttpConfig
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -14,6 +15,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -21,6 +24,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import java.io.IOException
+import java.net.UnknownHostException
 
 internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
     io.ktor.client.HttpClient(OkHttp) {
@@ -46,6 +51,19 @@ internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
                 }
             }
             level = LogLevel.ALL
+        }
+
+        install(HttpRequestRetry) {
+            maxRetries = 5
+            retryIf { _, response ->
+                !response.status.isSuccess() && response.status != HttpStatusCode.Unauthorized
+            }
+            retryOnExceptionIf { _, cause ->
+                cause !is IOException || cause !is UnknownHostException
+            }
+            delayMillis { retry ->
+                retry * 3000L
+            }
         }
     }
 

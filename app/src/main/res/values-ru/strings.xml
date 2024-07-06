@@ -54,6 +54,6 @@
     <string name="start_auth_successfully_text">Вы успешно аутентифицированы в сервисе! 😍</string>
     <string name="start_auth_failure_text">Так не пойдет. Вы не пройдете! 🤬</string>
     <string name="start_auth_cancel_text">Зря Вы так... 🤨</string>
-    <string name="start_already_authed_text">Прекрасно. Вы уже аутентифицированы! 🥹</string>
+    <string name="start_already_authed_text">Прекрасно. Вы уже аутентифицированы! 🥹 </string>
     <string name="start_auth_start_text">Процесс аутентификации начинается...</string>
 </resources>

@@ -21,7 +21,6 @@ object NetworkUtils {
         val connectivityManager =
             getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        // Initial check
         trySend(isNetworkAvailable(connectivityManager))
 
         val networkCallback = object : ConnectivityManager.NetworkCallback() {

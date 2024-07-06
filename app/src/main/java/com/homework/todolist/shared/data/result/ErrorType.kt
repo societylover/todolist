@@ -31,6 +31,13 @@ enum class BadRequestRemoteErrors : RemoteError {
 }
 
 /**
+ * Basic error when some device error occurred (timeout, no connection, etc.)
+ */
+enum class DeviceError : RemoteError {
+    DEVICE_ERROR
+}
+
+/**
  * Error caused by bad local storage errors
  */
 enum class LocalErrors : LocalError {

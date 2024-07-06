@@ -36,11 +36,20 @@
     <string name="todo_item_details_close_icon_description">Close form</string>
 
     <!-- Error messages -->
+    <string name="todo_item_create_delete_error_text">Error while deleting this item</string>
     <string name="todo_details_save_error_text">Error while saving this item</string>
     <string name="todo_details_unknown_error_text">Unknown error</string>
-🤬
+    <string name="device_error_text">Request execution error. Check your device settings (internet connection)</string>
+    <string name="authentication_error_text">Authentication error. Check your account settings</string>
+    <string name="malformed_request_error_text">Invalid request. Something is wrong with the request data</string>
+    <string name="not_found_error_text">Invalid request. Item not found on remote</string>
+    <string name="bad_revision_error_text">Invalid request. Bad revision provided</string>
+
+    <!-- Error action messages -->
+    <string name="repeat_action_button_text">Repeat</string>
+
     <!-- Auth screen messages -->
-    <string name="start_auth_not_authed_text">Необходима аутентифицироваться в приложении</string>
+    <string name="start_auth_not_authed_text">You need to authenticate in the application</string>
     <string name="start_auth_unknown_error">An unknown error occurred during authentication 😔</string>
     <string name="start_auth_successfully_text">You have been successfully authenticated in the service! 😍</string>
     <string name="start_auth_failure_text">This will not work. You won\'t pass! 🤬</string>

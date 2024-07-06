@@ -3,6 +3,7 @@ package com.homework.todolist.navigation
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.navigation.TodoScreens.AUTH_SCREEN
 import com.homework.todolist.navigation.TodoScreens.TODO_LIST_DETAILS
 import com.homework.todolist.navigation.TodoScreens.TODO_LIST_SCREEN
 
@@ -10,6 +11,7 @@ import com.homework.todolist.navigation.TodoScreens.TODO_LIST_SCREEN
  * Screens used in application
  */
 private object TodoScreens {
+    const val AUTH_SCREEN = "auth"
     const val TODO_LIST_SCREEN = "todos"
     const val TODO_LIST_DETAILS = "todo-details"
 }
@@ -25,6 +27,7 @@ internal object TodoDestinationsArgs {
  * Destinations used in the application
  */
 internal object TodoDestinations {
+    const val AUTH_ROUTE = AUTH_SCREEN
     const val TODO_LIST_ROUTE = TODO_LIST_SCREEN
     const val DETAILS_ROUTE = "$TODO_LIST_DETAILS?$TODO_ID={$TODO_ID}"
 }
@@ -42,6 +45,7 @@ internal class TodoNavigationActions(private val navController: NavHostControlle
         navController.navigate(TodoDestinations.TODO_LIST_ROUTE) {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
+                inclusive = true
             }
             launchSingleTop = true
         }

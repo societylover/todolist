@@ -17,6 +17,6 @@ sealed class Result<out T> {
      */
     data class Error(
         val errorType: StorageError,
-        val message: String,
+        val message: String?,
         val cause: Throwable? = null) : Result<Nothing>()
 }

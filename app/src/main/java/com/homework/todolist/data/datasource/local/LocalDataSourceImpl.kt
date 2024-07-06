@@ -49,14 +49,14 @@ class LocalDataSourceImpl @Inject constructor(): LocalDataSource {
 
     override suspend fun updateItem(todoItem: TodoItem): Boolean {
         return withContext(Dispatchers.IO) {
-            if (_itemsFlow.value.firstOrNull { it.id == todoItem.id } != null)
+            val index = _itemsFlow.value.indexOfFirst { it.id == todoItem.id }
+            if (index == -1)
                 return@withContext false
 
             _itemsFlow.update {
-                val itemIndex = it.indexOfFirst { item -> item.id == todoItem.id }
                 val mutableList = it.toMutableList()
                 mutableList.apply {
-                    this[itemIndex]  = todoItem
+                    this[index]  = todoItem
                 }
             }
             true

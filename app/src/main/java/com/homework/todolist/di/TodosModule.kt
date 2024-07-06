@@ -1,6 +1,8 @@
 package com.homework.todolist.di
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.provider.Settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -49,8 +51,15 @@ object TodosModule {
             produceFile = { appContext.preferencesDataStoreFile(API_PREFERENCES) })
 
 
+    @SuppressLint("HardwareIds")
     @Singleton
     @Provides
-    fun provideApiParamsProvider(dataStore: DataStore<Preferences>) : ApiParamsProvider =
-        ApiParamsProviderImpl(dataStore)
+    fun provideApiParamsProvider(
+        @ApplicationContext context: Context,
+        dataStore: DataStore<Preferences>,
+        ) : ApiParamsProvider =
+        ApiParamsProviderImpl(
+            dataStore = dataStore,
+            androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        )
 }

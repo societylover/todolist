@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.hilt)
-    alias(libs.plugins.kotlin.serialization).apply(false)
+    alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
 }
 
@@ -29,7 +29,19 @@ android {
         buildConfigField("String", "BASE_URL", project.properties["BASE_URL"].toString())
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = project.properties["RELEASE_KEY_ALIAS"].toString()
+            keyPassword = project.properties["RELEASE_KEY_PASSWORD"].toString()
+            storeFile = file(project.properties["RELEASE_STORE_FILE"].toString())
+            storePassword = project.properties["RELEASE_STORE_PASSWORD"].toString()
+        }
+    }
+
     buildTypes {
+        all {
+            signingConfig = signingConfigs.getAt("release")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -47,7 +59,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -73,9 +85,12 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
 
-    implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt)
+    implementation(libs.androidx.hilt.work)
     kapt(libs.hilt.compiler)
+
     implementation(libs.compose.lifecycle)
 
     implementation(libs.kotlinx.serialization.json)
@@ -86,6 +101,8 @@ dependencies {
     implementation(libs.bundles.ktor)
 
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.work.manager)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

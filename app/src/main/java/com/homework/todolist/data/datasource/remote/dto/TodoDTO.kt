@@ -1,6 +1,5 @@
 package com.homework.todolist.data.datasource.remote.dto
 
-import android.provider.Settings
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
 import kotlinx.serialization.SerialName
@@ -8,6 +7,7 @@ import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 
 @Serializable
 data class TodoDTO(
@@ -28,7 +28,7 @@ data class TodoDTO(
     @SerialName("changed_at")
     val changedAt: Long,
     @SerialName("last_updated_by")
-    val lastUpdatedBy: String = Settings.Secure.ANDROID_ID
+    val lastUpdatedBy: String
 )
 
 internal fun TodoDTO.toTodo() : TodoItem =
@@ -45,18 +45,19 @@ internal fun Importance.toDtoImportance() : String =
     when(this) {
         Importance.LOW -> "low"
         Importance.ORDINARY -> "basic"
-        else -> "importance"
+        else -> "important"
     }
 
-internal fun TodoItem.toTodoDTO() : TodoDTO =
+internal fun TodoItem.toTodoDTO(androidId: String) : TodoDTO =
     TodoDTO(
         id = id,
         text = text,
         importance = importance.toDtoImportance(),
-        deadline = if (deadlineAt == null) 0 else Instant.from(deadlineAt).toEpochMilli(),
-        createdAt = Instant.from(createdAt).toEpochMilli(),
-        changedAt = if (updateAt == null) 0 else Instant.from(updateAt).toEpochMilli(),
-        done = done)
+        deadline = deadlineAt.toMillis(),
+        createdAt = createdAt.toMillis(),
+        changedAt = updateAt.toMillis(),
+        done = done,
+        lastUpdatedBy = androidId)
 
 private fun TodoDTO.getImportance() : Importance =
     when(importance.lowercase()) {
@@ -70,3 +71,9 @@ private fun Long?.toLocalDate() : LocalDate? =
 
 private fun Long.toLocalDate() : LocalDate =
     Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDate()
+
+private fun LocalDate?.toMillis() : Long? =
+    this?.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli()
+
+private fun LocalDate.toMillis() : Long =
+    this.atStartOfDay()?.toInstant(ZoneOffset.UTC)?.toEpochMilli() ?: 0L

@@ -12,7 +12,8 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 internal class ApiParamsProviderImpl @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val androidId: String
 ) : ApiParamsProvider {
 
     override fun getClientTokenFlow(): Flow<String?> =
@@ -38,11 +39,13 @@ internal class ApiParamsProviderImpl @Inject constructor(
         }
     }
 
-    override suspend fun getKnownRevision(): Long? =
-        getNullableValue(revisionTokenKey, DEFAULT_REVISION_TOKEN)
+    override suspend fun getKnownRevision(): Long =
+        getValue(revisionTokenKey, DEFAULT_REVISION_TOKEN)
 
-    override fun getKnownRevisionBlocking(): Long? =
+    override fun getKnownRevisionBlocking(): Long =
         runBlocking { getKnownRevision() }
+
+    override fun getAndroidId(): String = androidId
 
     private suspend fun <T> setStoredValue(key: Preferences.Key<T>, value: T?, defaultValue: T) {
         dataStore.updateData { parameters ->
@@ -56,6 +59,10 @@ internal class ApiParamsProviderImpl @Inject constructor(
         val storedValue = dataStore.data.firstOrNull()?.get(key)
         return if (storedValue == null || storedValue == defaultValue) null else
             storedValue
+    }
+
+    private suspend fun <T> getValue(key: Preferences.Key<T>, defaultValue: T) : T {
+        return dataStore.data.firstOrNull()?.get(key) ?: defaultValue
     }
 
     companion object {

@@ -16,4 +16,6 @@ interface ApiParamsProvider {
     fun setKnownRevisionBlocking(revision: Long?)
     suspend fun getKnownRevision() : Long?
     fun getKnownRevisionBlocking(): Long?
+
+    fun getAndroidId() : String
 }

@@ -1,10 +1,14 @@
 package com.homework.todolist.tododetails.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.navigation.TodoDestinationsArgs
+import com.homework.todolist.shared.data.result.BadRequestRemoteErrors
+import com.homework.todolist.shared.data.result.DeviceError
 import com.homework.todolist.shared.data.result.Result
 import com.homework.todolist.shared.ui.UiEffect
 import com.homework.todolist.shared.ui.UiEvent
@@ -87,7 +91,7 @@ class TodoDetailsViewModel @Inject constructor(
     private fun saveItem() {
         val itemUiState = state.value
         if (itemUiState.text.isEmpty()) {
-            setEffect { DetailsEffects.ShowSaveErrorToast }
+            setEffect { DetailsEffects.ShowSaveErrorToast(R.string.todo_details_save_error_text) }
             return
         }
 
@@ -123,7 +127,7 @@ class TodoDetailsViewModel @Inject constructor(
 
     private fun deleteItem() {
         if (currentState.text.isEmpty() || currentState.id == null) {
-            setEffect { DetailsEffects.ShowSaveErrorToast }
+            setEffect { DetailsEffects.ShowSaveErrorToast(R.string.todo_item_create_delete_button_text) }
         } else {
             val itemId = currentState.id ?: return
             scope.launch(Dispatchers.IO) {
@@ -133,8 +137,17 @@ class TodoDetailsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun handleError(error: Result.Error) {
-
+    private fun handleError(error: Result.Error) {
+        setEffect {
+            when (error.errorType) {
+                DeviceError.DEVICE_ERROR -> { DetailsEffects.ShowSaveErrorToast(R.string.device_error_text) }
+                BadRequestRemoteErrors.UNAUTHORIZED -> { DetailsEffects.ShowSaveErrorToast(R.string.authentication_error_text) }
+                BadRequestRemoteErrors.MALFORMED_REQUEST -> { DetailsEffects.ShowSaveErrorToast(R.string.malformed_request_error_text) }
+                BadRequestRemoteErrors.NOT_FOUND -> { DetailsEffects.ShowSaveErrorToast(R.string.not_found_error_text) }
+                BadRequestRemoteErrors.UNSYNCHRONIZED_DATA -> { DetailsEffects.ShowSaveErrorToast(R.string.bad_revision_error_text) }
+                else -> { DetailsEffects.ShowSaveErrorToast(R.string.todo_details_unknown_error_text) }
+            }
+        }
     }
 
     private suspend fun handleUnknownActionError(event: DetailsEvent) {
@@ -164,23 +177,23 @@ class TodoDetailsViewModel @Inject constructor(
          * Details screen events
          */
         sealed class DetailsEvent : UiEvent {
-            object OnSaveEvent : DetailsEvent()
-            object OnCloseEvent : DetailsEvent()
+            data object OnSaveEvent : DetailsEvent()
+            data object OnCloseEvent : DetailsEvent()
             data class OnImportanceChosen(val importance: Importance) : DetailsEvent()
             data class OnDescriptionUpdate(val text: String) : DetailsEvent()
             data class OnDeadlinePicked(val deadlineAt: LocalDate? = null) : DetailsEvent()
-            object OnDeleteEvent : DetailsEvent()
+            data object OnDeleteEvent : DetailsEvent()
         }
 
         /**
          * Details screen effects
          */
         sealed class DetailsEffects : UiEffect {
-            object ShowSaveErrorToast : DetailsEffects()
-            object UnknownErrorToast : DetailsEffects()
-            object OnItemSaved : DetailsEffects()
-            object OnFormClosed : DetailsEffects()
-            object OnItemDeleted : DetailsEffects()
+            data class ShowSaveErrorToast(@StringRes val errorErrorResId: Int) : DetailsEffects()
+            data object UnknownErrorToast : DetailsEffects()
+            data object OnItemSaved : DetailsEffects()
+            data object OnFormClosed : DetailsEffects()
+            data object OnItemDeleted : DetailsEffects()
         }
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,12 +23,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -40,6 +43,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -48,15 +54,18 @@ import androidx.compose.material3.SwipeToDismissBoxValue.Settled
 import androidx.compose.material3.SwipeToDismissBoxValue.StartToEnd
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -73,18 +82,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.data.repository.TodoItemsRepositoryStub
-import com.homework.todolist.shared.data.result.Result
+import com.homework.todolist.todos.data.TodoListUiState
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
-import java.time.LocalDateTime
+import com.homework.todolist.todos.TodoListViewModel.Companion.ListItemEffects.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -98,6 +105,9 @@ internal fun TodoListScreen(
 
     val expandedHeight = 164.dp
     val collapsedHeight = 56.dp
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val topBarHeight by remember {
         derivedStateOf {
@@ -157,102 +167,182 @@ internal fun TodoListScreen(
 
     Scaffold(
         topBar = {
-            ExpandableTopAppBar(
-                modifier = Modifier.padding(start = startPadding),
+            TopAppBarContent(
+                startPadding = startPadding,
                 topBarHeight = topBarHeight,
                 collapsedHeight = collapsedHeight,
-                actionTopPadding = dynamicTopPadding,
-                collapsedContent = {
-                    androidx.compose.material.Text(
-                        text = stringResource(id = R.string.todo_list_screen_title),
-                        color = TodoColorsPalette.current.labelPrimaryColor,
-                        fontSize = fontSize.sp,
-                        fontWeight = FontWeight(fontWeight)
-                    )
-                },
-                expandedContent = {
-                    androidx.compose.material.Text(
-                        text = stringResource(
-                            id = R.string.todo_list_completed_subtitle,
-                            uiState.doneCount
-                        ),
-                        color = TodoColorsPalette.current.labelTertiaryColor,
-                        style = TodoAppTypography.current.body
-                    )
-                },
-                action = {
-                    VisibilityButton(
-                        onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
-                        visibilityIconResId = iconParams.iconRes,
-                        descriptionResId = iconParams.textRes
-                    )
-                }
+                dynamicTopPadding = dynamicTopPadding,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                uiState = uiState,
+                viewModel = viewModel,
+                iconParams = iconParams
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreateItemClick,
-                modifier = Modifier.padding(
-                    end = dimensionResource(id = R.dimen.todo_list_fab_end_padding),
-                    bottom = dimensionResource(id = R.dimen.todo_list_fab_bottom_padding)
-                ),
-                shape = CircleShape.copy(CornerSize(dimensionResource(id = R.dimen.todo_list_fab_size))),
-                containerColor = TodoColorsPalette.current.blueColor,
-                contentColor = TodoColorsPalette.current.whiteColor
-            )
-            {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(id = R.string.todo_list_create_button_description)
-                )
-            }
-        }
+            FABContent(onCreateItemClick = onCreateItemClick)
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddings ->
-        Box(
-            modifier = Modifier
-                .padding(paddings)
-                .padding(horizontal = 8.dp)
-        ) {
-            LazyColumn(
-                state = lazyListState,
-                modifier = Modifier
+        ListContent(paddings, lazyListState, uiState, onItemClick, viewModel, onCreateItemClick)
+    }
+
+    handleEffects(viewModel, scope, snackbarHostState)
+}
+
+@Composable
+private fun FABContent(onCreateItemClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onCreateItemClick,
+        modifier = Modifier.padding(
+            end = dimensionResource(id = R.dimen.todo_list_fab_end_padding),
+            bottom = dimensionResource(id = R.dimen.todo_list_fab_bottom_padding)
+        ),
+        shape = CircleShape.copy(CornerSize(dimensionResource(id = R.dimen.todo_list_fab_size))),
+        containerColor = TodoColorsPalette.current.blueColor,
+        contentColor = TodoColorsPalette.current.whiteColor
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(id = R.string.todo_list_create_button_description)
+        )
+    }
+}
+
+@Composable
+private fun TopAppBarContent(
+    startPadding: Dp,
+    topBarHeight: Dp,
+    collapsedHeight: Dp,
+    dynamicTopPadding: Dp,
+    fontSize: Float,
+    fontWeight: Int,
+    uiState: TodoListUiState,
+    viewModel: TodoListViewModel,
+    iconParams: VisibilityIconParams
+) {
+    ExpandableTopAppBar(
+        modifier = Modifier.padding(start = startPadding),
+        topBarHeight = topBarHeight,
+        collapsedHeight = collapsedHeight,
+        actionTopPadding = dynamicTopPadding,
+        collapsedContent = {
+            androidx.compose.material.Text(
+                text = stringResource(id = R.string.todo_list_screen_title),
+                color = TodoColorsPalette.current.labelPrimaryColor,
+                fontSize = fontSize.sp,
+                fontWeight = FontWeight(fontWeight)
             )
-            {
+        },
+        expandedContent = {
+            androidx.compose.material.Text(
+                text = stringResource(
+                    id = R.string.todo_list_completed_subtitle,
+                    uiState.doneCount
+                ),
+                color = TodoColorsPalette.current.labelTertiaryColor,
+                style = TodoAppTypography.current.body
+            )
+        },
+        action = {
+            VisibilityButton(
+                onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
+                visibilityIconResId = iconParams.iconRes,
+                descriptionResId = iconParams.textRes
+            )
+        }
+    )
+}
 
-                item { TodosTopBorder() }
+@Composable
+private fun handleEffects(
+    viewModel: TodoListViewModel,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+) {
+    val context = LocalContext.current
 
-                items(uiState.todoList, key = { it.id }) {
-                    TodoListItem(
-                        item = it,
-                        onItemClick = { onItemClick(it.id) },
-                        onItemDelete = {
-                            viewModel.handleEvent(
-                                TodoListViewModel.Companion.ListEvent.OnDeleteClicked(
-                                    it.id
-                                )
-                            )
-                        },
-                        onItemDoneStateChange = {
-                            viewModel.handleEvent(
-                                TodoListViewModel.Companion.ListEvent.OnStateChangeClicked(
-                                    it
-                                )
-                            )
-                        })
-                }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effect.collect {
+            when (it) {
+                is RepeatableErrorOccurredToast -> {
+                    scope.launch {
+                        val result = snackbarHostState.showSnackbar(
+                            context.getString(it.textResId),
+                            actionLabel = context.getString(it.actionResId),
+                            duration = SnackbarDuration.Indefinite
+                        )
 
-                item {
-                    TodosNewItemView(
-                        modifier = Modifier
-                            .padding(vertical = 12.dp)
-                            .padding(start = 52.dp)
-                    ) {
-                        onCreateItemClick()
+                        when (result) {
+                            SnackbarResult.ActionPerformed -> {
+                                it.callback()
+                            }
+                            else -> { }
+                        }
                     }
                 }
 
-                item { TodosBottomBorder() }
+                is ErrorOccurredToast -> {
+                    snackbarHostState.showSnackbar(context.getString(it.textResId))
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun ListContent(
+    paddings: PaddingValues,
+    lazyListState: LazyListState,
+    uiState: TodoListUiState,
+    onItemClick: (String) -> Unit,
+    viewModel: TodoListViewModel,
+    onCreateItemClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(paddings)
+            .padding(horizontal = 8.dp)
+    ) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier
+        )
+        {
+
+            item { TodosTopBorder() }
+
+            items(uiState.todoList, key = { it.id }) {
+                TodoListItem(
+                    item = it,
+                    onItemClick = { onItemClick(it.id) },
+                    onItemDelete = {
+                        viewModel.handleEvent(
+                            TodoListViewModel.Companion.ListEvent.OnDeleteClicked(
+                                it.id
+                            )
+                        )
+                    },
+                    onItemDoneStateChange = {
+                        viewModel.handleEvent(
+                            TodoListViewModel.Companion.ListEvent.OnStateChangeClicked(
+                                it
+                            )
+                        )
+                    })
+            }
+
+            item {
+                TodosNewItemView(
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .padding(start = 52.dp)
+                ) {
+                    onCreateItemClick()
+                }
+            }
+
+            item { TodosBottomBorder() }
         }
     }
 }

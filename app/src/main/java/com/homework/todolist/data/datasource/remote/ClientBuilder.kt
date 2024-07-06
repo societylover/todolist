@@ -4,6 +4,7 @@ import android.util.Log
 import com.homework.todolist.BuildConfig
 import com.homework.todolist.data.provider.ApiParamsProvider
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.engine.okhttp.OkHttpConfig
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -18,52 +19,19 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.Interceptor
-import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 
 internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
     io.ktor.client.HttpClient(OkHttp) {
-        engine {
-            config {
-                interceptors() += Interceptor { chain ->
-                    val (token, revision) = Pair(
-                        apiParamsProvider.getClientTokenBlocking(),
-                        apiParamsProvider.getKnownRevisionBlocking()
-                    )
-                    if (token == null) {
-                        throw HttpPreparationException(
-                            "Token must be not null.",
-                            PreparationExceptionReason.BAD_TOKEN
-                        );
-                    }
-                    if (revision == null) {
-                        throw HttpPreparationException(
-                            "Null revision provided.",
-                            PreparationExceptionReason.BAD_REVISION
-                        );
-                    }
-                    val requestBuilder = chain.request().newBuilder()
-                    requestBuilder.addHeader(REVISION_HEADER, "$revision")
-                    requestBuilder.addHeader(AUTHORIZATION_HEADER, "OAuth $token")
-                    val request = requestBuilder.build()
-                    chain.proceed(request)
-                }
-
-                interceptors() += Interceptor { chain ->
-                    ResponseInterceptor(chain, apiParamsProvider)
-                }
-            }
-        }
-
-        defaultRequest {
-            url(BuildConfig.BASE_URL)
-        }
+        engine { configBuilder(apiParamsProvider) }
+        defaultRequest { url(BuildConfig.BASE_URL) }
 
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
                 // isLenient = true
+                encodeDefaults = true
             })
         }
 
@@ -79,6 +47,34 @@ internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
             }
             level = LogLevel.ALL
         }
+    }
+
+private fun OkHttpConfig.configBuilder(apiParamsProvider: ApiParamsProvider) {
+    config {
+        interceptors() += RequestPrepareInterceptor(apiParamsProvider)
+        interceptors() += Interceptor { chain ->
+            ResponseInterceptor(chain, apiParamsProvider)
+        }
+    }
+}
+
+private fun RequestPrepareInterceptor(apiParamsProvider: ApiParamsProvider) =
+    Interceptor { chain ->
+        val (token, revision) = Pair(
+            apiParamsProvider.getClientTokenBlocking(),
+            apiParamsProvider.getKnownRevisionBlocking()
+        )
+        if (token == null) {
+            Log.v(CLIENT_LOG_TAG, "Token must be not null.")
+        }
+        if (revision == null) {
+            Log.v(CLIENT_LOG_TAG, "Null revision provided.")
+        }
+        val requestBuilder = chain.request().newBuilder()
+        requestBuilder.addHeader(REVISION_HEADER, "$revision")
+        requestBuilder.addHeader(AUTHORIZATION_HEADER, "OAuth $token")
+        val request = requestBuilder.build()
+        chain.proceed(request)
     }
 
 private fun ResponseInterceptor(

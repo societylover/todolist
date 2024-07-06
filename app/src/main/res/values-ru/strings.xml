@@ -36,16 +36,24 @@
     <string name="todo_item_details_close_icon_description">Закрыть форму</string>
 
     <!-- Error messages -->
+    <string name="todo_item_create_delete_error_text">Ошибка удаления данного элемента</string>
     <string name="todo_details_save_error_text">Ошибка сохранения данного элемента</string>
     <string name="todo_details_unknown_error_text">Неизвестная ошибка</string>
+    <string name="device_error_text">Ошибка выполнения запроса. Проверьте параметры вашего устройства</string>
+    <string name="authentication_error_text">Ошибка аутентификации. Проверьте вашу учетную запись!</string>
+    <string name="malformed_request_error_text">Неверный запрос. Что-то неправильно с данными запроса</string>
+    <string name="not_found_error_text">Неверный запрос. Данные не найдены на сервере</string>
+    <string name="bad_revision_error_text">Неверный запрос. Неверная версия ревизии</string>
+
+    <!-- Error action messages -->
+    <string name="repeat_action_button_text">Повторить</string>
 
     <!-- Auth screen messages -->
-    <string name="start_auth_not_authed_text">Необходима аутентифицироваться в приложении </string>
+    <string name="start_auth_not_authed_text">Необходимо аутентифицироваться в приложении </string>
     <string name="start_auth_unknown_error">Произошла неизвестная ошибка при аутентификации 😔</string>
     <string name="start_auth_successfully_text">Вы успешно аутентифицированы в сервисе! 😍</string>
     <string name="start_auth_failure_text">Так не пойдет. Вы не пройдете! 🤬</string>
     <string name="start_auth_cancel_text">Зря Вы так... 🤨</string>
     <string name="start_already_authed_text">Прекрасно. Вы уже аутентифицированы! 🥹</string>
     <string name="start_auth_start_text">Процесс аутентификации начинается...</string>
-
 </resources>

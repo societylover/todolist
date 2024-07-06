@@ -1,9 +1,7 @@
 package com.homework.todolist.data.datasource.remote
 
-import com.homework.todolist.data.datasource.local.LocalDataSource
-import com.homework.todolist.shared.data.result.Result
 import com.homework.todolist.data.model.TodoItem
-import kotlinx.coroutines.flow.Flow
+import com.homework.todolist.shared.data.result.Result
 
 /**
  * Interface of basic remote data source

@@ -1,9 +1,12 @@
 package com.homework.todolist.tododetails
 
+import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -61,17 +64,18 @@ import com.homework.todolist.data.datasource.local.LocalDataSourceStub
 import com.homework.todolist.data.datasource.remote.RemoteDataSourceStub
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
+import com.homework.todolist.tododetails.data.TodoItemUiState
 import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel
 import com.homework.todolist.ui.theme.TodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TodoListDetailsScreen(
     onActionClick: () -> Unit,
@@ -85,102 +89,136 @@ internal fun TodoListDetailsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { },
-                modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
-                navigationIcon = {
-                    IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseEvent) }) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
-                            tint = TodoColorsPalette.current.labelPrimaryColor
-                        )
-                    }
-                },
-                actions = {
-                    if (!itemUiState.isDone) {
-                        TextButton(
-                            onClick = {
-                                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveEvent)
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(id = R.string.todo_item_create_save_icon_text),
-                                color = TodoColorsPalette.current.blueColor
-                            )
-                        }
-                    }
-                })
+            TopAppBarContent(
+                scrollState = scrollState,
+                viewModel = viewModel,
+                itemUiState = itemUiState
+            )
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxWidth()
-                .verticalScroll(scrollState)
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                TodoTextInput(
-                    modifier = Modifier.padding(bottom = 12.dp, top = 2.dp),
-                    text = itemUiState.text,
-                    enabled = !itemUiState.isDone
-                ) {
-                    viewModel.handleEvent(
-                        TodoDetailsViewModel.Companion.DetailsEvent.OnDescriptionUpdate(
-                            it
-                        )
-                    )
-                }
-
-                ImportanceView(
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .fillMaxWidth(),
-                    importance = itemUiState.importance,
-                    enabled = !itemUiState.isDone
-                ) {
-                    viewModel.handleEvent(
-                        TodoDetailsViewModel.Companion.DetailsEvent.OnImportanceChosen(
-                            it
-                        )
-                    )
-                }
-
-                HorizontalDivider(
-                    modifier = Modifier,
-                    color = TodoColorsPalette.current.separatorColor
-                )
-
-                DoUntilView(
-                    modifier = Modifier
-                        .padding(vertical = 16.dp)
-                        .padding(bottom = 24.dp),
-                    isDoUntilSet = itemUiState.isDeadlineSet,
-                    doUntil = itemUiState.doUntil,
-                    enabled = !itemUiState.isDone
-                ) {
-                    viewModel.handleEvent(
-                        TodoDetailsViewModel.Companion.DetailsEvent.OnDeadlinePicked(
-                            it
-                        )
-                    )
-                }
-            }
-
-            HorizontalDivider(color = TodoColorsPalette.current.separatorColor)
-
-            DeleteTaskView(
-                modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
-                isActive = itemUiState.id != null
-            ) {
-                viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
-                onActionClick()
-            }
-        }
+        DetailsContent(paddingValues, scrollState, itemUiState, viewModel::handleEvent, onActionClick)
     }
 
     val context = LocalContext.current
+    handleEffects(viewModel, scope, snackbarHostState, context, onActionClick)
+}
+
+@Composable
+private fun DetailsContent(
+    paddingValues: PaddingValues,
+    scrollState: ScrollState,
+    itemUiState: TodoItemUiState,
+    eventHandler: (TodoDetailsViewModel.Companion.DetailsEvent) -> Unit,
+    onActionClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            TodoTextInput(
+                modifier = Modifier.padding(bottom = 12.dp, top = 2.dp),
+                text = itemUiState.text,
+                enabled = !itemUiState.isDone
+            ) {
+                eventHandler(TodoDetailsViewModel.Companion.DetailsEvent.OnDescriptionUpdate(
+                    it
+                ))
+            }
+
+            ImportanceView(
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .fillMaxWidth(),
+                importance = itemUiState.importance,
+                enabled = !itemUiState.isDone
+            ) {
+                eventHandler(
+                    TodoDetailsViewModel.Companion.DetailsEvent.OnImportanceChosen(
+                        it
+                    )
+                )
+            }
+
+            HorizontalDivider(
+                modifier = Modifier,
+                color = TodoColorsPalette.current.separatorColor
+            )
+
+            DoUntilView(
+                modifier = Modifier
+                    .padding(vertical = 16.dp)
+                    .padding(bottom = 24.dp),
+                isDoUntilSet = itemUiState.isDeadlineSet,
+                doUntil = itemUiState.doUntil,
+                enabled = !itemUiState.isDone
+            ) {
+                eventHandler(
+                    TodoDetailsViewModel.Companion.DetailsEvent.OnDeadlinePicked(
+                        it
+                    )
+                )
+            }
+        }
+
+        HorizontalDivider(color = TodoColorsPalette.current.separatorColor)
+
+        DeleteTaskView(
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
+            isActive = itemUiState.id != null
+        ) {
+            eventHandler(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
+            onActionClick()
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TopAppBarContent(
+    scrollState: ScrollState,
+    viewModel: TodoDetailsViewModel,
+    itemUiState: TodoItemUiState
+) {
+    TopAppBar(
+        title = { },
+        modifier = if (scrollState.value == 0) Modifier else Modifier.shadow(8.dp),
+        navigationIcon = {
+            IconButton(onClick = { viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnCloseEvent) }) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(id = R.string.todo_item_details_close_icon_description),
+                    tint = TodoColorsPalette.current.labelPrimaryColor
+                )
+            }
+        },
+        actions = {
+            if (!itemUiState.isDone) {
+                TextButton(
+                    onClick = {
+                        viewModel.handleEvent(TodoDetailsViewModel.Companion.DetailsEvent.OnSaveEvent)
+                    }
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.todo_item_create_save_icon_text),
+                        color = TodoColorsPalette.current.blueColor
+                    )
+                }
+            }
+        })
+}
+
+@Composable
+private fun handleEffects(
+    viewModel: TodoDetailsViewModel,
+    scope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    context: Context,
+    onActionClick: () -> Unit
+) {
     LaunchedEffect(key1 = Unit) {
         viewModel.effect.collect {
             when (it) {
@@ -192,7 +230,7 @@ internal fun TodoListDetailsScreen(
 
                 is TodoDetailsViewModel.Companion.DetailsEffects.ShowSaveErrorToast -> {
                     scope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.todo_details_save_error_text))
+                        snackbarHostState.showSnackbar(context.getString(it.errorErrorResId))
                     }
                 }
 

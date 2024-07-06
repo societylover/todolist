@@ -5,9 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -16,34 +14,20 @@ internal class ApiParamsProviderImpl @Inject constructor(
     private val androidId: String
 ) : ApiParamsProvider {
 
-    override fun getClientTokenFlow(): Flow<String?> =
-        dataStore.data.map {
-            it[clientTokenKey]
-        }
-
     override suspend fun setClientToken(token: String?) =
         setStoredValue(clientTokenKey, token, DEFAULT_CLIENT_TOKEN)
 
-    override suspend fun getClientToken(): String? =
-        getNullableValue(clientTokenKey, DEFAULT_CLIENT_TOKEN)
+    override fun getClientToken(): String? =
+        runBlocking { getNullableValue(clientTokenKey, DEFAULT_CLIENT_TOKEN) }
 
-    override fun getClientTokenBlocking(): String? =
-        runBlocking { getClientToken() }
-
-    override suspend fun setKnownRevision(revision: Long?) =
-        setStoredValue(revisionTokenKey, revision, DEFAULT_REVISION_TOKEN)
-
-    override fun setKnownRevisionBlocking(revision: Long?) {
+    override fun setKnownRevision(revision: Long) {
         runBlocking(Dispatchers.IO) {
-            setKnownRevision(revision)
+            setStoredValue(revisionTokenKey, revision, DEFAULT_REVISION_TOKEN)
         }
     }
 
-    override suspend fun getKnownRevision(): Long =
-        getValue(revisionTokenKey, DEFAULT_REVISION_TOKEN)
-
-    override fun getKnownRevisionBlocking(): Long =
-        runBlocking { getKnownRevision() }
+    override fun getKnownRevision(): Long =
+        runBlocking { getValue(revisionTokenKey, DEFAULT_REVISION_TOKEN) }
 
     override fun getAndroidId(): String = androidId
 

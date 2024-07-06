@@ -29,7 +29,7 @@ class StartDetailsViewModel @Inject constructor(
     }
 
     init {
-        if (apiParamsProvider.getClientTokenBlocking() != null) {
+        if (apiParamsProvider.getClientToken() != null) {
             setEvent(StartEvent.OnAlreadyAuthed)
         } else {
             setEvent(StartEvent.OnAuthStart)

@@ -77,8 +77,8 @@ private fun OkHttpConfig.configBuilder(apiParamsProvider: ApiParamsProvider) {
 private fun RequestPrepareInterceptor(apiParamsProvider: ApiParamsProvider) =
     Interceptor { chain ->
         val (token, revision) = Pair(
-            apiParamsProvider.getClientTokenBlocking(),
-            apiParamsProvider.getKnownRevisionBlocking()
+            apiParamsProvider.getClientToken(),
+            apiParamsProvider.getKnownRevision()
         )
         if (token == null) {
             Log.v(CLIENT_LOG_TAG, "Token must be not null.")
@@ -107,7 +107,7 @@ private fun ResponseInterceptor(
             val jsonObject = jsonElement.jsonObject
             val revision = jsonObject["revision"]?.jsonPrimitive?.content
             revision?.let { rev ->
-                apiParamsProvider.setKnownRevisionBlocking(rev.toLong())
+                apiParamsProvider.setKnownRevision(rev.toLong())
             }
         }
 

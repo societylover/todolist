@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
 }
 
@@ -21,9 +22,26 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Replace with client_id like: manifestPlaceholders["YANDEX_CLIENT_ID"] = "123"
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = project.properties["CLIENT_ID"].toString()
+        // Replace with basic url like: buildConfigField("String", "BASE_URL", "https://www.example.com/list")
+        buildConfigField("String", "BASE_URL", project.properties["BASE_URL"].toString())
+    }
+
+    signingConfigs {
+        create("release") {
+            keyAlias = project.properties["RELEASE_KEY_ALIAS"].toString()
+            keyPassword = project.properties["RELEASE_KEY_PASSWORD"].toString()
+            storeFile = file(project.properties["RELEASE_STORE_FILE"].toString())
+            storePassword = project.properties["RELEASE_STORE_PASSWORD"].toString()
+        }
     }
 
     buildTypes {
+        all {
+            signingConfig = signingConfigs.getAt("release")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -37,10 +55,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.5.8"
     }
     packaging {
         resources {
@@ -66,12 +85,25 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
 
-    implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt)
+    implementation(libs.androidx.hilt.work)
     kapt(libs.hilt.compiler)
+
     implementation(libs.compose.lifecycle)
 
+    implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.data.store)
+
+    implementation(libs.auth.sdk)
+    implementation(libs.bundles.ktor)
+
     implementation(libs.androidx.navigation.compose)
+
+    implementation(libs.work.manager)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

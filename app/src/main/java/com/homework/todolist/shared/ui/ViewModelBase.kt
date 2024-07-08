@@ -1,4 +1,4 @@
-package com.homework.todolist.shared
+package com.homework.todolist.shared.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

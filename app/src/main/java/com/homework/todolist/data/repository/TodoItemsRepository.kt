@@ -4,8 +4,7 @@ import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.time.LocalDateTime
-
+import com.homework.todolist.shared.data.result.Result
 /**
  * Interface for to do items repository
  */
@@ -17,30 +16,37 @@ interface TodoItemsRepository {
     fun getItemsList(): Flow<List<TodoItem>>
 
     /**
+     * Force update item list from remote
+     * @return Result of execution
+     */
+    suspend fun fetchItems() : Result<Boolean>
+
+    /**
      * Get item details by it's id
      * @param id Item id
      * @return To-do item info or null
      */
-    fun getItemDetails(id: String): TodoItem?
+    suspend fun getItemDetails(id: String): Result<TodoItem?>
 
     /**
      * Remove item from list by it's id
      * @param id To do item id
+     * @return Result of execution
      */
-    suspend fun removeItemById(id: String)
+    suspend fun removeItemById(id: String) : Result<Boolean>
 
     /**
      * Create new to do list item
      * @param text To do item text
      * @param importance To do item importance
      * @param deadlineAt To do item deadline date time
-     * @return New item id
+     * @return Result of execution with new to-do item
      */
-    fun createItem(
+    suspend fun createItem(
         text: String,
         importance: Importance,
         deadlineAt: LocalDate? = null
-    ): String
+    ): Result<Boolean>
 
     /**
      * Update to do item state
@@ -58,6 +64,6 @@ interface TodoItemsRepository {
         done: Boolean,
         importance: Importance,
         deadlineAt: LocalDate?,
-        updated: LocalDateTime = LocalDateTime.now()
-    ): Boolean
+        updated: LocalDate = LocalDate.now()
+    ): Result<Boolean>
 }

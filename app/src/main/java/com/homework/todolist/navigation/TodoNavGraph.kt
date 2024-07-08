@@ -9,8 +9,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.startdetails.StartScreen
 import com.homework.todolist.tododetails.TodoListDetailsScreen
 import com.homework.todolist.todos.TodoListScreen
+import kotlin.system.exitProcess
 
 /**
  * Application navigation handler
@@ -21,7 +23,7 @@ import com.homework.todolist.todos.TodoListScreen
 @Composable
 internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = TodoDestinations.TODO_LIST_ROUTE,
+    startDestination: String = TodoDestinations.AUTH_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(
             navController
@@ -32,6 +34,13 @@ internal fun TodoNavGraph(
         navController = navController,
         startDestination = startDestination
     ) {
+        composable(TodoDestinations.AUTH_ROUTE)
+        { _ ->
+            StartScreen(
+                onSuccessAuthed = { navActions.navigateToTodoList() },
+                onFailureAuthed = { exitProcess(1) })
+        }
+
         composable(TodoDestinations.TODO_LIST_ROUTE)
         { _ ->
             TodoListScreen(

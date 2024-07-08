@@ -1,13 +1,18 @@
 package com.homework.todolist.tododetails.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.navigation.TodoDestinationsArgs
-import com.homework.todolist.shared.UiEffect
-import com.homework.todolist.shared.UiEvent
-import com.homework.todolist.shared.ViewModelBase
+import com.homework.todolist.shared.data.result.BadRequestRemoteErrors
+import com.homework.todolist.shared.data.result.DeviceError
+import com.homework.todolist.shared.data.result.Result
+import com.homework.todolist.shared.ui.UiEffect
+import com.homework.todolist.shared.ui.UiEvent
+import com.homework.todolist.shared.ui.ViewModelBase
 import com.homework.todolist.tododetails.data.TodoItemUiState
 import com.homework.todolist.tododetails.data.toTodoItemUiState
 import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEffects
@@ -36,19 +41,28 @@ class TodoDetailsViewModel @Inject constructor(
 
     init {
         savedStateHandle.get<String>(TodoDestinationsArgs.TODO_ID)?.also { id ->
-            todoItemsRepository.getItemDetails(id)?.also { item ->
-                setState { item.toTodoItemUiState() }
+            scope.launch {
+                todoItemsRepository.getItemDetails(id).also { item ->
+                    if (item is Result.Error) {
+                        handleError(item)
+                        return@launch
+                    }
+
+                    if (item is Result.Success && item.data != null) {
+                        setState { item.data.toTodoItemUiState() }
+                    }
+                }
             }
         }
     }
 
     override fun handleEvent(event: UiEvent) {
         when (event) {
-            is DetailsEvent.OnSaveClick -> {
+            is DetailsEvent.OnSaveEvent -> {
                 saveItem()
             }
 
-            is DetailsEvent.OnCloseClick -> {
+            is DetailsEvent.OnCloseEvent -> {
                 closeForm()
             }
 
@@ -64,7 +78,7 @@ class TodoDetailsViewModel @Inject constructor(
                 setDeadlineDate(event.deadlineAt)
             }
 
-            is DetailsEvent.OnDeleteClick -> {
+            is DetailsEvent.OnDeleteEvent -> {
                 deleteItem()
             }
         }
@@ -77,12 +91,12 @@ class TodoDetailsViewModel @Inject constructor(
     private fun saveItem() {
         val itemUiState = state.value
         if (itemUiState.text.isEmpty()) {
-            setEffect { DetailsEffects.ShowSaveErrorToast }
+            setEffect { DetailsEffects.ShowSaveErrorToast(R.string.todo_details_save_error_text) }
             return
         }
 
         scope.launch(Dispatchers.IO) {
-            if (itemUiState.id != null) {
+            val result = if (itemUiState.id != null) {
                 todoItemsRepository.updateItem(
                     id = itemUiState.id,
                     text = itemUiState.text,
@@ -97,13 +111,23 @@ class TodoDetailsViewModel @Inject constructor(
                     deadlineAt = if (itemUiState.isDeadlineSet) itemUiState.doUntil else null
                 )
             }
-            setEffect { DetailsEffects.OnItemSaved }
+
+            if (result is Result.Error) {
+                handleError(result)
+                return@launch
+            }
+
+            if (result is Result.Success) {
+                setEffect { DetailsEffects.OnItemSaved }
+            } else {
+                handleUnknownActionError(DetailsEvent.OnSaveEvent)
+            }
         }
     }
 
     private fun deleteItem() {
         if (currentState.text.isEmpty() || currentState.id == null) {
-            setEffect { DetailsEffects.ShowSaveErrorToast }
+            setEffect { DetailsEffects.ShowSaveErrorToast(R.string.todo_item_create_delete_button_text) }
         } else {
             val itemId = currentState.id ?: return
             scope.launch(Dispatchers.IO) {
@@ -111,6 +135,23 @@ class TodoDetailsViewModel @Inject constructor(
                 setEffect { DetailsEffects.OnItemDeleted }
             }
         }
+    }
+
+    private fun handleError(error: Result.Error) {
+        setEffect {
+            when (error.errorType) {
+                DeviceError.DEVICE_ERROR -> { DetailsEffects.ShowSaveErrorToast(R.string.device_error_text) }
+                BadRequestRemoteErrors.UNAUTHORIZED -> { DetailsEffects.ShowSaveErrorToast(R.string.authentication_error_text) }
+                BadRequestRemoteErrors.MALFORMED_REQUEST -> { DetailsEffects.ShowSaveErrorToast(R.string.malformed_request_error_text) }
+                BadRequestRemoteErrors.NOT_FOUND -> { DetailsEffects.ShowSaveErrorToast(R.string.not_found_error_text) }
+                BadRequestRemoteErrors.UNSYNCHRONIZED_DATA -> { DetailsEffects.ShowSaveErrorToast(R.string.bad_revision_error_text) }
+                else -> { DetailsEffects.ShowSaveErrorToast(R.string.todo_details_unknown_error_text) }
+            }
+        }
+    }
+
+    private suspend fun handleUnknownActionError(event: DetailsEvent) {
+
     }
 
     private fun setDeadlineDate(selectedDate: LocalDate?) {
@@ -121,6 +162,7 @@ class TodoDetailsViewModel @Inject constructor(
 
         setState { copy(doUntil = selectedDate, isDeadlineSet = true) }
     }
+
 
     private fun setDescription(description: String) {
         setState { copy(text = description) }
@@ -135,23 +177,23 @@ class TodoDetailsViewModel @Inject constructor(
          * Details screen events
          */
         sealed class DetailsEvent : UiEvent {
-            object OnSaveClick : DetailsEvent()
-            object OnCloseClick : DetailsEvent()
+            data object OnSaveEvent : DetailsEvent()
+            data object OnCloseEvent : DetailsEvent()
             data class OnImportanceChosen(val importance: Importance) : DetailsEvent()
             data class OnDescriptionUpdate(val text: String) : DetailsEvent()
             data class OnDeadlinePicked(val deadlineAt: LocalDate? = null) : DetailsEvent()
-            object OnDeleteClick : DetailsEvent()
+            data object OnDeleteEvent : DetailsEvent()
         }
 
         /**
          * Details screen effects
          */
         sealed class DetailsEffects : UiEffect {
-            object ShowSaveErrorToast : DetailsEffects()
-            object UnknownErrorToast : DetailsEffects()
-            object OnItemSaved : DetailsEffects()
-            object OnFormClosed : DetailsEffects()
-            object OnItemDeleted : DetailsEffects()
+            data class ShowSaveErrorToast(@StringRes val errorErrorResId: Int) : DetailsEffects()
+            data object UnknownErrorToast : DetailsEffects()
+            data object OnItemSaved : DetailsEffects()
+            data object OnFormClosed : DetailsEffects()
+            data object OnItemDeleted : DetailsEffects()
         }
     }
 }

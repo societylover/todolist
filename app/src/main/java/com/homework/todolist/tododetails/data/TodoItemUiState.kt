@@ -2,7 +2,7 @@ package com.homework.todolist.tododetails.data
 
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
-import com.homework.todolist.shared.UiState
+import com.homework.todolist.shared.ui.UiState
 import java.time.LocalDate
 
 /**

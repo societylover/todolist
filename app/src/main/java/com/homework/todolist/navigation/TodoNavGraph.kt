@@ -37,7 +37,7 @@ internal fun TodoNavGraph(
         composable(TodoDestinations.AUTH_ROUTE)
         { _ ->
             StartScreen(
-                onSuccessAuthed = { navActions.navigateToTodoList() },
+                onSuccessAuthed = { navActions.navigateToTodoList(true) },
                 onFailureAuthed = { exitProcess(1) })
         }
 

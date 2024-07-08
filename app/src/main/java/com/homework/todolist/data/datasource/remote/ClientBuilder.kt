@@ -61,9 +61,7 @@ internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
             retryOnExceptionIf { _, cause ->
                 cause !is IOException || cause !is UnknownHostException
             }
-            delayMillis { retry ->
-                retry * 3000L
-            }
+            exponentialDelay()
         }
     }
 
@@ -84,9 +82,6 @@ private fun RequestPrepareInterceptor(apiParamsProvider: ApiParamsProvider) =
         )
         if (token == null) {
             Log.v(CLIENT_LOG_TAG, "Token must be not null.")
-        }
-        if (revision == null) {
-            Log.v(CLIENT_LOG_TAG, "Null revision provided.")
         }
         val requestBuilder = chain.request().newBuilder()
         requestBuilder.addHeader(REVISION_HEADER, "$revision")

@@ -41,11 +41,12 @@ internal class TodoNavigationActions(private val navController: NavHostControlle
     /**
      * Navigates to todo list screen
      */
-    internal fun navigateToTodoList() {
+    internal fun navigateToTodoList(isInclusive: Boolean = false) {
         navController.navigate(TodoDestinations.TODO_LIST_ROUTE) {
+            popUpTo(0)
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
-                inclusive = true
+                inclusive = isInclusive
             }
             launchSingleTop = true
         }

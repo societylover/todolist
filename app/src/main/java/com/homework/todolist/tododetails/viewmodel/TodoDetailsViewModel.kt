@@ -115,12 +115,8 @@ class TodoDetailsViewModel @Inject constructor(
             if (result is Result.Error) {
                 handleError(result)
                 return@launch
-            }
-
-            if (result is Result.Success) {
-                setEffect { DetailsEffects.OnItemSaved }
             } else {
-                handleUnknownActionError(DetailsEvent.OnSaveEvent)
+                setEffect { DetailsEffects.OnItemSaved }
             }
         }
     }
@@ -148,10 +144,6 @@ class TodoDetailsViewModel @Inject constructor(
                 else -> { DetailsEffects.ShowSaveErrorToast(R.string.todo_details_unknown_error_text) }
             }
         }
-    }
-
-    private suspend fun handleUnknownActionError(event: DetailsEvent) {
-
     }
 
     private fun setDeadlineDate(selectedDate: LocalDate?) {

@@ -11,6 +11,13 @@ android {
     namespace = "com.homework.todolist"
     compileSdk = 34
 
+    val clientId: String by project
+    val baseUrl: String by project
+    val appStoreFile: String by project
+    val appStorePassword: String by project
+    val appKeyAlias: String by project
+    val appKeyPassword: String by project
+
     defaultConfig {
         applicationId = "com.homework.todolist"
         minSdk = 29
@@ -24,17 +31,17 @@ android {
         }
 
         // Replace with client_id like: manifestPlaceholders["YANDEX_CLIENT_ID"] = "123"
-        manifestPlaceholders["YANDEX_CLIENT_ID"] = project.properties["CLIENT_ID"].toString()
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
         // Replace with basic url like: buildConfigField("String", "BASE_URL", "https://www.example.com/list")
-        buildConfigField("String", "BASE_URL", project.properties["BASE_URL"].toString())
+        buildConfigField("String", "BASE_URL", baseUrl)
     }
 
     signingConfigs {
         create("release") {
-            keyAlias = project.properties["RELEASE_KEY_ALIAS"].toString()
-            keyPassword = project.properties["RELEASE_KEY_PASSWORD"].toString()
-            storeFile = file(project.properties["RELEASE_STORE_FILE"].toString())
-            storePassword = project.properties["RELEASE_STORE_PASSWORD"].toString()
+            keyAlias = appKeyAlias
+            keyPassword = appKeyPassword
+            storeFile = file(appStoreFile)
+            storePassword = appStorePassword
         }
     }
 

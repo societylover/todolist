@@ -6,34 +6,31 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.homework.todolist.data.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TodoItemDao {
-    @Query("SELECT * FROM todo_items ORDER BY createdAt DESC")
-    fun getItemsList(): Flow<List<TodoItem>>
+    @Query("SELECT * FROM todos ORDER BY createdAt DESC")
+    fun getItemsList(): Flow<List<TodoEntity>>
 
-    @Query("SELECT * FROM todo_items WHERE id = :id")
-    suspend fun getItemDetails(id: String): TodoItem?
+    @Query("SELECT * FROM todos WHERE id = :id")
+    suspend fun getItemDetails(id: String): TodoEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addItem(todoItem: TodoItem) : Long
+    suspend fun addItem(todoItem: TodoEntity) : Long
 
     @Update
-    suspend fun updateItem(todoItem: TodoItem) : Int
+    suspend fun updateItem(todoItem: TodoEntity) : Int
 
     @Transaction
-    suspend fun setItemsList(items: List<TodoItem>) {
-        // Clear all existing items
+    suspend fun setItemsList(items: List<TodoEntity>) {
         deleteAllItems()
-        // Insert new items
         items.forEach { addItem(it) }
     }
 
-    @Query("DELETE FROM todo_items WHERE id = :id")
+    @Query("DELETE FROM todos WHERE id = :id")
     suspend fun removeItemById(id: String) : Int
 
-    @Query("DELETE FROM todo_items")
+    @Query("DELETE FROM todos")
     suspend fun deleteAllItems()
 }

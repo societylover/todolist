@@ -15,10 +15,12 @@ data class TodoEntity(
     val done: Boolean,
     val createdAt: Long,
     val deadlineAt: Long? = null,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val localOnly: Boolean,
+    val deletedLocally: Boolean = false
 )
 
-internal fun TodoItem.toTodoEntity(): TodoEntity =
+internal fun TodoItem.toTodoEntity(localOnly: Boolean = false): TodoEntity =
     TodoEntity(
         id = id,
         text = text,
@@ -26,7 +28,8 @@ internal fun TodoItem.toTodoEntity(): TodoEntity =
         done = done,
         createdAt = createdAt.toMillis(),
         deadlineAt = deadlineAt.toMillis(),
-        updatedAt = updatedAt.toMillis()
+        updatedAt = updatedAt.toMillis(),
+        localOnly = localOnly
     )
 
 internal fun TodoEntity.toTodoItem() : TodoItem =

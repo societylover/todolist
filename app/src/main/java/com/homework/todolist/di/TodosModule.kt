@@ -66,9 +66,8 @@ object TodosModule {
         @DeviceSensitive deviceParams: DeviceParams,
         dataStore: DataStore<Preferences>,
     ): ApiParamsProvider =
-        ApiParamsProviderImpl(dataStore = dataStore, androidId = deviceParams.deviceId)
+        ApiParamsProviderImpl(dataStore = dataStore, deviceParams = deviceParams)
 
-    @SuppressLint("HardwareIds")
     @Provides
     @DeviceSensitive
     fun provideDeviceId(@ApplicationContext context: Context): DeviceParams {

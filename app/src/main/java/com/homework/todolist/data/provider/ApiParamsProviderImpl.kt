@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 internal class ApiParamsProviderImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>,
-    private val androidId: String
+    private val deviceParams: DeviceParams
 ) : ApiParamsProvider {
 
     override suspend fun setClientToken(token: String?) =
@@ -29,7 +29,7 @@ internal class ApiParamsProviderImpl @Inject constructor(
     override fun getKnownRevision(): Long =
         runBlocking { getValue(revisionTokenKey, DEFAULT_REVISION_TOKEN) }
 
-    override fun getAndroidId(): String = androidId
+    override fun getAndroidId(): String = deviceParams.deviceId
 
     private suspend fun <T> setStoredValue(key: Preferences.Key<T>, value: T?, defaultValue: T) {
         dataStore.updateData { parameters ->

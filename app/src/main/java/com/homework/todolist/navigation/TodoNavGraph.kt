@@ -9,9 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
-import com.homework.todolist.startdetails.StartScreen
-import com.homework.todolist.tododetails.TodoListDetailsScreen
-import com.homework.todolist.todos.TodoListScreen
+import com.homework.todolist.ui.startdetails.StartScreen
+import com.homework.todolist.ui.tododetails.TodoListDetailsScreen
+import com.homework.todolist.ui.todos.TodoListScreen
 import kotlin.system.exitProcess
 
 /**

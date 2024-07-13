@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.libsDirectory
-
 plugins {
     `kotlin-dsl`
 }
@@ -12,11 +10,10 @@ repositories {
 
 gradlePlugin {
     plugins.register("telegram-reporter") {
-        id = "telegram"
-        implementationClass = "ru.yandex.shmr24.task.TelegramReporterPlugin"
+        id = "telegram-reporter"
+        implementationClass = "ru.yandex.shmr24.practice.TelegramReporterPlugin"
     }
 }
-
 dependencies {
     implementation(libs.agp)
     implementation(libs.kotlin.gradle.plugin)

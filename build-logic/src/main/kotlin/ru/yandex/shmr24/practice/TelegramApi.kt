@@ -1,15 +1,10 @@
 package ru.yandex.shmr24.practice
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.forms.MultiPartFormDataContent
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.http.Headers
-import io.ktor.http.HttpHeaders
-import io.ktor.http.escapeIfNeeded
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import java.io.File
 
 private const val BASE_URL = "https://api.telegram.org"

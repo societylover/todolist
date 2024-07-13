@@ -12,11 +12,7 @@ repositories {
 
 gradlePlugin {
     plugins.register("telegram-reporter") {
-        id = "telegram-reporter"
-        implementationClass = "ru.yandex.shmr24.practice.TelegramReporterPlugin"
-    }
-    plugins.register("size-validator") {
-        id = "size-validator"
+        id = "telegram"
         implementationClass = "ru.yandex.shmr24.task.TelegramReporterPlugin"
     }
 }

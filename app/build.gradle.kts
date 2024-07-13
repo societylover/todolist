@@ -1,8 +1,7 @@
 @Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     id("android-app-convention")
-    id("telegram-reporter")
-    id("size-validator")
+    id("telegram")
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
@@ -14,12 +13,7 @@ java {
     }
 }
 
-tgReporter {
-    token.set(providers.environmentVariable("TG_TOKEN"))
-    chatId.set(providers.environmentVariable("TG_CHAT"))
-}
-
-sizeValidator {
+telegram {
     token.set(providers.environmentVariable("TG_TOKEN"))
     chatId.set(providers.environmentVariable("TG_CHAT"))
     maxApkSizeMb.set(20)

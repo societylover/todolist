@@ -17,7 +17,7 @@ configure<BaseAppModuleExtension> {
 
     defaultConfig {
         val baseUrl = providers.environmentVariable("BASE_URL")
-        buildConfigField("String", "BASE_URL", baseUrl.get())
+        buildConfigField("String", "BASE_URL", "\"${baseUrl.get()}\"")
         manifestPlaceholders["YANDEX_CLIENT_ID"] = providers.environmentVariable("CLIENT_ID")
     }
 }

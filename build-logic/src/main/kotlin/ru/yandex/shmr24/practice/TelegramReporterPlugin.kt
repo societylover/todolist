@@ -54,7 +54,7 @@ class TelegramReporterPlugin : Plugin<Project> {
 
             // Rename APK file after assembling
             try {
-                project.tasks.named("assemble${variantName.capitalize()}").configure {
+                project.tasks.named("reportTelegramApkFor${variantName.capitalize()}").configure {
                     doLast {
                         val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
                         val apkFile = apkArtifact.get().asFile

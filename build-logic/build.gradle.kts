@@ -15,6 +15,10 @@ gradlePlugin {
         id = "telegram-reporter"
         implementationClass = "ru.yandex.shmr24.practice.TelegramReporterPlugin"
     }
+    plugins.register("size-validator") {
+        id = "size-validator"
+        implementationClass = "ru.yandex.shmr24.task.TelegramReporterPlugin"
+    }
 }
 
 dependencies {

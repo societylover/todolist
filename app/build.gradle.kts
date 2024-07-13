@@ -2,6 +2,7 @@
 plugins {
     id("android-app-convention")
     id("telegram-reporter")
+    id("size-validator")
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
@@ -16,6 +17,13 @@ java {
 tgReporter {
     token.set(providers.environmentVariable("TG_TOKEN"))
     chatId.set(providers.environmentVariable("TG_CHAT"))
+}
+
+sizeValidator {
+    token.set(providers.environmentVariable("TG_TOKEN"))
+    chatId.set(providers.environmentVariable("TG_CHAT"))
+    maxApkSizeMb.set(20)
+    validateApkSizeEnabled.set(true)
 }
 
 android {

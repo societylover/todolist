@@ -9,6 +9,8 @@ env:
   gradleFlags: --parallel --stacktrace --no-configuration-cache --no-daemon
   TG_CHAT: ${{ secrets.TG_CHAT }}
   TG_TOKEN: ${{ secrets.TG_TOKEN }}
+  BASE_URL: ${{ secrets.BASE_URL }}
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
 
 jobs:
   build-and-telegram-report:

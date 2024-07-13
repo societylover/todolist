@@ -15,11 +15,11 @@ configure<BaseAppModuleExtension> {
         kotlinCompilerExtensionVersion = "1.5.8"
     }
 
-//    defaultConfig {
-//        val baseUrl = providers.environmentVariable("BASE_URL")
-//        buildConfigField("String", "BASE_URL", baseUrl.get())
-//        manifestPlaceholders["YANDEX_CLIENT_ID"] = providers.environmentVariable("CLIENT_ID")
-//    }
+    defaultConfig {
+        val baseUrl = providers.environmentVariable("BASE_URL")
+        buildConfigField("String", "BASE_URL", baseUrl.get())
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = providers.environmentVariable("CLIENT_ID")
+    }
 }
 
 dependencies {

@@ -29,7 +29,7 @@ class TelegramReporterPlugin : Plugin<Project> {
 
             // Register ValidateApkSizeFor* task
             val validateTask = project.tasks.register("validateApkSizeFor$variantName", ValidateApkSizeTask::class.java, telegramApi).configure {
-                apkFile.set(artifacts.get().asFile)
+                apkFile.set(artifacts.map { it.asFile }.get())
                 token.set(telegramExtension.token)
                 chatId.set(telegramExtension.chatId)
                 maxApkSizeMb.set(telegramExtension.maxApkSizeMb)
@@ -39,14 +39,20 @@ class TelegramReporterPlugin : Plugin<Project> {
             // Register ReportTelegramApkFor* task
             val reportTask = project.tasks.register("reportTelegramApkFor$variantName", TelegramReporterTask::class.java, telegramApi).configure {
                 dependsOn(validateTask)
-                apkDir.set(artifacts.get().asFile)
+                apkDir.set(artifacts.map { it.asFile.parentFile }.get())
                 token.set(telegramExtension.token)
                 chatId.set(telegramExtension.chatId)
             }
 
             // Rename APK file
-            val newFileName = "todolist-$variantName-$versionCode.apk"
-            artifacts.get().asFile.renameTo(File(artifacts.get().asFile.parent, newFileName))
+            project.tasks.named("package${variantName.capitalize()}").configure {
+                doLast {
+                    val apkFile = artifacts.get().asFile
+                    val newFileName = "todolist-$variantName-$versionCode.apk"
+                    val newFile = File(apkFile.parent, newFileName)
+                    apkFile.renameTo(newFile)
+                }
+            }
         }
     }
 }

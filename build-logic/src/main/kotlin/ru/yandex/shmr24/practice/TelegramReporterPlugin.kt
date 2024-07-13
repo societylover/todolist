@@ -10,6 +10,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
+import java.io.File
 
 class TelegramReporterPlugin : Plugin<Project> {
 
@@ -23,35 +24,45 @@ class TelegramReporterPlugin : Plugin<Project> {
         val androidExtension = project.extensions.getByType(BaseAppModuleExtension::class.java)
 
         androidComponents.onVariants { variant ->
-            val artifacts = variant.artifacts.get(SingleArtifact.APK)
+            val variantName = variant.name.capitalize()
 
-            project.tasks.register("validateApkSizeFor${variant.name.capitalize()}", ValidateApkSizeTask::class.java, telegramApi).configure {
-                apkFile.set(artifacts.map { it.asFile }.get())
-                token.set(extension.token)
-                chatId.set(extension.chatId)
-                maxApkSizeMb.set(extension.maxApkSizeMb)
-                validateApkSizeEnabled.set(extension.validateApkSizeEnabled)
+            // Register ValidateApkSizeFor* task
+            val validateTask = project.tasks.register("validateApkSizeFor${variantName}", ValidateApkSizeTask::class.java, telegramApi).apply {
+                configure {
+                    val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
+                    apkFile.set(apkArtifact.get().asFile)
+                    token.set(extension.token)
+                    chatId.set(extension.chatId)
+                    maxApkSizeMb.set(extension.maxApkSizeMb)
+                    validateApkSizeEnabled.set(extension.validateApkSizeEnabled)
+                }
             }
 
-            project.tasks.register("reportTelegramApkFor${variant.name.capitalize()}", TelegramReporterTask::class.java, telegramApi).configure {
-                dependsOn("validateApkSizeFor${variant.name.capitalize()}")
-                apkDir.set(artifacts)
-                token.set(extension.token)
-                chatId.set(extension.chatId)
+            // Register ReportTelegramApkFor* task
+            project.tasks.register("reportTelegramApkFor${variantName}", TelegramReporterTask::class.java, telegramApi).apply {
+                configure {
+                    dependsOn(validateTask)
+                    val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
+                    apkDir.set(apkArtifact.get())
+                    token.set(extension.token)
+                    chatId.set(extension.chatId)
+                }
             }
 
             val versionCode = androidExtension.defaultConfig.versionCode ?: 1
 
-//            project.tasks.named("assemble${variant.name.capitalize()}").configure {
-//                doLast {
-//                    val apkFile = artifacts.get().asFile
-//                    val newFileName = "todolist-${variant.name}-${versionCode}.apk"
-//                    val newFile = File(apkFile.parent, newFileName)
-//                    if (apkFile.exists()) {
-//                        apkFile.renameTo(newFile)
-//                    }
-//                }
-//            }
+            // Rename APK file after assembling
+            project.tasks.named("assemble${variantName.capitalize()}").configure {
+                doLast {
+                    val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
+                    val apkFile = apkArtifact.get().asFile
+                    val newFileName = "todolist-${variantName}-${versionCode}.apk"
+                    val newFile = File(apkFile.parentFile, newFileName)
+                    if (apkFile.exists()) {
+                        apkFile.renameTo(newFile)
+                    }
+                }
+            }
         }
     }
 }
@@ -62,5 +73,3 @@ interface TelegramExtension {
     val maxApkSizeMb: Property<Int>
     val validateApkSizeEnabled: Property<Boolean>
 }
-
-

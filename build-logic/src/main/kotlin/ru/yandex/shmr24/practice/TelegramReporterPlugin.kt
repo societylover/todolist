@@ -8,6 +8,7 @@ import io.ktor.client.engine.okhttp.OkHttp
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.create
 import java.io.File
@@ -52,16 +53,20 @@ class TelegramReporterPlugin : Plugin<Project> {
             val versionCode = androidExtension.defaultConfig.versionCode ?: 1
 
             // Rename APK file after assembling
-            project.tasks.named("assemble${variantName.capitalize()}").configure {
-                doLast {
-                    val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
-                    val apkFile = apkArtifact.get().asFile
-                    val newFileName = "todolist-${variantName}-${versionCode}.apk"
-                    val newFile = File(apkFile.parentFile, newFileName)
-                    if (apkFile.exists()) {
-                        apkFile.renameTo(newFile)
+            try {
+                project.tasks.named("assemble${variantName.capitalize()}").configure {
+                    doLast {
+                        val apkArtifact = variant.artifacts.get(SingleArtifact.APK)
+                        val apkFile = apkArtifact.get().asFile
+                        val newFileName = "todolist-${variantName}-${versionCode}.apk"
+                        val newFile = File(apkFile.parentFile, newFileName)
+                        if (apkFile.exists()) {
+                            apkFile.renameTo(newFile)
+                        }
                     }
                 }
+            } catch (e: UnknownTaskException) {
+                e.printStackTrace()
             }
         }
     }

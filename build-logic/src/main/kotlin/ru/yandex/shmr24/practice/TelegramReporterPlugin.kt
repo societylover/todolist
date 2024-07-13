@@ -2,6 +2,7 @@ package ru.yandex.shmr24.practice
 
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import org.gradle.api.GradleException
@@ -17,14 +18,40 @@ class TelegramReporterPlugin : Plugin<Project> {
             ?: throw GradleException("Android not found")
 
         val extension = project.extensions.create("tgReporter", TelegramExtension::class)
+
         val telegramApi = TelegramApi(HttpClient(OkHttp))
+        val androidExtension = project.extensions.getByType(BaseAppModuleExtension::class.java)
+
         androidComponents.onVariants { variant ->
             val artifacts = variant.artifacts.get(SingleArtifact.APK)
+
+            project.tasks.register("validateApkSizeFor${variant.name.capitalize()}", ValidateApkSizeTask::class.java, telegramApi).configure {
+                apkFile.set(artifacts.map { it.asFile }.get())
+                token.set(extension.token)
+                chatId.set(extension.chatId)
+                maxApkSizeMb.set(extension.maxApkSizeMb)
+                validateApkSizeEnabled.set(extension.validateApkSizeEnabled)
+            }
+
             project.tasks.register("reportTelegramApkFor${variant.name.capitalize()}", TelegramReporterTask::class.java, telegramApi).configure {
+                dependsOn("validateApkSizeFor${variant.name.capitalize()}")
                 apkDir.set(artifacts)
                 token.set(extension.token)
                 chatId.set(extension.chatId)
             }
+
+            val versionCode = androidExtension.defaultConfig.versionCode ?: 1
+
+//            project.tasks.named("assemble${variant.name.capitalize()}").configure {
+//                doLast {
+//                    val apkFile = artifacts.get().asFile
+//                    val newFileName = "todolist-${variant.name}-${versionCode}.apk"
+//                    val newFile = File(apkFile.parent, newFileName)
+//                    if (apkFile.exists()) {
+//                        apkFile.renameTo(newFile)
+//                    }
+//                }
+//            }
         }
     }
 }
@@ -32,5 +59,8 @@ class TelegramReporterPlugin : Plugin<Project> {
 interface TelegramExtension {
     val chatId: Property<String>
     val token: Property<String>
+    val maxApkSizeMb: Property<Int>
+    val validateApkSizeEnabled: Property<Boolean>
 }
+
 

@@ -62,7 +62,7 @@ internal fun TodoNavGraph(
                 }
             )
         ) { _ ->
-            TodoListDetailsScreen(onActionClick = { navActions.navigateToTodoList() })
+            TodoListDetailsScreen(onActionClick = { navActions.navigateToTodoList(false) })
         }
     }
 }

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.pm20.util.libsDirectory
+
 plugins {
     `kotlin-dsl`
 }
@@ -9,10 +11,6 @@ repositories {
 }
 
 gradlePlugin {
-    plugins.register("myPlugin") {
-        id = "my-plugin"
-        implementationClass = "ru.yandex.shmr24.plugins.MyPlugin"
-    }
     plugins.register("telegram-reporter") {
         id = "telegram-reporter"
         implementationClass = "ru.yandex.shmr24.practice.TelegramReporterPlugin"
@@ -22,8 +20,8 @@ gradlePlugin {
 dependencies {
     implementation(libs.agp)
     implementation(libs.kotlin.gradle.plugin)
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.ktor.client)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(files(libs.javaClass.superclass.protectionDomain.codeSource.location))
 }

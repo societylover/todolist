@@ -26,7 +26,9 @@ data class TodoDTO(
     @SerialName("changed_at")
     val changedAt: Long,
     @SerialName("last_updated_by")
-    val lastUpdatedBy: String
+    val lastUpdatedBy: String,
+    @SerialName("files")
+    val files: String? = null
 )
 
 internal fun TodoDTO.toTodo() : TodoItem =

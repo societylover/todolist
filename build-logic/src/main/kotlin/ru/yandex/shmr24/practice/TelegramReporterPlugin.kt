@@ -33,4 +33,3 @@ interface TelegramExtension {
     val chatId: Property<String>
     val token: Property<String>
 }
-

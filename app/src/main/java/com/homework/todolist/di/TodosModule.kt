@@ -43,9 +43,10 @@ object TodosModule {
     @Singleton
     fun provideTodoItemsRepository(
         localDataSource: LocalDataSource,
-        remoteDataSource: RemoteDataSourceImpl
+        remoteDataSource: RemoteDataSourceImpl,
+        @ApplicationScope externalScope: CoroutineScope
     ): TodoItemsRepository =
-        TodoItemsRepositoryImpl(localDataSource, remoteDataSource)
+        TodoItemsRepositoryImpl(localDataSource, remoteDataSource, externalScope)
 
     @Provides
     @Singleton

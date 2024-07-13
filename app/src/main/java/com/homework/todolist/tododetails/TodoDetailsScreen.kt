@@ -64,6 +64,7 @@ import com.homework.todolist.data.datasource.local.LocalDataSourceStub
 import com.homework.todolist.data.datasource.remote.RemoteDataSourceStub
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
+import com.homework.todolist.data.repository.TodoItemsRepositoryStub
 import com.homework.todolist.tododetails.data.TodoItemUiState
 import com.homework.todolist.tododetails.viewmodel.TodoDetailsViewModel
 import com.homework.todolist.ui.theme.TodoAppTypography
@@ -690,7 +691,7 @@ private fun TodoListDetailsCreateScreenPreview() {
         TodoListDetailsScreen(
             onActionClick = {},
             viewModel = TodoDetailsViewModel(
-                todoItemsRepository = TodoItemsRepositoryImpl(LocalDataSourceStub(), RemoteDataSourceStub()),
+                todoItemsRepository = TodoItemsRepositoryStub(),
                 savedStateHandle = SavedStateHandle.createHandle(null, null)
             )
         )

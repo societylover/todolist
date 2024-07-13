@@ -1,9 +1,7 @@
 rootProject.name = "todolist"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 include(":app")
-
 
 pluginManagement {
     includeBuild("build-logic")
@@ -13,6 +11,7 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositories {
         google()

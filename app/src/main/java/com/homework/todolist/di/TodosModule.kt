@@ -2,7 +2,6 @@ package com.homework.todolist.di
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.provider.Settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -10,11 +9,15 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.room.Room
 import com.homework.todolist.data.datasource.local.LocalDataSource
+import com.homework.todolist.data.datasource.local.TodoDatabase
+import com.homework.todolist.data.datasource.local.TodoItemDao
 import com.homework.todolist.data.datasource.remote.RemoteDataSourceImpl
 import com.homework.todolist.data.provider.ApiParamsProvider
 import com.homework.todolist.data.provider.ApiParamsProviderImpl
 import com.homework.todolist.data.provider.ApiParamsProviderImpl.Companion.API_PREFERENCES
+import com.homework.todolist.data.provider.DeviceParams
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
 import dagger.Module
@@ -25,7 +28,12 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class DeviceSensitive
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -35,9 +43,10 @@ object TodosModule {
     @Singleton
     fun provideTodoItemsRepository(
         localDataSource: LocalDataSource,
-        remoteDataSource: RemoteDataSourceImpl
+        remoteDataSource: RemoteDataSourceImpl,
+        @ApplicationScope externalScope: CoroutineScope
     ): TodoItemsRepository =
-        TodoItemsRepositoryImpl(localDataSource, remoteDataSource)
+        TodoItemsRepositoryImpl(localDataSource, remoteDataSource, externalScope)
 
     @Provides
     @Singleton
@@ -55,11 +64,31 @@ object TodosModule {
     @Singleton
     @Provides
     fun provideApiParamsProvider(
-        @ApplicationContext context: Context,
+        @DeviceSensitive deviceParams: DeviceParams,
         dataStore: DataStore<Preferences>,
-        ) : ApiParamsProvider =
-        ApiParamsProviderImpl(
-            dataStore = dataStore,
-            androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-        )
+    ): ApiParamsProvider =
+        ApiParamsProviderImpl(dataStore = dataStore, deviceParams = deviceParams)
+
+    @Provides
+    @DeviceSensitive
+    fun provideDeviceId(@ApplicationContext context: Context): DeviceParams {
+        return DeviceParams(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext appContext: Context): TodoDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            TodoDatabase::class.java,
+            "todo_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDao(todoDatabase: TodoDatabase) : TodoItemDao {
+        return todoDatabase.todoItemDao()
+    }
+
 }

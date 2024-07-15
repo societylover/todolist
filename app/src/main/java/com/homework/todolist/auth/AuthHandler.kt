@@ -5,6 +5,6 @@ import com.yandex.authsdk.YandexAuthResult
 /**
  * Basic interface for auth result handler
  */
-interface IAuthHandler {
+interface AuthHandler {
     fun handleResult(result: YandexAuthResult)
 }

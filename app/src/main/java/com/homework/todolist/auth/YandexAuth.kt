@@ -16,7 +16,7 @@ import com.yandex.authsdk.YandexAuthSdk
  * Yandex authentication
  */
 @Composable
-internal fun MakeAuth(authHandler: IAuthHandler) {
+internal fun MakeAuth(authHandler: AuthHandler) {
     val context = LocalContext.current
 
     val sdk by remember {

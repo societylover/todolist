@@ -1,65 +1,57 @@
 package com.homework.todolist.data.datasource.local
 
-import com.homework.todolist.data.model.TodoItem
-import kotlinx.coroutines.Dispatchers
+import com.homework.todolist.di.ApplicationScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class LocalDataSourceImpl @Inject constructor(): LocalDataSource {
+class LocalDataSourceImpl @Inject constructor(
+    private val todoItemDao: TodoItemDao,
+    @ApplicationScope private val externalScope: CoroutineScope
+): LocalDataSource {
 
-    private val _itemsFlow =
-        MutableStateFlow(emptyList<TodoItem>())
+    override fun getItemsList(): Flow<List<TodoEntity>> =
+        todoItemDao.getItemsList()
 
-    override fun getItemsList(): Flow<List<TodoItem>> =
-        _itemsFlow.asSharedFlow()
+    override fun getItemsSnapshot(): List<TodoEntity> {
+        return todoItemDao.getItemsSnapshot()
+    }
 
-    override suspend fun setItemsList(items: List<TodoItem>) {
-        withContext(Dispatchers.IO) {
-            _itemsFlow.update { items }
+    override suspend fun setItemsList(items: List<TodoEntity>) {
+        externalScope.launch {
+            todoItemDao.setItemsList(items)
         }
     }
 
     override suspend fun removeItemById(id: String) : Boolean {
-        return withContext(Dispatchers.IO) {
-            if (_itemsFlow.value.firstOrNull { it.id == id } == null)
-                return@withContext false
-
-            _itemsFlow.update { it.filter { item -> item.id != id } }
-            true
+        return withContext(externalScope.coroutineContext) {
+            return@withContext todoItemDao.removeItemById(id) > 0
         }
     }
 
-    override suspend fun getItemDetails(id: String): TodoItem? {
-        return _itemsFlow.value.firstOrNull { it.id == id }
-    }
-
-    override suspend fun addItem(todoItem: TodoItem) : Boolean {
-        return withContext(Dispatchers.IO) {
-            if (_itemsFlow.value.firstOrNull { it.id == todoItem.id } != null)
-                return@withContext false
-
-            _itemsFlow.update { it + todoItem }
-            true
+    override suspend fun markItemAsDeleted(id: String): Boolean {
+        return withContext(externalScope.coroutineContext) {
+            return@withContext todoItemDao.markItemAsDeleted(id) > 0
         }
     }
 
-    override suspend fun updateItem(todoItem: TodoItem): Boolean {
-        return withContext(Dispatchers.IO) {
-            val index = _itemsFlow.value.indexOfFirst { it.id == todoItem.id }
-            if (index == -1)
-                return@withContext false
+    override suspend fun getItemDetails(id: String): TodoEntity? {
+        return todoItemDao.getItemDetails(id)
+    }
 
-            _itemsFlow.update {
-                val mutableList = it.toMutableList()
-                mutableList.apply {
-                    this[index]  = todoItem
-                }
-            }
-            true
+    override suspend fun addItem(todoItem: TodoEntity): Boolean {
+        externalScope.launch {
+            todoItemDao.addItem(todoItem)
         }
+        return true
+    }
+
+    override suspend fun updateItem(todoItem: TodoEntity): Boolean {
+        externalScope.launch {
+            todoItemDao.updateItem(todoItem)
+        }
+        return true
     }
 }

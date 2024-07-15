@@ -2,7 +2,7 @@ package com.homework.todolist.startdetails
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
-import com.homework.todolist.auth.IAuthHandler
+import com.homework.todolist.auth.AuthHandler
 import com.homework.todolist.data.provider.ApiParamsProvider
 import com.homework.todolist.shared.ui.UiEffect
 import com.homework.todolist.shared.ui.UiEvent
@@ -36,7 +36,7 @@ class StartDetailsViewModel @Inject constructor(
         }
     }
 
-    val authHandler = object : IAuthHandler {
+    val authHandler = object : AuthHandler {
         override fun handleResult(result: YandexAuthResult) {
             scope.launch {
                 when(result) {

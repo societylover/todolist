@@ -1,5 +1,6 @@
 package com.homework.todolist
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,6 +9,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import com.homework.todolist.navigation.TodoNavGraph
+import com.homework.todolist.ui.screen.about.AboutActivity
 import com.homework.todolist.ui.theme.TodolistTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,7 +25,12 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background)
                 {
-                    TodoNavGraph()
+                    TodoNavGraph(
+                        startAboutPage = {
+                            val intent = Intent(this, AboutActivity::class.java)
+                            startActivity(intent)
+                        }
+                    )
                 }
             }
         }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.ui.screen.settings.SettingsScreen
 import com.homework.todolist.ui.screen.startdetails.StartScreen
 import com.homework.todolist.ui.screen.tododetails.TodoListDetailsScreen
 import com.homework.todolist.ui.screen.todos.TodoListScreen
@@ -19,6 +20,7 @@ import kotlin.system.exitProcess
  * @param navController Application navigation controller
  * @param startDestination Start destination of application
  * @param navActions Available navigation actions
+ * @param startAboutPage Start action to open about page
  */
 @Composable
 internal fun TodoNavGraph(
@@ -28,8 +30,10 @@ internal fun TodoNavGraph(
         TodoNavigationActions(
             navController
         )
-    }
+    },
+    startAboutPage: () -> Unit = { }
 ) {
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -38,7 +42,7 @@ internal fun TodoNavGraph(
         { _ ->
             StartScreen(
                 onSuccessAuthed = { navActions.navigateToTodoList(true) },
-                onFailureAuthed = { exitProcess(1) })
+                onFailureAuthed = { exitProcess(EXIT_FROM_APPLICATION_CODE) })
         }
 
         composable(TodoDestinations.TODO_LIST_ROUTE)
@@ -46,6 +50,15 @@ internal fun TodoNavGraph(
             TodoListScreen(
                 onItemClick = { navActions.navigateToTodoDetails(it) },
                 onCreateItemClick = { navActions.navigateToTodoDetails() }
+            )
+        }
+
+        composable(TodoDestinations.SETTINGS_ROUTE)
+        { _ ->
+
+            SettingsScreen(
+                onActionClick = { navActions.navigateToTodoList(false) },
+                onAboutAppClick = { startAboutPage() }
             )
         }
 
@@ -66,3 +79,5 @@ internal fun TodoNavGraph(
         }
     }
 }
+
+private const val EXIT_FROM_APPLICATION_CODE = 1

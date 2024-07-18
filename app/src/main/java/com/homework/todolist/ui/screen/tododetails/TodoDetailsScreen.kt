@@ -60,14 +60,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
-import com.homework.todolist.data.datasource.local.LocalDataSourceStub
-import com.homework.todolist.data.datasource.remote.RemoteDataSourceStub
 import com.homework.todolist.data.model.Importance
-import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
 import com.homework.todolist.data.repository.TodoItemsRepositoryStub
 import com.homework.todolist.ui.screen.tododetails.data.TodoItemUiState
 import com.homework.todolist.ui.screen.tododetails.viewmodel.TodoDetailsViewModel
-import com.homework.todolist.ui.theme.TodoAppTypography
+import com.homework.todolist.ui.theme.LocalTodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
@@ -356,7 +353,7 @@ private fun ImportanceView(
         Text(
             text = stringResource(id = R.string.todo_item_create_importance_title),
             color = TodoColorsPalette.current.labelPrimaryColor,
-            style = TodoAppTypography.current.body
+            style = LocalTodoAppTypography.current.body
         )
 
         val importanceProps = getImportanceValues(importance = importance)
@@ -365,7 +362,7 @@ private fun ImportanceView(
             text = stringResource(id = importanceProps.stringRes),
             color = if (importance == Importance.URGENT) TodoColorsPalette.current.redColor
             else TodoColorsPalette.current.labelTertiaryColor,
-            style = TodoAppTypography.current.subhead
+            style = LocalTodoAppTypography.current.subhead
         )
     }
 }
@@ -380,7 +377,7 @@ private fun ImportanceDropdownMenuItem(
         text = {
             Text(
                 text = stringResource(id = importanceResId),
-                style = TodoAppTypography.current.body
+                style = LocalTodoAppTypography.current.body
             )
         },
         onClick = onClick,
@@ -466,13 +463,13 @@ private fun DoUntilView(
             Text(
                 text = stringResource(id = R.string.todo_item_create_do_until_title),
                 color = TodoColorsPalette.current.labelPrimaryColor,
-                style = TodoAppTypography.current.body
+                style = LocalTodoAppTypography.current.body
             )
             if (isDoUntilSet) {
                 Text(
                     text = doUntil.asString(),
                     color = TodoColorsPalette.current.blueColor,
-                    style = TodoAppTypography.current.subhead
+                    style = LocalTodoAppTypography.current.subhead
                 )
             }
         }
@@ -534,7 +531,7 @@ private fun DateSelectingView(
                 Text(
                     text = stringResource(id = R.string.todo_calendar_done_button_text),
                     color = TodoColorsPalette.current.blueColor,
-                    style = TodoAppTypography.current.button
+                    style = LocalTodoAppTypography.current.button
                 )
             }
         },
@@ -543,7 +540,7 @@ private fun DateSelectingView(
                 Text(
                     text = stringResource(id = R.string.todo_calendar_cancel_button_text),
                     color = TodoColorsPalette.current.blueColor,
-                    style = TodoAppTypography.current.button
+                    style = LocalTodoAppTypography.current.button
                 )
             }
         }

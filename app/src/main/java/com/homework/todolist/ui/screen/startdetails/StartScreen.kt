@@ -24,7 +24,7 @@ import com.homework.todolist.R
 import com.homework.todolist.auth.MakeAuth
 import com.homework.todolist.ui.screen.startdetails.data.StartDetailsUIState
 import com.homework.todolist.ui.screen.startdetails.data.StartState
-import com.homework.todolist.ui.theme.TodoAppTypography
+import com.homework.todolist.ui.theme.LocalTodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -109,6 +109,6 @@ private fun ShowAuthResult(text: String) {
     ) {
         Text(text = text,
             color = TodoColorsPalette.current.labelPrimaryColor,
-            style = TodoAppTypography.current.title)
+            style = LocalTodoAppTypography.current.title)
     }
 }

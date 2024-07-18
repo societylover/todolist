@@ -85,7 +85,7 @@ import com.homework.todolist.data.model.TodoItem
 import com.homework.todolist.data.repository.TodoItemsRepositoryStub
 import com.homework.todolist.ui.screen.todos.TodoListViewModel.Companion.ListItemEffects.*
 import com.homework.todolist.ui.screen.todos.data.TodoListUiState
-import com.homework.todolist.ui.theme.TodoAppTypography
+import com.homework.todolist.ui.theme.LocalTodoAppTypography
 import com.homework.todolist.ui.theme.TodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
@@ -127,13 +127,13 @@ internal fun TodoListScreen(
     )
 
     val fontSize by animateFloatAsState(
-        targetValue = if (topBarHeight == expandedHeight) TodoAppTypography.current.largeTitle.fontSize.value else TodoAppTypography.current.title.fontSize.value,
+        targetValue = if (topBarHeight == expandedHeight) LocalTodoAppTypography.current.largeTitle.fontSize.value else LocalTodoAppTypography.current.title.fontSize.value,
         animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
         label = "ExpandableTopAppBar.animateFloatAsState fontSize"
     )
 
     val fontWeight by animateIntAsState(
-        targetValue = if (topBarHeight == expandedHeight) TodoAppTypography.current.largeTitle.fontWeight!!.weight else TodoAppTypography.current.title.fontWeight!!.weight,
+        targetValue = if (topBarHeight == expandedHeight) LocalTodoAppTypography.current.largeTitle.fontWeight!!.weight else LocalTodoAppTypography.current.title.fontWeight!!.weight,
         animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
         label = "ExpandableTopAppBar.animateIntAsState fontWeight"
     )
@@ -151,17 +151,19 @@ internal fun TodoListScreen(
         label = "ExpandableTopAppBar.animateDpAsState dynamicTopPadding"
     )
 
-    val iconParams by derivedStateOf {
-        if (uiState.isDoneShown) {
-            VisibilityIconParams(
-                R.drawable.visibility_24,
-                R.string.todo_list_visibility_on_description
-            )
-        } else {
-            VisibilityIconParams(
-                R.drawable.visibility_off_24,
-                R.string.todo_list_visibility_off_description
-            )
+    val iconParams by remember {
+        derivedStateOf {
+            if (uiState.isDoneShown) {
+                VisibilityIconParams(
+                    R.drawable.visibility_24,
+                    R.string.todo_list_visibility_on_description
+                )
+            } else {
+                VisibilityIconParams(
+                    R.drawable.visibility_off_24,
+                    R.string.todo_list_visibility_off_description
+                )
+            }
         }
     }
 
@@ -241,7 +243,7 @@ private fun TopAppBarContent(
                     uiState.doneCount
                 ),
                 color = TodoColorsPalette.current.labelTertiaryColor,
-                style = TodoAppTypography.current.body
+                style = LocalTodoAppTypography.current.body
             )
         },
         action = {
@@ -440,7 +442,7 @@ private fun TodosNewItemView(
     Text(
         text = stringResource(id = R.string.todo_list_bottom_item_text),
         color = TodoColorsPalette.current.labelTertiaryColor,
-        style = TodoAppTypography.current.body,
+        style = LocalTodoAppTypography.current.body,
         modifier = Modifier
             .fillMaxWidth()
             .background(TodoColorsPalette.current.backSecondaryColor)
@@ -609,7 +611,7 @@ private fun TodoListItem(
                         text = item.deadlineAt.asString(),
                         color = TodoColorsPalette.current.labelTertiaryColor,
                         overflow = TextOverflow.Ellipsis,
-                        style = TodoAppTypography.current.body
+                        style = LocalTodoAppTypography.current.body
                     )
                 }
             }

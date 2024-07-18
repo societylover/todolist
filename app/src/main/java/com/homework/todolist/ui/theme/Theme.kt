@@ -61,7 +61,7 @@ fun TodolistTheme(
 
     CompositionLocalProvider(
         TodoColorsPalette provides customColorsPalette,
-        TodoAppTypography provides TodoTypography.Default
+        LocalTodoAppTypography provides TodoTypography.Default
     )
     {
         MaterialTheme(

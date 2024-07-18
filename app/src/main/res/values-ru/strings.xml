@@ -56,4 +56,15 @@
     <string name="start_auth_cancel_text">Зря Вы так... 🤨</string>
     <string name="start_already_authed_text">Прекрасно. Вы уже аутентифицированы! 🥹 </string>
     <string name="start_auth_start_text">Процесс аутентификации начинается...</string>
+
+    <!-- User app preferences -->
+    <string name="setting_select_back_text">Вернуться на предыдущий экран</string>
+    <string name="setting_select_app_theme">Выберите тему приложения:</string>
+    <string name="setting_theme_dark">Темная</string>
+    <string name="setting_theme_light">Светлая</string>
+    <string name="setting_theme_system">Системная</string>
+
+    <!-- User settings screen -->
+    <string name="setting_about_button">О приложении</string>
+    <string name="setting_open_about">Открыть информацию о приложении</string>
 </resources>

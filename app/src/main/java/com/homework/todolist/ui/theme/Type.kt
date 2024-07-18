@@ -111,5 +111,5 @@ internal data class TodoTypography(
 /**
  * Default todo typography values composition
  */
-internal val TodoAppTypography =
+internal val LocalTodoAppTypography =
     staticCompositionLocalOf { TodoTypography.Default }

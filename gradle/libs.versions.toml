@@ -26,6 +26,11 @@ work-hilt = "1.2.0"
 room = "2.4.0"
 appcompat = "1.7.0"
 com-google-android-material-material = "1.12.0"
+divkit="30.9.0"
+coordinatorlayout = "1.2.0"
+constraintlayout = "2.1.4"
+navigation-fragment-ktx = "2.7.7"
+navigation-ui-ktx = "2.7.7"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -79,6 +84,15 @@ com-google-android-material-material = { group = "com.google.android.material", 
 
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 
+divkit-div = { group = "com.yandex.div", name = "div", version.ref = "divkit" }
+divkit-core = { group = "com.yandex.div", name = "div-core", version.ref = "divkit" }
+divkit-json = { group = "com.yandex.div", name = "div-json", version.ref = "divkit" }
+divkit-picasso = { group = "com.yandex.div", name = "picasso", version.ref = "divkit" }
+androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation-fragment-ktx" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
+
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -91,3 +105,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [bundles]
 ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-logging", "ktor-serialization", "ktor-negotiation", "slf4j-simple"]
+divkit = ["divkit-div", "divkit-core", "divkit-json", "divkit-picasso"]

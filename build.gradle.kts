@@ -8,4 +8,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.android.library) apply false
 }
+
 true // Needed to make the Suppress annotation work for the plugins block
+

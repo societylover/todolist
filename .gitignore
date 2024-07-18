@@ -17,3 +17,4 @@ local.properties
 /app/release
 gradle.properties
 /build-logic/build
+/.env

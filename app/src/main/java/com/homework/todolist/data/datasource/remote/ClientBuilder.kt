@@ -57,6 +57,7 @@ internal fun HttpClient(apiParamsProvider: ApiParamsProvider) =
             maxRetries = 5
             retryIf { _, response ->
                 !response.status.isSuccess() && response.status != HttpStatusCode.Unauthorized
+                        && (response.status.value in 500..599)
             }
             retryOnExceptionIf { _, cause ->
                 cause !is IOException || cause !is UnknownHostException

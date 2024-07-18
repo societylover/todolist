@@ -11,7 +11,7 @@ repositories {
 gradlePlugin {
     plugins.register("telegram-reporter") {
         id = "telegram-reporter"
-        implementationClass = "ru.yandex.shmr24.practice.TelegramReporterPlugin"
+        implementationClass = "com.homework.todolist.telegramTask.TelegramReporterPlugin"
     }
 }
 dependencies {

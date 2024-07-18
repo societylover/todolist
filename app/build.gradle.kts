@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
     id("telegram-reporter")
+    alias(libs.plugins.org.jetbrains.kotlin.android)
 }
 
 java {
@@ -13,10 +14,7 @@ java {
     }
 }
 
-tgReporter {
-    token.set(providers.environmentVariable("TG_TOKEN"))
-    chatId.set(providers.environmentVariable("TG_CHAT"))
-}
+
 
 android {
     flavorDimensions += "plan"
@@ -30,6 +28,16 @@ android {
             buildConfigField("boolean", "PAID",  "false")
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
@@ -40,7 +48,6 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
 
-
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.lifecycle.runtime.ktx)
@@ -50,6 +57,12 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     implementation(libs.data.store)
+    implementation(libs.androidx.coordinatorlayout)
+    implementation(libs.com.google.android.material.material)
+    implementation(libs.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
     kapt(libs.room.compiler)
 
     implementation(libs.hilt.android)
@@ -61,5 +74,15 @@ dependencies {
 
     implementation(libs.work.manager)
 
+    implementation(libs.lifecycle.runtime.ktx)
+
     implementation(libs.bundles.ktor)
+    implementation(libs.bundles.divkit)
+}
+
+tgReporter {
+    val tgToken = "7377658508:AAH7KxVZ6Ylu8TgFToYDPiwitFPZ0EnUkgc" // providers.environmentVariable("TG_TOKEN")
+    token.set(tgToken.toString())
+    val tgChat = "703167278" // providers.environmentVariable("TG_CHAT")
+    chatId.set(tgChat.toString())
 }

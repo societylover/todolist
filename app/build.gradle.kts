@@ -14,8 +14,6 @@ java {
     }
 }
 
-
-
 android {
     flavorDimensions += "plan"
     productFlavors {

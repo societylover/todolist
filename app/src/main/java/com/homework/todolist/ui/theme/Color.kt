@@ -113,5 +113,5 @@ internal fun TodoListDarkColors() = TodoListColorsPalette(
     backElevatedColor = BackDarkElevatedColor
 )
 
-internal val TodoColorsPalette =
+internal val LocalTodoColorsPalette =
     staticCompositionLocalOf { TodoListColorsPalette() }

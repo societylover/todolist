@@ -60,7 +60,7 @@ fun TodolistTheme(
     val customColorsPalette = if (darkTheme) TodoListDarkColors() else TodoListLightColors()
 
     CompositionLocalProvider(
-        TodoColorsPalette provides customColorsPalette,
+        LocalTodoColorsPalette provides customColorsPalette,
         LocalTodoAppTypography provides TodoTypography.Default
     )
     {

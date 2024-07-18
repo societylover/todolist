@@ -86,7 +86,7 @@ import com.homework.todolist.data.repository.TodoItemsRepositoryStub
 import com.homework.todolist.ui.screen.todos.TodoListViewModel.Companion.ListItemEffects.*
 import com.homework.todolist.ui.screen.todos.data.TodoListUiState
 import com.homework.todolist.ui.theme.LocalTodoAppTypography
-import com.homework.todolist.ui.theme.TodoColorsPalette
+import com.homework.todolist.ui.theme.LocalTodoColorsPalette
 import com.homework.todolist.ui.theme.TodolistTheme
 import com.homework.todolist.utils.DateFormatter.asString
 import kotlinx.coroutines.CoroutineScope
@@ -201,8 +201,8 @@ private fun FABContent(onCreateItemClick: () -> Unit) {
             bottom = dimensionResource(id = R.dimen.todo_list_fab_bottom_padding)
         ),
         shape = CircleShape.copy(CornerSize(dimensionResource(id = R.dimen.todo_list_fab_size))),
-        containerColor = TodoColorsPalette.current.blueColor,
-        contentColor = TodoColorsPalette.current.whiteColor
+        containerColor = LocalTodoColorsPalette.current.blueColor,
+        contentColor = LocalTodoColorsPalette.current.whiteColor
     ) {
         Icon(
             imageVector = Icons.Default.Add,
@@ -231,7 +231,7 @@ private fun TopAppBarContent(
         collapsedContent = {
             androidx.compose.material.Text(
                 text = stringResource(id = R.string.todo_list_screen_title),
-                color = TodoColorsPalette.current.labelPrimaryColor,
+                color = LocalTodoColorsPalette.current.labelPrimaryColor,
                 fontSize = fontSize.sp,
                 fontWeight = FontWeight(fontWeight)
             )
@@ -242,7 +242,7 @@ private fun TopAppBarContent(
                     id = R.string.todo_list_completed_subtitle,
                     uiState.doneCount
                 ),
-                color = TodoColorsPalette.current.labelTertiaryColor,
+                color = LocalTodoColorsPalette.current.labelTertiaryColor,
                 style = LocalTodoAppTypography.current.body
             )
         },
@@ -371,7 +371,7 @@ private fun ExpandableTopAppBar(
         modifier = Modifier
             .fillMaxWidth()
             .height(animatedHeight)
-            .background(TodoColorsPalette.current.backPrimaryColor),
+            .background(LocalTodoColorsPalette.current.backPrimaryColor),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -409,7 +409,7 @@ private fun TodosTopBorder() {
             .fillMaxWidth()
             .height(8.dp)
             .background(
-                color = TodoColorsPalette.current.backSecondaryColor,
+                color = LocalTodoColorsPalette.current.backSecondaryColor,
                 shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
             )
     )
@@ -423,7 +423,7 @@ private fun TodosBottomBorder() {
             .fillMaxWidth()
             .height(8.dp)
             .background(
-                color = TodoColorsPalette.current.backSecondaryColor,
+                color = LocalTodoColorsPalette.current.backSecondaryColor,
                 shape = RoundedCornerShape(bottomStart = 8.dp, bottomEnd = 8.dp)
             )
     )
@@ -441,11 +441,11 @@ private fun TodosNewItemView(
 ) {
     Text(
         text = stringResource(id = R.string.todo_list_bottom_item_text),
-        color = TodoColorsPalette.current.labelTertiaryColor,
+        color = LocalTodoColorsPalette.current.labelTertiaryColor,
         style = LocalTodoAppTypography.current.body,
         modifier = Modifier
             .fillMaxWidth()
-            .background(TodoColorsPalette.current.backSecondaryColor)
+            .background(LocalTodoColorsPalette.current.backSecondaryColor)
             .clickable { onItemClick() }
             .then(modifier)
     )
@@ -468,7 +468,7 @@ private fun VisibilityButton(
         Icon(
             painter = painterResource(id = visibilityIconResId),
             contentDescription = stringResource(id = descriptionResId),
-            tint = TodoColorsPalette.current.blueColor
+            tint = LocalTodoColorsPalette.current.blueColor
         )
     }
 }
@@ -547,8 +547,8 @@ private fun TodoListItem(
             DismissBackground(
                 dismissDirection = dismissState.dismissDirection,
                 startToEndIcon = if (item.done) Icons.Default.Close else Icons.Default.Check,
-                startToEndColor = if (item.done) TodoColorsPalette.current.yellowColor else
-                    TodoColorsPalette.current.greenColor
+                startToEndColor = if (item.done) LocalTodoColorsPalette.current.yellowColor else
+                    LocalTodoColorsPalette.current.greenColor
             )
         }
     ) {
@@ -556,7 +556,7 @@ private fun TodoListItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onItemClick() }
-                .background(TodoColorsPalette.current.backSecondaryColor)
+                .background(LocalTodoColorsPalette.current.backSecondaryColor)
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -577,7 +577,7 @@ private fun TodoListItem(
                                 painter = painterResource(id = R.drawable.importance_high),
                                 contentDescription = stringResource(id = R.string.todo_item_importance_urgent_icon_description),
                                 modifier = Modifier.padding(end = 3.dp),
-                                tint = TodoColorsPalette.current.redColor
+                                tint = LocalTodoColorsPalette.current.redColor
                             )
                         }
 
@@ -586,7 +586,7 @@ private fun TodoListItem(
                                 painter = painterResource(id = R.drawable.importance_low),
                                 contentDescription = stringResource(id = R.string.todo_item_importance_low_icon_description),
                                 modifier = Modifier.padding(end = 3.dp),
-                                tint = TodoColorsPalette.current.grayLightColor
+                                tint = LocalTodoColorsPalette.current.grayLightColor
                             )
                         }
 
@@ -594,12 +594,12 @@ private fun TodoListItem(
                     }
                     Text(
                         text = item.text,
-                        color = if (item.done) TodoColorsPalette.current.labelTertiaryColor
-                        else TodoColorsPalette.current.labelPrimaryColor,
+                        color = if (item.done) LocalTodoColorsPalette.current.labelTertiaryColor
+                        else LocalTodoColorsPalette.current.labelPrimaryColor,
                         style = if (!item.done) LocalTextStyle.current
                         else LocalTextStyle.current.copy(
                             textDecoration = TextDecoration.LineThrough,
-                            color = TodoColorsPalette.current.labelTertiaryColor
+                            color = LocalTodoColorsPalette.current.labelTertiaryColor
                         ),
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
@@ -609,7 +609,7 @@ private fun TodoListItem(
                 if (item.deadlineAt != null) {
                     Text(
                         text = item.deadlineAt.asString(),
-                        color = TodoColorsPalette.current.labelTertiaryColor,
+                        color = LocalTodoColorsPalette.current.labelTertiaryColor,
                         overflow = TextOverflow.Ellipsis,
                         style = LocalTodoAppTypography.current.body
                     )
@@ -619,7 +619,7 @@ private fun TodoListItem(
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = stringResource(id = R.string.todo_list_info_description),
-                tint = TodoColorsPalette.current.labelTertiaryColor
+                tint = LocalTodoColorsPalette.current.labelTertiaryColor
             )
         }
     }
@@ -669,13 +669,13 @@ private fun TodoListItemPreview() {
 
 @Composable
 private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifier = Modifier) {
-    val backgroundColor = if (done) TodoColorsPalette.current.greenColor
-    else if (importance == Importance.URGENT) TodoColorsPalette.current.redColor.copy(alpha = ContentAlpha.disabled)
+    val backgroundColor = if (done) LocalTodoColorsPalette.current.greenColor
+    else if (importance == Importance.URGENT) LocalTodoColorsPalette.current.redColor.copy(alpha = ContentAlpha.disabled)
     else Color.Transparent
 
     val borderColor = if (done) Color.Transparent
-    else if (importance == Importance.URGENT) TodoColorsPalette.current.redColor
-    else TodoColorsPalette.current.separatorColor
+    else if (importance == Importance.URGENT) LocalTodoColorsPalette.current.redColor
+    else LocalTodoColorsPalette.current.separatorColor
 
     Box(
         contentAlignment = Center,
@@ -689,7 +689,7 @@ private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifi
             Icon(
                 Icons.Default.Check,
                 contentDescription = stringResource(id = R.string.todo_item_importance_done_check_box_description),
-                tint = TodoColorsPalette.current.whiteColor
+                tint = LocalTodoColorsPalette.current.whiteColor
             )
         }
     }
@@ -723,8 +723,8 @@ private fun TodoStateBoxPreview() {
 @Composable
 private fun DismissBackground(
     dismissDirection: SwipeToDismissBoxValue,
-    endToStartColor: Color = Color(TodoColorsPalette.current.redColor.value),
-    startToEndColor: Color = Color(TodoColorsPalette.current.greenColor.value),
+    endToStartColor: Color = Color(LocalTodoColorsPalette.current.redColor.value),
+    startToEndColor: Color = Color(LocalTodoColorsPalette.current.greenColor.value),
     startToEndIcon: ImageVector = Icons.Default.Check
 ) {
     val color by derivedStateOf {
@@ -745,7 +745,7 @@ private fun DismissBackground(
         Icon(
             imageVector = startToEndIcon,
             contentDescription = stringResource(id = R.string.todo_item_importance_done_icon_description),
-            tint = TodoColorsPalette.current.whiteColor,
+            tint = LocalTodoColorsPalette.current.whiteColor,
             modifier = Modifier
                 .padding(start = 24.dp)
                 .size(24.dp)
@@ -754,7 +754,7 @@ private fun DismissBackground(
         Icon(
             Icons.Default.Delete,
             contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
-            tint = TodoColorsPalette.current.whiteColor,
+            tint = LocalTodoColorsPalette.current.whiteColor,
             modifier = Modifier
                 .padding(end = 24.dp)
                 .size(24.dp)

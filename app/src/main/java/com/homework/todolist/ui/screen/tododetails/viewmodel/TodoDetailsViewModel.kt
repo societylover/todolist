@@ -13,7 +13,9 @@ import com.homework.todolist.shared.data.result.Result
 import com.homework.todolist.shared.ui.UiEffect
 import com.homework.todolist.shared.ui.UiEvent
 import com.homework.todolist.shared.ui.ViewModelBase
+import com.homework.todolist.ui.screen.tododetails.data.ImportanceItem
 import com.homework.todolist.ui.screen.tododetails.data.TodoItemUiState
+import com.homework.todolist.ui.screen.tododetails.data.toImportanceItem
 import com.homework.todolist.ui.screen.tododetails.data.toTodoItemUiState
 import com.homework.todolist.ui.screen.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEffects
 import com.homework.todolist.ui.screen.tododetails.viewmodel.TodoDetailsViewModel.Companion.DetailsEvent
@@ -67,7 +69,7 @@ class TodoDetailsViewModel @Inject constructor(
             }
 
             is DetailsEvent.OnImportanceChosen -> {
-                chooseImportance(event.importance)
+                chooseImportance(event.importanceState)
             }
 
             is DetailsEvent.OnDescriptionUpdate -> {
@@ -101,13 +103,13 @@ class TodoDetailsViewModel @Inject constructor(
                     id = itemUiState.id,
                     text = itemUiState.text,
                     done = itemUiState.isDone,
-                    importance = itemUiState.importance,
+                    importance = itemUiState.importanceState.importance,
                     deadlineAt = if (itemUiState.isDeadlineSet) itemUiState.doUntil else null
                 )
             } else {
                 todoItemsRepository.createItem(
                     text = itemUiState.text,
-                    importance = itemUiState.importance,
+                    importance = itemUiState.importanceState.importance,
                     deadlineAt = if (itemUiState.isDeadlineSet) itemUiState.doUntil else null
                 )
             }
@@ -160,8 +162,10 @@ class TodoDetailsViewModel @Inject constructor(
         setState { copy(text = description) }
     }
 
-    private fun chooseImportance(importance: Importance) {
-        setState { copy(importance = importance) }
+    private fun chooseImportance(importance: ImportanceItem) {
+        if (state.value.importanceState.importance != importance.importance) {
+            setState { copy(importanceState = importance) }
+        }
     }
 
     companion object {
@@ -171,7 +175,7 @@ class TodoDetailsViewModel @Inject constructor(
         sealed class DetailsEvent : UiEvent {
             data object OnSaveEvent : DetailsEvent()
             data object OnCloseEvent : DetailsEvent()
-            data class OnImportanceChosen(val importance: Importance) : DetailsEvent()
+            data class OnImportanceChosen(val importanceState: ImportanceItem) : DetailsEvent()
             data class OnDescriptionUpdate(val text: String) : DetailsEvent()
             data class OnDeadlinePicked(val deadlineAt: LocalDate? = null) : DetailsEvent()
             data object OnDeleteEvent : DetailsEvent()

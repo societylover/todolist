@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.res.Resources
 import android.view.ContextThemeWrapper
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -32,9 +34,14 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-
+/**
+ * About screen (DivKit-ed)
+ * @param modifier Screen modifier
+ * @param contextThemeWrapper Context theme wrapper (parameter for [Div2View])
+ * @param onBackPressed Custom navigation item for back-pressed
+ */
 @Composable
-fun AboutScreen(
+internal fun AboutScreen(
     modifier: Modifier = Modifier,
     contextThemeWrapper: ContextThemeWrapper,
     onBackPressed: () -> Unit
@@ -79,19 +86,38 @@ private fun DivView(
     AndroidView(
         modifier = modifier,
         factory = { factoryContext ->
-            divView = buildDivView(divContext, factoryContext.resources)
-            createDivKitContainer(factoryContext, divView!!)
-            divView!!
+            makeDivScreen(factoryContext,
+                buildDivView(divContext, factoryContext.resources).also {
+                divView = it
+            })
         },
-        update = { view ->
-            //view.addView(divView)
-            // divView?.setData(data, tag)
+        update = { _ ->
+            divView?.setData(data, tag)
         },
         onReset = noopReset,
         onRelease = { _ ->
             divView?.cleanup()
         }
     )
+}
+
+/**
+ * Workaround for long vertical content screen
+ */
+private fun makeDivScreen(context: Context, div2View: Div2View) : View {
+    return ScrollView(context).apply {
+        layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+        )
+
+        val linearLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+
+        linearLayout.addView(div2View)
+        addView(linearLayout)
+    }
 }
 
 private fun buildDivView(
@@ -140,12 +166,4 @@ private fun initDivVariables(variableController: DivVariableController) {
     variableController.putOrUpdate(versionName)
     variableController.putOrUpdate(flavour)
     variableController.putOrUpdate(buildTime)
-}
-
-private fun createDivKitContainer(context: Context, divView: Div2View) : LinearLayout {
-    val view: View = View.inflate(context, R.layout.about_activity, null)
-    val list: LinearLayout = view.findViewById(R.id.list)
-    list.addView(divView)
-    // println(list.children.toString())
-    return list
 }

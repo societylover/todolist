@@ -76,7 +76,7 @@
                 },
                 {
                     "type": "opportunity_text",
-                    "text_color": "@{desc_color}",
+                    "text_color": "@{primary_color}",
                     "font_weight": "bold"
                 }
             ]
@@ -171,12 +171,6 @@
                 "type": "color",
                 "name": "primary_color",
                 "value": "#007AFF"
-            },
-
-            {
-                "type": "color",
-                "name": "desc_color",
-                "value": "#640cf2"
             },
             {
                 "type": "color",
@@ -290,7 +284,6 @@
                             },
                             "items": [
                                 {
-                                    "font_weight_value": 750,
                                     "type": "text",
                                     "text": "←",
                                     "font_size": 20,

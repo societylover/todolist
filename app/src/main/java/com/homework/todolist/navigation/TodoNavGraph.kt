@@ -26,7 +26,7 @@ import kotlin.system.exitProcess
 @Composable
 internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = TodoDestinations.ABOUT_ROUTE,
+    startDestination: String = TodoDestinations.TODO_LIST_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(
             navController
@@ -65,10 +65,7 @@ internal fun TodoNavGraph(
         { _ ->
             AboutScreen(
                 contextThemeWrapper = divKitInterop.context,
-                onBackPressed = {
-
-                    // navActions.navigateToSettings()
-                }
+                onBackPressed = { navActions.navigateToSettings() }
             )
         }
 

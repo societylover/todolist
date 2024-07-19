@@ -30,6 +30,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -57,8 +59,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
@@ -70,7 +74,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -83,7 +86,8 @@ import com.homework.todolist.R
 import com.homework.todolist.data.model.Importance
 import com.homework.todolist.data.model.TodoItem
 import com.homework.todolist.data.repository.TodoItemsRepositoryStub
-import com.homework.todolist.ui.screen.todos.TodoListViewModel.Companion.ListItemEffects.*
+import com.homework.todolist.ui.screen.todos.TodoListViewModel.Companion.ListItemEffects.ErrorOccurredToast
+import com.homework.todolist.ui.screen.todos.TodoListViewModel.Companion.ListItemEffects.RepeatableErrorOccurredToast
 import com.homework.todolist.ui.screen.todos.data.TodoListUiState
 import com.homework.todolist.ui.theme.LocalTodoAppTypography
 import com.homework.todolist.ui.theme.LocalTodoColorsPalette
@@ -93,7 +97,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-
+/**
+ * List of todo items
+ * @param onItemClick Item selection click handler
+ * @param onCreateItemClick Handler for creating new item
+ * @param viewModel List screen view-model
+ */
 @Composable
 internal fun TodoListScreen(
     onItemClick: (String) -> Unit,
@@ -223,37 +232,39 @@ private fun TopAppBarContent(
     viewModel: TodoListViewModel,
     iconParams: VisibilityIconParams
 ) {
-    ExpandableTopAppBar(
-        modifier = Modifier.padding(start = startPadding),
-        topBarHeight = topBarHeight,
-        collapsedHeight = collapsedHeight,
-        actionTopPadding = dynamicTopPadding,
-        collapsedContent = {
-            androidx.compose.material.Text(
-                text = stringResource(id = R.string.todo_list_screen_title),
-                color = LocalTodoColorsPalette.current.labelPrimaryColor,
-                fontSize = fontSize.sp,
-                fontWeight = FontWeight(fontWeight)
-            )
-        },
-        expandedContent = {
-            androidx.compose.material.Text(
-                text = stringResource(
-                    id = R.string.todo_list_completed_subtitle,
-                    uiState.doneCount
-                ),
-                color = LocalTodoColorsPalette.current.labelTertiaryColor,
-                style = LocalTodoAppTypography.current.body
-            )
-        },
-        action = {
-            VisibilityButton(
-                onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
-                visibilityIconResId = iconParams.iconRes,
-                descriptionResId = iconParams.textRes
-            )
-        }
-    )
+    ExpandableTopAppBar()
+//
+//    ExpandableTopAppBar(
+//        modifier = Modifier.padding(start = startPadding),
+//        topBarHeight = topBarHeight,
+//        collapsedHeight = collapsedHeight,
+//        actionTopPadding = dynamicTopPadding,
+//        collapsedContent = {
+//            androidx.compose.material.Text(
+//                text = stringResource(id = R.string.todo_list_screen_title),
+//                color = LocalTodoColorsPalette.current.labelPrimaryColor,
+//                fontSize = fontSize.sp,
+//                fontWeight = FontWeight(fontWeight)
+//            )
+//        },
+//        expandedContent = {
+//            androidx.compose.material.Text(
+//                text = stringResource(
+//                    id = R.string.todo_list_completed_subtitle,
+//                    uiState.doneCount
+//                ),
+//                color = LocalTodoColorsPalette.current.labelTertiaryColor,
+//                style = LocalTodoAppTypography.current.body
+//            )
+//        },
+//        action = {
+//            VisibilityButton(
+//                onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
+//                visibilityIconResId = iconParams.iconRes,
+//                descriptionResId = iconParams.textRes
+//            )
+//        }
+//    )
 }
 
 @Composable
@@ -400,6 +411,49 @@ private fun ExpandableTopAppBar(
         }
     }
 }
+
+@Composable
+fun ExpandableTopAppBar() {
+    val lazyListState = rememberLazyListState()
+    val isAtTop by remember {
+        derivedStateOf {
+            lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
+        }
+    }
+    var expanded by remember { mutableStateOf(true) }
+
+    LaunchedEffect(isAtTop) {
+        expanded = !isAtTop
+    }
+
+    val appBarHeight by animateDpAsState(targetValue = if (expanded) 200.dp else 56.dp)
+
+    TopAppBar(
+        backgroundColor = MaterialTheme.colors.primary,
+        contentPadding = PaddingValues(16.dp),
+        elevation = if (expanded) 0.dp else 4.dp,
+        modifier = Modifier.height(appBarHeight)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (expanded) "Hi" else "Bye!",
+                fontSize = 18.sp,
+                color = Color.White,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Filled.Close else Icons.Filled.Add,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+    }
+}
+
 
 @Composable
 private fun TodosTopBorder() {
@@ -727,11 +781,13 @@ private fun DismissBackground(
     startToEndColor: Color = Color(LocalTodoColorsPalette.current.greenColor.value),
     startToEndIcon: ImageVector = Icons.Default.Check
 ) {
-    val color by derivedStateOf {
-        when (dismissDirection) {
-            StartToEnd -> startToEndColor
-            EndToStart -> endToStartColor
-            Settled -> Color.Transparent
+    val color by remember {
+        derivedStateOf {
+            when (dismissDirection) {
+                StartToEnd -> startToEndColor
+                EndToStart -> endToStartColor
+                Settled -> Color.Transparent
+            }
         }
     }
 

@@ -9,6 +9,7 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -355,8 +356,6 @@ private fun ImportanceSheet(
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState()
     var shouldAnimatedSelection by rememberSaveable { mutableStateOf(false) }
-
-    val scope = rememberCoroutineScope()
     val sheetHeight = remember { Animatable(0f) }
 
     val animationSpec = tween<Float>(
@@ -379,7 +378,10 @@ private fun ImportanceSheet(
             allImportance = allImportance,
             current = current,
             shouldAnimatedSelection = shouldAnimatedSelection,
-            setItemImportance = setItemImportance
+            setItemImportance = {
+                shouldAnimatedSelection = it != current
+                setItemImportance(it)
+            }
         )
     }
 
@@ -391,12 +393,14 @@ private fun ImportanceSheet(
 
     LaunchedEffect(modalBottomSheetState.isVisible) {
         if (modalBottomSheetState.isVisible) {
+            sheetHeight.snapTo(0f)
             sheetHeight.animateTo(sheetPickHeight, animationSpec)
         } else {
             sheetHeight.snapTo(0f)
         }
     }
 
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         scope.launch {
             modalBottomSheetState.show()
@@ -451,16 +455,14 @@ private fun ImportanceItemContent(
     index: Int,
     allImportance: List<ImportanceItem>
 ) {
-    var shouldAnimatedSelection1 = shouldAnimatedSelection
     ImportanceView(
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 24.dp),
         item = item,
         isItemSelected = item == current,
         isItemSelectionAnimated = item.isHighlighted
                 && item == current
-                && shouldAnimatedSelection1,
+                && shouldAnimatedSelection,
         onItemSelected = {
-            shouldAnimatedSelection1 = item != current
             setItemImportance(item)
         }
     )
@@ -491,7 +493,11 @@ private fun ImportanceView(
 
     Row(modifier = modifier
         .fillMaxWidth()
-        .clickable { onItemSelected() }
+        .clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+            onClick = onItemSelected
+        )
         .padding(vertical = 10.dp)) {
         Text(text = stringResource(id = item.importanceResId),
             style = if (isItemSelected) LocalTodoAppTypography.current.body else LocalTodoAppTypography.current.subhead,

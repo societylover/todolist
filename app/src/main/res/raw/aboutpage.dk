@@ -75,7 +75,9 @@
                     }
                 },
                 {
-                    "type": "opportunity_text"
+                    "type": "opportunity_text",
+                    "text_color": "@{desc_color}",
+                    "font_weight": "bold"
                 }
             ]
         },
@@ -169,6 +171,12 @@
                 "type": "color",
                 "name": "primary_color",
                 "value": "#007AFF"
+            },
+
+            {
+                "type": "color",
+                "name": "desc_color",
+                "value": "#640cf2"
             },
             {
                 "type": "color",
@@ -282,8 +290,10 @@
                             },
                             "items": [
                                 {
-                                    "type": "image",
-                                    "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Google_material_icons_arrow_back_24px.svg/1024px-Google_material_icons_arrow_back_24px.svg.png",
+                                    "font_weight_value": 750,
+                                    "type": "text",
+                                    "text": "←",
+                                    "font_size": 20,
                                     "height": {
                                         "type": "fixed",
                                         "value": 24
@@ -292,6 +302,7 @@
                                         "type": "fixed",
                                         "value": 24
                                     },
+                                    "font_weight": "bold",
                                     "actions": [
                                         {
                                             "log_id": "back_to_previous",

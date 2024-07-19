@@ -31,6 +31,7 @@ coordinatorlayout = "1.2.0"
 constraintlayout = "2.1.4"
 navigation-fragment-ktx = "2.7.7"
 navigation-ui-ktx = "2.7.7"
+ui-viewbinding = "1.6.8"
 
 [libraries]
 agp = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -92,6 +93,7 @@ androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coo
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation-fragment-ktx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation-ui-ktx" }
+androidx-ui-viewbinding = { group = "androidx.compose.ui", name = "ui-viewbinding", version.ref = "ui-viewbinding" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "agp" }

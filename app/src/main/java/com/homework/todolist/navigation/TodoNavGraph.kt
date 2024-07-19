@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
+import com.homework.todolist.navigation.divkit.DivKitInterop
+import com.homework.todolist.ui.screen.about.AboutScreen
 import com.homework.todolist.ui.screen.settings.SettingsScreen
 import com.homework.todolist.ui.screen.startdetails.StartScreen
 import com.homework.todolist.ui.screen.tododetails.TodoListDetailsScreen
@@ -20,20 +22,18 @@ import kotlin.system.exitProcess
  * @param navController Application navigation controller
  * @param startDestination Start destination of application
  * @param navActions Available navigation actions
- * @param startAboutPage Start action to open about page
  */
 @Composable
 internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = TodoDestinations.AUTH_ROUTE,
+    startDestination: String = TodoDestinations.ABOUT_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(
             navController
         )
     },
-    startAboutPage: () -> Unit = { }
+    divKitInterop: DivKitInterop
 ) {
-
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -55,10 +55,20 @@ internal fun TodoNavGraph(
 
         composable(TodoDestinations.SETTINGS_ROUTE)
         { _ ->
-
             SettingsScreen(
                 onActionClick = { navActions.navigateToTodoList(false) },
-                onAboutAppClick = { startAboutPage() }
+                onAboutAppClick = { navActions.navigateToAbout() }
+            )
+        }
+
+        composable(TodoDestinations.ABOUT_ROUTE)
+        { _ ->
+            AboutScreen(
+                contextThemeWrapper = divKitInterop.context,
+                onBackPressed = {
+
+                    // navActions.navigateToSettings()
+                }
             )
         }
 

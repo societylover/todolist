@@ -9,8 +9,10 @@ import com.homework.todolist.shared.ui.ViewModelBase
 import com.homework.todolist.ui.screen.settings.SettingsViewModel.Companion.SettingEffects
 import com.homework.todolist.ui.screen.settings.SettingsViewModel.Companion.SettingEvent
 import com.homework.todolist.ui.screen.settings.data.SettingsScreenState
+import com.homework.todolist.ui.screen.settings.data.SettingsScreenState.Loaded
 import com.homework.todolist.ui.screen.settings.data.ThemeParams
 import com.homework.todolist.ui.screen.settings.data.toThemeParams
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,11 +23,10 @@ import javax.inject.Inject
  * Settings screen viewmodel
  * @param userPreferencesProvider User preferences provider
  */
+@HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val userPreferencesProvider: UserPreferencesProvider
-) : ViewModelBase<SettingEvent, SettingsScreenState, SettingEffects>(SettingsScreenState.Loaded(
-    ThemeParams()
-)){
+) : ViewModelBase<SettingEvent, SettingsScreenState, SettingEffects>(Loaded(ThemeParams())){
 
     private val scope = viewModelScope + CoroutineExceptionHandler { _, throwable ->
         throwable.printStackTrace()
@@ -35,7 +36,9 @@ class SettingsViewModel @Inject constructor(
     init {
         scope.launch(Dispatchers.IO) {
             userPreferencesProvider.getUserPreferableThemeFlow().collect { userTheme ->
-                setState { SettingsScreenState.Loaded(userTheme.toThemeParams()) }
+                setState { Loaded(
+                    current = userTheme.toThemeParams()
+                ) }
             }
         }
     }

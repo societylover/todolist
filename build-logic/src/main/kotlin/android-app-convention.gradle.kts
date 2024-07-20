@@ -19,19 +19,6 @@ dependencies {
 
 configure<BaseAppModuleExtension> {
     baseAndroidConfig()
-
-//    val clientId: String by project
-//    val baseUrl: String by project
-//    val appStoreFile: String by project
-//    val appStorePassword: String by project
-//    val appKeyAlias: String by project
-//    val appKeyPassword: String by project
-//
-//    defaultConfig {
-//        buildConfigField("String", "BASE_URL", baseUrl)
-//        manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId
-//    }
-
     buildFeatures {
         compose = true
         buildConfig = true
@@ -41,9 +28,9 @@ configure<BaseAppModuleExtension> {
     }
 
     defaultConfig {
-        val baseUrl = "\"https://hive.mrdekk.ru/todo/\"" // providers.environmentVariable("BASE_URL")
+        val baseUrl = providers.environmentVariable("BASE_URL")
         buildConfigField("String", "BASE_URL", baseUrl.toString())
-        val clientId = "f9466f41f83c4266b6b55d1d67649709" // providers.environmentVariable("CLIENT_ID")
+        val clientId = providers.environmentVariable("CLIENT_ID")
         manifestPlaceholders["YANDEX_CLIENT_ID"] = clientId.toString()
     }
 }

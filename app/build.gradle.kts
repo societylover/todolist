@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.ui.viewbinding)
+
     kapt(libs.room.compiler)
 
     implementation(libs.hilt.android)
@@ -80,8 +81,8 @@ dependencies {
 }
 
 tgReporter {
-    val tgToken = "7377658508:AAH7KxVZ6Ylu8TgFToYDPiwitFPZ0EnUkgc" // providers.environmentVariable("TG_TOKEN")
+    val tgToken = providers.environmentVariable("TG_TOKEN")
     token.set(tgToken.toString())
-    val tgChat = "703167278" // providers.environmentVariable("TG_CHAT")
+    val tgChat = providers.environmentVariable("TG_CHAT")
     chatId.set(tgChat.toString())
 }

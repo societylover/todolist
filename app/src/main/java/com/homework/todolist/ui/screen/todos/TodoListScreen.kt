@@ -1,18 +1,17 @@
 package com.homework.todolist.ui.screen.todos
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -30,13 +29,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -59,12 +57,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.TopEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -79,7 +76,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.homework.todolist.R
@@ -107,13 +103,14 @@ import java.time.LocalDate
 internal fun TodoListScreen(
     onItemClick: (String) -> Unit,
     onCreateItemClick: () -> Unit,
+    onSettingsClicked: () -> Unit,
     viewModel: TodoListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
 
-    val expandedHeight = 164.dp
-    val collapsedHeight = 56.dp
+    val expandedHeight by remember { derivedStateOf { 164.dp } }
+    val collapsedHeight by remember { derivedStateOf { 56.dp } }
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -128,37 +125,6 @@ internal fun TodoListScreen(
             }
         }
     }
-
-    val startPadding by animateDpAsState(
-        targetValue = if (topBarHeight == expandedHeight) 60.dp else 16.dp,
-        animationSpec = tween(durationMillis = 300),
-        label = "ExpandableTopAppBar.animateDpAsState startPadding"
-    )
-
-    val fontSize by animateFloatAsState(
-        targetValue = if (topBarHeight == expandedHeight) LocalTodoAppTypography.current.largeTitle.fontSize.value else LocalTodoAppTypography.current.title.fontSize.value,
-        animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
-        label = "ExpandableTopAppBar.animateFloatAsState fontSize"
-    )
-
-    val fontWeight by animateIntAsState(
-        targetValue = if (topBarHeight == expandedHeight) LocalTodoAppTypography.current.largeTitle.fontWeight!!.weight else LocalTodoAppTypography.current.title.fontWeight!!.weight,
-        animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
-        label = "ExpandableTopAppBar.animateIntAsState fontWeight"
-    )
-
-    val dynamicTopPadding by animateDpAsState(
-        targetValue = if (topBarHeight == expandedHeight) {
-            val extraPadding = with(LocalDensity.current) {
-                fontSize.sp.toDp().value
-            }
-            80.dp - extraPadding.dp
-        } else {
-            1.dp
-        },
-        animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
-        label = "ExpandableTopAppBar.animateDpAsState dynamicTopPadding"
-    )
 
     val iconParams by remember {
         derivedStateOf {
@@ -179,14 +145,12 @@ internal fun TodoListScreen(
     Scaffold(
         topBar = {
             TopAppBarContent(
-                startPadding = startPadding,
                 topBarHeight = topBarHeight,
+                expandedHeight = expandedHeight,
                 collapsedHeight = collapsedHeight,
-                dynamicTopPadding = dynamicTopPadding,
-                fontSize = fontSize,
-                fontWeight = fontWeight,
                 uiState = uiState,
-                viewModel = viewModel,
+                onSettingsClicked = { onSettingsClicked() },
+                onVisibilityClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
                 iconParams = iconParams
             )
         },
@@ -198,7 +162,7 @@ internal fun TodoListScreen(
         ListContent(paddings, lazyListState, uiState, onItemClick, viewModel, onCreateItemClick)
     }
 
-    handleEffects(viewModel, scope, snackbarHostState)
+    HandleEffects(viewModel, scope, snackbarHostState)
 }
 
 @Composable
@@ -222,53 +186,62 @@ private fun FABContent(onCreateItemClick: () -> Unit) {
 
 @Composable
 private fun TopAppBarContent(
-    startPadding: Dp,
     topBarHeight: Dp,
+    expandedHeight: Dp,
     collapsedHeight: Dp,
-    dynamicTopPadding: Dp,
-    fontSize: Float,
-    fontWeight: Int,
     uiState: TodoListUiState,
-    viewModel: TodoListViewModel,
+    onVisibilityClicked: () -> Unit,
+    onSettingsClicked: () -> Unit,
     iconParams: VisibilityIconParams
 ) {
-    ExpandableTopAppBar()
-//
-//    ExpandableTopAppBar(
-//        modifier = Modifier.padding(start = startPadding),
-//        topBarHeight = topBarHeight,
-//        collapsedHeight = collapsedHeight,
-//        actionTopPadding = dynamicTopPadding,
-//        collapsedContent = {
-//            androidx.compose.material.Text(
-//                text = stringResource(id = R.string.todo_list_screen_title),
-//                color = LocalTodoColorsPalette.current.labelPrimaryColor,
-//                fontSize = fontSize.sp,
-//                fontWeight = FontWeight(fontWeight)
-//            )
-//        },
-//        expandedContent = {
-//            androidx.compose.material.Text(
-//                text = stringResource(
-//                    id = R.string.todo_list_completed_subtitle,
-//                    uiState.doneCount
-//                ),
-//                color = LocalTodoColorsPalette.current.labelTertiaryColor,
-//                style = LocalTodoAppTypography.current.body
-//            )
-//        },
-//        action = {
-//            VisibilityButton(
-//                onItemsVisibilityActionClicked = { viewModel.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked) },
-//                visibilityIconResId = iconParams.iconRes,
-//                descriptionResId = iconParams.textRes
-//            )
-//        }
-//    )
+    val dynamicTopPadding by animateDpAsState(
+        targetValue = 1.dp,
+        animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
+        label = "ExpandableTopAppBar.animateDpAsState dynamicTopPadding"
+    )
+
+    ExpandableTopAppBar(
+        modifier = Modifier.padding(start = 16.dp),
+        topBarHeight = topBarHeight,
+        collapsedHeight = collapsedHeight,
+        actionTopPadding = dynamicTopPadding,
+        collapsedContent = {
+            Text(
+                text = stringResource(id = R.string.todo_list_screen_title),
+                color = LocalTodoColorsPalette.current.labelPrimaryColor,
+                fontSize = LocalTodoAppTypography.current.title.fontSize,
+                fontWeight = LocalTodoAppTypography.current.title.fontWeight
+            )
+        },
+        expandedContent = {
+            Text(
+                text = stringResource(
+                    id = R.string.todo_list_completed_subtitle,
+                    uiState.doneCount
+                ),
+                color = LocalTodoColorsPalette.current.labelTertiaryColor,
+                style = LocalTodoAppTypography.current.body
+            )
+        },
+        scrollableAction = {
+            VisibilityButton(
+                onItemsVisibilityActionClicked = onVisibilityClicked,
+                visibilityIconResId = iconParams.iconRes,
+                descriptionResId = iconParams.textRes
+            )
+        },
+        pinnedAction = {
+            IconButton(onClick = onSettingsClicked) {
+                Icon(
+                    imageVector = Icons.Default.Settings, stringResource(id = R.string.setting_screen_open_button_desc),
+                )
+            }
+        }
+    )
 }
 
 @Composable
-private fun handleEffects(
+private fun HandleEffects(
     viewModel: TodoListViewModel,
     scope: CoroutineScope,
     snackbarHostState: SnackbarHostState
@@ -365,95 +338,62 @@ private fun ExpandableTopAppBar(
     modifier: Modifier = Modifier,
     topBarHeight: Dp = 150.dp,
     collapsedHeight: Dp = 56.dp,
-    dampingRatio: Float = 0.9f,
+    dampingRatio: Float = 0.75f,
     actionTopPadding: Dp = 100.dp,
-    stiffness: Float = Spring.StiffnessHigh,
+    stiffness: Float = Spring.StiffnessMedium,
     collapsedContent: @Composable () -> Unit = { },
     expandedContent: @Composable () -> Unit = { },
-    action: @Composable () -> Unit = { }
-) {
+    scrollableAction: @Composable () -> Unit = { },
+    pinnedAction: @Composable () -> Unit = { }
+    ) {
     val animatedHeight by animateDpAsState(
         targetValue = topBarHeight,
         animationSpec = spring(dampingRatio = dampingRatio, stiffness = stiffness),
         label = "ExpandableTopAppBar.animateDpAsState height"
     )
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
             .height(animatedHeight)
             .background(LocalTodoColorsPalette.current.backPrimaryColor),
         contentAlignment = Alignment.CenterStart
     ) {
+        val boxWithConstraintsScope = this
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(start = 16.dp, end = 50.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.Start,
                 modifier = modifier.weight(10f)
             ) {
                 collapsedContent()
-                if (topBarHeight - 50.dp > collapsedHeight) {
+                if (boxWithConstraintsScope.maxHeight - 56.dp > collapsedHeight) {
                     expandedContent()
                 }
             }
             Column(
                 modifier = Modifier
-                    .padding(top = actionTopPadding)
-                    .weight(1f),
+                    .padding(top = actionTopPadding, end = 12.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                action()
+                scrollableAction()
             }
         }
-    }
-}
 
-@Composable
-fun ExpandableTopAppBar() {
-    val lazyListState = rememberLazyListState()
-    val isAtTop by remember {
-        derivedStateOf {
-            lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
-        }
-    }
-    var expanded by remember { mutableStateOf(true) }
-
-    LaunchedEffect(isAtTop) {
-        expanded = !isAtTop
-    }
-
-    val appBarHeight by animateDpAsState(targetValue = if (expanded) 200.dp else 56.dp)
-
-    TopAppBar(
-        backgroundColor = MaterialTheme.colors.primary,
-        contentPadding = PaddingValues(16.dp),
-        elevation = if (expanded) 0.dp else 4.dp,
-        modifier = Modifier.height(appBarHeight)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(end = 16.dp, top = 4.dp),
+            contentAlignment = TopEnd
         ) {
-            Text(
-                text = if (expanded) "Hi" else "Bye!",
-                fontSize = 18.sp,
-                color = Color.White,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Filled.Close else Icons.Filled.Add,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
+            pinnedAction()
         }
     }
 }
-
 
 @Composable
 private fun TodosTopBorder() {
@@ -547,6 +487,7 @@ private fun VisibilityButtonPreview(
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun VisibilityButtonPreview() {
     Column {
@@ -554,15 +495,23 @@ private fun VisibilityButtonPreview() {
             R.drawable.visibility_24,
             R.string.todo_list_visibility_on_description
         )
-        VisibilityButtonPreview(iconVisible, true)
-        VisibilityButtonPreview(iconVisible, false)
+
+        VisibilityButton(
+            onItemsVisibilityActionClicked = { },
+            visibilityIconResId = iconVisible.iconRes,
+            descriptionResId = iconVisible.textRes
+        )
 
         val iconInvisible = VisibilityIconParams(
             R.drawable.visibility_off_24,
             R.string.todo_list_visibility_off_description
         )
-        VisibilityButtonPreview(iconInvisible, true)
-        VisibilityButtonPreview(iconInvisible, false)
+
+        VisibilityButton(
+            onItemsVisibilityActionClicked = { },
+            visibilityIconResId = iconInvisible.iconRes,
+            descriptionResId = iconInvisible.textRes
+        )
     }
 }
 
@@ -602,7 +551,8 @@ private fun TodoListItem(
                 dismissDirection = dismissState.dismissDirection,
                 startToEndIcon = if (item.done) Icons.Default.Close else Icons.Default.Check,
                 startToEndColor = if (item.done) LocalTodoColorsPalette.current.yellowColor else
-                    LocalTodoColorsPalette.current.greenColor
+                    LocalTodoColorsPalette.current.greenColor,
+                endToStartColor = LocalTodoColorsPalette.current.redColor
             )
         }
     ) {
@@ -750,9 +700,10 @@ private fun TodoStateBox(importance: Importance, done: Boolean, modifier: Modifi
 }
 
 @Composable
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview
-private fun TodoStateBoxPreview(darkTheme: Boolean = false) {
-    TodolistTheme(darkTheme = darkTheme, dynamicColor = false) {
+private fun TodoStateBoxPreview() {
+    TodolistTheme {
         Column {
             TodoStateBox(Importance.LOW, false)
             TodoStateBox(Importance.URGENT, false)
@@ -765,30 +716,18 @@ private fun TodoStateBoxPreview(darkTheme: Boolean = false) {
     }
 }
 
-@Composable
-@Preview
-private fun TodoStateBoxPreview() {
-    TodoStateBoxPreview(false)
-    TodoStateBoxPreview(true)
-}
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DismissBackground(
     dismissDirection: SwipeToDismissBoxValue,
-    endToStartColor: Color = Color(LocalTodoColorsPalette.current.redColor.value),
-    startToEndColor: Color = Color(LocalTodoColorsPalette.current.greenColor.value),
+    endToStartColor: Color = LocalTodoColorsPalette.current.redColor,
+    startToEndColor: Color = LocalTodoColorsPalette.current.greenColor,
     startToEndIcon: ImageVector = Icons.Default.Check
 ) {
-    val color by remember {
-        derivedStateOf {
-            when (dismissDirection) {
-                StartToEnd -> startToEndColor
-                EndToStart -> endToStartColor
-                Settled -> Color.Transparent
-            }
-        }
+    val color = when (dismissDirection) {
+        StartToEnd -> startToEndColor
+        EndToStart -> endToStartColor
+        Settled -> Color.Transparent
     }
 
     Row(
@@ -825,6 +764,7 @@ private fun TodoListWithThemePreview(darkTheme: Boolean = false) {
         TodoListScreen(
             onItemClick = { },
             onCreateItemClick = { },
+            onSettingsClicked = { },
             viewModel = vm
         )
         vm.handleEvent(TodoListViewModel.Companion.ListEvent.OnVisibilityStateClicked)

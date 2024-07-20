@@ -86,8 +86,6 @@ internal class TodoNavigationActions(private val navController: NavHostControlle
      * Navigates to about screen
      */
     internal fun navigateToAbout() {
-        navController.navigate(TodoDestinations.ABOUT_ROUTE) {
-            popUpTo(navController.graph.findStartDestination().id)
-        }
+        navController.navigate(TodoDestinations.ABOUT_ROUTE)
     }
 }

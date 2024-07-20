@@ -12,5 +12,6 @@ annotation class DivKitInteroperability
  */
 @DivKitInteroperability
 data class DivKitInterop(
-    val context: ContextThemeWrapper
+    val context: ContextThemeWrapper,
+    val isDark: Boolean
 )

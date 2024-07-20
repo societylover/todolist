@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material.ContentAlpha
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -61,6 +63,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -68,6 +71,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -197,13 +201,14 @@ private fun DetailsContent(
 
         HorizontalDivider(color = LocalTodoColorsPalette.current.separatorColor)
 
-        DeleteTaskView(
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
-            isActive = itemUiState.id != null
-        ) {
-            eventHandler(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
-            onActionClick()
-        }
+        EpicPulsarButton(
+            isActive = itemUiState.id != null,
+            onDeleteClick = {
+                eventHandler(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
+                onActionClick()
+            },
+            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp)
+        )
     }
 }
 
@@ -713,29 +718,68 @@ private fun DoUntilSwitchPreview() {
     }
 }
 
-
 @Composable
-internal fun DeleteTaskView(
-    modifier: Modifier = Modifier,
+private fun EpicPulsarButton(
     isActive: Boolean,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Row(modifier = Modifier
-        .then(modifier)
-        .then(if (isActive) Modifier.clickable { onDeleteClick() } else Modifier))
-    {
-        Icon(
-            imageVector = Icons.Default.Delete,
-            contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
-            tint = if (isActive) LocalTodoColorsPalette.current.redColor
-            else LocalTodoColorsPalette.current.labelDisableColor
-        )
+    var isPressed by remember { mutableStateOf(false) }
+    val scale = remember { Animatable(1f) }
 
-        Text(
-            text = stringResource(id = R.string.todo_item_create_delete_button_text),
-            color = if (isActive) LocalTodoColorsPalette.current.redColor
-            else LocalTodoColorsPalette.current.labelDisableColor
-        )
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            scale.animateTo(
+                targetValue = 1.2f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            scale.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 150)
+            )
+            onDeleteClick()
+            isPressed = false
+        }
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .then(modifier)
+            .scale(scale.value)
+            .clickable(
+                enabled = isActive,
+                onClick = {
+                    if (!isPressed) {
+                        isPressed = true
+                    }
+                },
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberRipple(
+                    bounded = true,
+                    color = if (isActive) LocalTodoColorsPalette.current.redColor else LocalTodoColorsPalette.current.labelDisableColor
+                )
+            )
+            .padding(8.dp) // Adding padding for better touch target
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = stringResource(id = R.string.todo_item_importance_remove_icon_description),
+                tint = if (isActive) LocalTodoColorsPalette.current.redColor
+                else LocalTodoColorsPalette.current.labelDisableColor,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+
+            Text(
+                text = stringResource(id = R.string.todo_item_create_delete_button_text),
+                color = if (isActive) LocalTodoColorsPalette.current.redColor
+                else LocalTodoColorsPalette.current.labelDisableColor,
+                fontSize = 18.sp
+            )
+        }
     }
 }
 
@@ -750,11 +794,7 @@ private fun DeleteTaskViewPreview(
     ) {
         Column {
             Text("Is active: $isActive")
-            DeleteTaskView(
-                modifier = Modifier,
-                isActive = isActive,
-                onDeleteClick = { }
-            )
+            EpicPulsarButton(isActive = isActive, onDeleteClick = { })
         }
     }
 }

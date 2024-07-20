@@ -64,6 +64,7 @@
     <string name="setting_theme_dark">Темная</string>
     <string name="setting_theme_light">Светлая</string>
     <string name="setting_theme_system">Системная</string>
+    <string name="setting_screen_open_button_desc">Открыть настройки</string>
 
     <!-- User settings screen -->
     <string name="setting_about_button">О приложении</string>

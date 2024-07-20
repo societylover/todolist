@@ -44,6 +44,7 @@ import java.io.InputStreamReader
 internal fun AboutScreen(
     modifier: Modifier = Modifier,
     contextThemeWrapper: ContextThemeWrapper,
+    isDark: Boolean,
     onBackPressed: () -> Unit
 ) {
     val context = LocalContext.current
@@ -52,8 +53,10 @@ internal fun AboutScreen(
     val divContext = remember {
         Div2Context(
             baseContext = contextThemeWrapper,
-            configuration = getDivConfiguration(context,
-                object : DivNavigationHandler {
+            configuration = getDivConfiguration(
+                context = context,
+                isDark = isDark,
+                divNavigationHandler = object : DivNavigationHandler {
                 override fun dismiss() {
                     onBackPressed()
                 }
@@ -131,10 +134,11 @@ private fun buildDivView(
 }
 
 private fun getDivConfiguration(context: Context,
-                                divNavigationHandler: DivNavigationHandler) : DivConfiguration {
+                                divNavigationHandler: DivNavigationHandler,
+                                isDark: Boolean) : DivConfiguration {
     val imageLoader = PicassoDivImageLoader(context)
     val variableController = DivVariableController()
-    initDivVariables(variableController)
+    initDivVariables(variableController, isDark)
     return DivConfiguration
         .Builder(imageLoader)
         .divVariableController(variableController)
@@ -154,16 +158,18 @@ private fun getAboutPagePageContent(resources: Resources) : JSONObject {
     return JSONObject(builder.toString())
 }
 
-private fun initDivVariables(variableController: DivVariableController) {
+private fun initDivVariables(variableController: DivVariableController, isDark: Boolean) {
     val buildType = Variable.StringVariable("buildType", BuildConfig.BUILD_TYPE)
     val versionCode = Variable.IntegerVariable("versionCode", BuildConfig.VERSION_CODE.toLong())
     val versionName = Variable.StringVariable("versionName", BuildConfig.VERSION_NAME)
     val flavour = Variable.StringVariable("flavour", BuildConfig.FLAVOR)
     val buildTime = Variable.StringVariable("buildTime", BuildConfig.BUILD_TIME)
+    val isDarkPar = Variable.BooleanVariable("isDark", isDark)
 
     variableController.putOrUpdate(buildType)
     variableController.putOrUpdate(versionCode)
     variableController.putOrUpdate(versionName)
     variableController.putOrUpdate(flavour)
     variableController.putOrUpdate(buildTime)
+    variableController.putOrUpdate(isDarkPar)
 }

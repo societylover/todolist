@@ -9,7 +9,8 @@
                 "left": 24,
                 "right": 24,
                 "bottom": 16
-            }
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
         },
         "subtitle": {
             "font_size": 15,
@@ -18,7 +19,8 @@
             "paddings": {
                 "left": 24,
                 "right": 24
-            }
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
         },
         "opportunity_text": {
             "type": "text",
@@ -85,12 +87,14 @@
             "font_size": 16,
             "line_height": 20,
             "type": "text",
-            "font_weight": "bold"
+            "font_weight": "bold",
+            "text_color": "@{isDark ? text_dark : text_light}"
         },
         "library_title": {
             "font_size": 14,
             "line_height": 20,
-            "type": "text"
+            "type": "text",
+            "text_color": "@{isDark ? text_dark : text_light}"
         },
         "library_item": {
             "font_size": 15,
@@ -110,7 +114,8 @@
             "paddings": {
                 "left": 24,
                 "right": 24
-            }
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
         },
         "contact_card": {
             "type": "container",
@@ -166,6 +171,16 @@
                 "type": "string",
                 "name": "author_name",
                 "value": "Евгением"
+            },
+            {
+                "type": "color",
+                "name": "text_dark",
+                "value": "#FFFFFF"
+            },
+            {
+                "type": "color",
+                "name": "text_light",
+                "value": "#000000"
             },
             {
                 "type": "color",
@@ -261,7 +276,7 @@
                     {
                         "text": "github.com/societylover/todolist",
                         "short_name": "Github",
-                        "icon_url": "https://pngimg.com/uploads/github/github_PNG27.png",
+                        "icon_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwfr-ViogwvAirfOIxVSTm9dOKgFiH_mNygg&s",
                         "preview": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABaFBMVEX////+/v79/f37+/v8/Pzd3d2RkJBcW1tGRESQj4/d3Nzv7+90c3MXFRUFAwMJBwcMCgpzcnI2NDQAAAAWFBQeHBwcGhodGxs0MzPr6+sxMDAHBQUwLi4KCAgGBATq6upkYmIEAQEgHh7a2trc3NxhX19YVlZ7enpZV1dgXl4hHx8DAQFiYWHKysoQDg7o5+chICAPDQ3JyMh2dXUIBgYoJibu7e0qKCgVExN1c3NBQEARDw+JiIiOjY1BPz/z8/MrKSkUEhK7urq+vb0NCwvy8vInJSULCQm2tbW5uLj6+vo0MjITERGLior4+PiNjIzw8PAyMTGgn59FQ0MkIyM7OjrT0tLNzc1EQkKfnp709PQlIyNCQEDW1dUoKCgxLy/n5+c9PDwOCwsbGRktKyuzsrJwb2/s6+tlZGRCQUEZFxevrq7p6enm5uZUUlIYFhYODQ1DQUFJR0fk5ORoZmZxcHBnZWXh4eFfywoWAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+gHERY4C/SgZRQAAAF3SURBVCjPXZKHV8IwEMYvbRS01lZbqFqGE1QURVFRREEZigy34kRw7+2/7zUtOO6l711+Xy75mgtAPQgG/AskHE8JoTwHv1XElAH8KEq/OAcNjTa73dbUbOSkxikILWKrJMtSq9gm4JRY66GhXVEdTk1zOlSlA4uYQjjo7NJdou72eNy66NJdXuCYQKG7p7evf8Dn9w8O9fUPB0aYgHw0qPaOYT0GB95xNTQBlADhYTKsTnUCT3kcMD0TCc8CTwzrc1FpHlP2HzzEpOiCQQksxhPyklFsHricTMRTzKuQjmRWfoRVOZIWmOPsWk7KQ8HcqgDFcG4tixjX+ORMfN20iPUbuYzPcrWpbG3v7FIKQLN7+7LmKVmuDg6Pjk+U0zJA+axSqQbPU+ZVU7hQLq+ui8ZGN0ntVr8znWB7oKjE7h8M4TH0FMgjNy2iUnpWXowevSrVUo0DM/D2/mG06PLzix1c6xShpNacelp/C9Zd/X0NwGxbwyTfm10qXUv7/c8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDctMTdUMjI6NTY6MDQrMDA6MDBpaMR/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA3LTE3VDIyOjU2OjA0KzAwOjAwGDV8wwAAAABJRU5ErkJggg=="
                     }
                 ]
@@ -287,6 +302,7 @@
                                     "type": "text",
                                     "text": "←",
                                     "font_size": 20,
+                                    "text_color": "@{isDark ? text_dark : text_light}",
                                     "height": {
                                         "type": "fixed",
                                         "value": 24

@@ -1,5 +1,9 @@
 package com.homework.todolist.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -26,7 +30,7 @@ import kotlin.system.exitProcess
 @Composable
 internal fun TodoNavGraph(
     navController: NavHostController = rememberNavController(),
-    startDestination: String = TodoDestinations.TODO_LIST_ROUTE,
+    startDestination: String = TodoDestinations.AUTH_ROUTE,
     navActions: TodoNavigationActions = remember(navController) {
         TodoNavigationActions(
             navController
@@ -49,7 +53,8 @@ internal fun TodoNavGraph(
         { _ ->
             TodoListScreen(
                 onItemClick = { navActions.navigateToTodoDetails(it) },
-                onCreateItemClick = { navActions.navigateToTodoDetails() }
+                onCreateItemClick = { navActions.navigateToTodoDetails() },
+                onSettingsClicked = { navActions.navigateToSettings() }
             )
         }
 
@@ -65,6 +70,7 @@ internal fun TodoNavGraph(
         { _ ->
             AboutScreen(
                 contextThemeWrapper = divKitInterop.context,
+                isDark = divKitInterop.isDark,
                 onBackPressed = { navActions.navigateToSettings() }
             )
         }
@@ -74,6 +80,18 @@ internal fun TodoNavGraph(
          */
         composable(
             TodoDestinations.DETAILS_ROUTE,
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -1000 }) + fadeOut()
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -1000 }) + fadeIn()
+            },
             arguments = listOf(
                 navArgument(TODO_ID) {
                     type = NavType.StringType

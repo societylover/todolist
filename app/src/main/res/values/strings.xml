@@ -64,6 +64,7 @@
     <string name="setting_theme_dark">Dark</string>
     <string name="setting_theme_light">Light</string>
     <string name="setting_theme_system">System</string>
+    <string name="setting_screen_open_button_desc">Open settings</string>
 
     <!-- User settings screen -->
     <string name="setting_about_button">About application</string>

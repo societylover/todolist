@@ -80,9 +80,9 @@ dependencies {
     implementation(libs.bundles.divkit)
 }
 
-tgReporter {
-    val tgToken = providers.environmentVariable("TG_TOKEN")
-    token.set(tgToken.toString())
-    val tgChat = providers.environmentVariable("TG_CHAT")
-    chatId.set(tgChat.toString())
-}
+//tgReporter {
+//    val tgToken = providers.environmentVariable("TG_TOKEN")
+//    token.set(tgToken.toString())
+//    val tgChat = providers.environmentVariable("TG_CHAT")
+//    chatId.set(tgChat.toString())
+//}

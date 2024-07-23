@@ -155,6 +155,7 @@ private fun DetailsContent(
                 modifier = Modifier
                     .padding(vertical = 16.dp)
                     .fillMaxWidth(),
+                isEnabled = !itemUiState.isDone,
                 importance = itemUiState.importanceState,
                 onClick = { showSheet = true }
             )
@@ -523,6 +524,7 @@ private fun ImportanceView(
 private fun ImportanceView(
     modifier: Modifier = Modifier,
     importance: ImportanceItem,
+    isEnabled: Boolean,
     onClick: () -> Unit
 ) {
     Column(modifier = modifier) {
@@ -536,12 +538,12 @@ private fun ImportanceView(
         
         Text(
             text = stringResource(id = importance.importanceResId),
-            color = if (importance.isHighlighted ) LocalTodoColorsPalette.current.redColor else
+            color = if (importance.isHighlighted) LocalTodoColorsPalette.current.redColor else
             LocalTodoColorsPalette.current.labelTertiaryColor,
             style = LocalTodoAppTypography.current.subhead,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onClick() }
+                .then(if (isEnabled) Modifier.clickable { onClick() } else Modifier)
                 .padding(vertical = 4.dp)
         )
     }

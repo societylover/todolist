@@ -1,0 +1,679 @@
+{
+    "templates": {
+        "title": {
+            "type": "text",
+            "font_size": 20,
+            "line_height": 24,
+            "font_weight": "bold",
+            "paddings": {
+                "left": 24,
+                "right": 24,
+                "bottom": 16
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
+        },
+        "subtitle": {
+            "font_size": 15,
+            "line_height": 20,
+            "type": "text",
+            "paddings": {
+                "left": 24,
+                "right": 24
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
+        },
+        "opportunity_text": {
+            "type": "text",
+            "font_size": 14,
+            "text_alignment_horizontal": "center",
+            "alignment_horizontal": "center",
+            "paddings": {
+                "top": 4,
+                "bottom": 4,
+                "left": 8,
+                "right": 8
+            },
+            "width": {
+                "type": "match_parent"
+            },
+            "height": {
+                "type": "wrap_content"
+            },
+            "background": [
+                {
+                    "type": "solid",
+                    "color": "#f1f1f1"
+                }
+            ],
+            "$text": "page_text"
+        },
+        "opportunity_image": {
+            "type": "image",
+            "scale": "fit",
+            "$image_url": "icon_url",
+            "$preview": "icon_preview",
+            "placeholder_color": "#c5e0fc",
+            "background": [
+                {
+                    "type": "solid",
+                    "color": "#f1f1f1"
+                }
+            ]
+        },
+        "opportunity_page": {
+            "type": "container",
+            "orientation": "vertical",
+            "content_alignment_vertical": "end",
+            "border": {
+                "corner_radius": 4
+            },
+            "items": [
+                {
+                    "type": "opportunity_image",
+                    "height": {
+                        "type": "fixed",
+                        "value": 200,
+                        "unit": "dp"
+                    }
+                },
+                {
+                    "type": "opportunity_text",
+                    "text_color": "@{primary_color}",
+                    "font_weight": "bold"
+                }
+            ]
+        },
+        "text_subheader": {
+            "font_size": 16,
+            "line_height": 20,
+            "type": "text",
+            "font_weight": "bold",
+            "text_color": "@{isDark ? text_dark : text_light}"
+        },
+        "library_title": {
+            "font_size": 14,
+            "line_height": 20,
+            "type": "text",
+            "text_color": "@{isDark ? text_dark : text_light}"
+        },
+        "library_item": {
+            "font_size": 15,
+            "line_height": 20,
+            "type": "text",
+            "font_weight": "bold",
+            "ellipsis": {
+                "text": "..."
+            },
+            "max_lines": 1,
+            "text_color": "@{primary_color}"
+        },
+        "author_title": {
+            "type": "text",
+            "font_size": 13,
+            "line_height": 24,
+            "paddings": {
+                "left": 24,
+                "right": 24
+            },
+            "text_color": "@{isDark ? text_dark : text_light}"
+        },
+        "contact_card": {
+            "type": "container",
+            "orientation": "horizontal",
+            "height": {
+                "type": "fixed",
+                "value": 24,
+                "unit": "dp"
+            },
+            "items": [
+                {
+                    "type": "image",
+                    "$image_url": "contact_icon",
+                    "$preview": "contact_preview",
+                    "height": {
+                        "type": "match_parent"
+                    },
+                    "width": {
+                        "type": "fixed",
+                        "value": 24,
+                        "unit": "dp"
+                    },
+                    "scale": "fit"
+                },
+                {
+                    "type": "subtitle",
+                    "$text": "contact_name",
+                    "text_color": "@{primary_color}",
+                    "font_weight": "bold",
+                    "ellipsis": {
+                        "text": "..."
+                    },
+                    "max_lines": 1
+                }
+            ]
+        },
+        "build_info": {
+            "type": "text",
+            "font_size": 13,
+            "paddings": {
+                "left": 24,
+                "right": 24
+            },
+             "alignment_horizontal": "center",
+            "text_alignment_vertical": "center",
+            "text_alignment_horizontal": "center",
+            "text_color": "#8E8E93"
+        }
+    },
+    "card": {
+        "variables": [
+            {
+                "type": "string",
+                "name": "author_name",
+                "value": "Евгением"
+            },
+            {
+                "type": "color",
+                "name": "text_dark",
+                "value": "#FFFFFF"
+            },
+            {
+                "type": "color",
+                "name": "text_light",
+                "value": "#000000"
+            },
+            {
+                "type": "color",
+                "name": "primary_color",
+                "value": "#007AFF"
+            },
+            {
+                "type": "color",
+                "name": "link_color",
+                "value": "#0000EE"
+            },
+            {
+                "type": "integer",
+                "name": "opportunity_swiper_interval",
+                "value": 3000
+            },
+            {
+                "type": "integer",
+                "name": "opportunity_swiper_value",
+                "value": 0
+            },
+            {
+                "type": "array",
+                "name": "libraries",
+                "value": [
+                    {
+                        "title": "UI",
+                        "elements": [
+                            {
+                                "name": "Jetpack Compose",
+                                "version": "2024.06.00",
+                                "license": "Apache 2.0"
+                            },
+                            {
+                                "name": "DivKit",
+                                "version": "30.9.0",
+                                "license": "Apache 2.0"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Network",
+                        "elements": [
+                            {
+                                "name": "Ktor",
+                                "version": "2.3.12",
+                                "license": "Apache 2.0"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Storage",
+                        "elements": [
+                            {
+                                "name": "Room",
+                                "version": "2.4.0",
+                                "license": "Apache 2.0"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "DI",
+                        "elements": [
+                            {
+                                "name": "Hilt",
+                                "version": "2.48.1",
+                                "license": "Apache 2.0"
+                            }
+                        ]
+                    },
+                    {
+                        "title": "Background work",
+                        "elements": [
+                            {
+                                "name": "Work Manager",
+                                "version": "2.8.1",
+                                "license": "Apache 2.0"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "array",
+                "name": "contacts",
+                "value": [
+                    {
+                        "text": "telegram.me/lxcon",
+                        "short_name": "Telegram",
+                        "icon_url": "https://icons.iconarchive.com/icons/papirus-team/papirus-apps/256/telegram-icon.png",
+                        "preview": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABhlBMVEX29vb19fX09PXy9PXz9PXx9PX79/b/+/f++/f++fby9PT59/bc6vGf0OhzvuJftd+f0en++vbj7vNyveImndcUldUUldQWltUnndfh7fL++vfy8/T/+vfA3u0vodkTldQim9YlndcuoNi/3u3/+vYemtYdmdYjnNclnNcpntcemdX69/bi7vMcmdUamNVxveIhm9YVldQTlNQ+qNxKrd4ontfb6vEknNcZl9VqvOO94fP///+r2e8gm9YcmNVOr96b0uzw+Pz4/P3Z7viCx+gQk9Mqn9h0wOXL5/X7/f7O6fZ7w+dZtOAXltT/+fYYl9VAqdyg1O3n9Pr6/f59xOdatOHp9fvz+fw4pdobmNVkueLv9/z+/v7K5/U3pdphuOL6/P79/v7W7PcgmtYnntdRsN9xv+URlNN1weX8/f6t2vAOktNCqtz5/P35/P6AxugontgWltR8xOel1u71+v1VsuB6w+YFjtFXs+Dr9vvy+fwwotkfmtY7p9tmuuMdmdUemdbA3+7zV5n5AAAAAWJLR0Q7OQ70bAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAAd0SU1FB+gHERY1IgO8gzUAAAGzSURBVCjPVZLnVxNBFMW3JQMDKbCPyYRAZjZLdkILwcJGB1CpSlWKhSYCFmyIjSKK/OfOsORI3rd5v3PevHfvNQwzKsu2HceOWVdP06i146ihsbEBxbFzHeAm1JxIplLJdDNqwv8Bbml1oY1kMoRQN9ueqwHc0ZlnHMDzADgr+CgXAdzlFwMquFDFS91Bj9+BNbB6+/IB6DYXAP1lGhSyvZYCNhpglKtuCSqDN27eKt5mLsKmYcWHQLchrDK4c1cOE+B0KG4ZNkq0QQgjZPTe/Qdj43KCAZA0iimQJHR0cmr64SM5Mzsu5+Y9IElkG85CarHy+MmSlMsrq0/ls+dB6GVSC44G1Rdr6xtyc+vl9iu5sytEBPSovXL59Zu37+T+tnw/CCIaFUNpAqEof/j4Se5/lgcMOJCE+lytq64QXw6/ym/fpfyx6IloXRMjVx3okYOfR8cnp7/OBGUDyL6UJFvQklSqe+z3n6KA83zfpSRKXL9HiShKHP4ehvS8eNGFI9lzyC+wipaddnOWv9DiRkbl2rMuJVdGtbbgemvT2tpEvbWm6eBaGGyrLiUqJ7H6+PwD3+9DX5x1uUkAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDctMTdUMjI6NTM6MTQrMDA6MDBD6w+lAAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA3LTE3VDIyOjUzOjE0KzAwOjAwMra3GQAAAABJRU5ErkJggg=="
+                    },
+                    {
+                        "text": "github.com/societylover/todolist",
+                        "short_name": "Github",
+                        "icon_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwfr-ViogwvAirfOIxVSTm9dOKgFiH_mNygg&s",
+                        "preview": "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAABaFBMVEX////+/v79/f37+/v8/Pzd3d2RkJBcW1tGRESQj4/d3Nzv7+90c3MXFRUFAwMJBwcMCgpzcnI2NDQAAAAWFBQeHBwcGhodGxs0MzPr6+sxMDAHBQUwLi4KCAgGBATq6upkYmIEAQEgHh7a2trc3NxhX19YVlZ7enpZV1dgXl4hHx8DAQFiYWHKysoQDg7o5+chICAPDQ3JyMh2dXUIBgYoJibu7e0qKCgVExN1c3NBQEARDw+JiIiOjY1BPz/z8/MrKSkUEhK7urq+vb0NCwvy8vInJSULCQm2tbW5uLj6+vo0MjITERGLior4+PiNjIzw8PAyMTGgn59FQ0MkIyM7OjrT0tLNzc1EQkKfnp709PQlIyNCQEDW1dUoKCgxLy/n5+c9PDwOCwsbGRktKyuzsrJwb2/s6+tlZGRCQUEZFxevrq7p6enm5uZUUlIYFhYODQ1DQUFJR0fk5ORoZmZxcHBnZWXh4eFfywoWAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+gHERY4C/SgZRQAAAF3SURBVCjPXZKHV8IwEMYvbRS01lZbqFqGE1QURVFRREEZigy34kRw7+2/7zUtOO6l711+Xy75mgtAPQgG/AskHE8JoTwHv1XElAH8KEq/OAcNjTa73dbUbOSkxikILWKrJMtSq9gm4JRY66GhXVEdTk1zOlSlA4uYQjjo7NJdou72eNy66NJdXuCYQKG7p7evf8Dn9w8O9fUPB0aYgHw0qPaOYT0GB95xNTQBlADhYTKsTnUCT3kcMD0TCc8CTwzrc1FpHlP2HzzEpOiCQQksxhPyklFsHricTMRTzKuQjmRWfoRVOZIWmOPsWk7KQ8HcqgDFcG4tixjX+ORMfN20iPUbuYzPcrWpbG3v7FIKQLN7+7LmKVmuDg6Pjk+U0zJA+axSqQbPU+ZVU7hQLq+ui8ZGN0ntVr8znWB7oKjE7h8M4TH0FMgjNy2iUnpWXowevSrVUo0DM/D2/mG06PLzix1c6xShpNacelp/C9Zd/X0NwGxbwyTfm10qXUv7/c8AAAAldEVYdGRhdGU6Y3JlYXRlADIwMjQtMDctMTdUMjI6NTY6MDQrMDA6MDBpaMR/AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI0LTA3LTE3VDIyOjU2OjA0KzAwOjAwGDV8wwAAAABJRU5ErkJggg=="
+                    }
+                ]
+            }
+        ],
+        "log_id": "about_page",
+        "states": [
+            {
+                "state_id": 0,
+                "div": {
+                    "type": "container",
+                    "items": [
+                        {
+                            "type": "container",
+                            "orientation": "horizontal",
+                            "content_alignment_vertical": "center",
+                            "paddings": {
+                                "top": 12,
+                                "start": 24
+                            },
+                            "items": [
+                                {
+                                    "type": "text",
+                                    "text": "←",
+                                    "font_size": 20,
+                                    "text_color": "@{isDark ? text_dark : text_light}",
+                                    "height": {
+                                        "type": "fixed",
+                                        "value": 24
+                                    },
+                                    "width": {
+                                        "type": "fixed",
+                                        "value": 24
+                                    },
+                                    "font_weight": "bold",
+                                    "actions": [
+                                        {
+                                            "log_id": "back_to_previous",
+                                            "url": "todo-action://dismiss"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "subtitle",
+                                    "text": "Вернуться",
+                                    "font_weight": "bold",
+                                    "paddings": {
+                                        "start": 6
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "title",
+                            "text": "О приложении",
+                            "margins": {
+                                "top": 10
+                            }
+                        },
+                        {
+                            "type": "subtitle",
+                            "text": "Приложение \"Список дел\" позволяет пользователю вести учет текущих задач\n\nВ настоящий момент поддерживаются следующие функции:",
+                            "margins": {
+                                "bottom": 10
+                            }
+                        },
+                        {
+                            "type": "indicator",
+                            "active_item_color": "@{primary_color}",
+                            "active_item_size": 1.5,
+                            "height": {
+                                "type": "fixed",
+                                "value": 10
+                            },
+                            "margins": {
+                                "top": 10,
+                                "bottom": 10
+                            },
+                            "space_between_centers": 10,
+                            "inactive_item_color": "#D0D1D9",
+                            "pager_id": "pager_with_indicator",
+                            "shape": {
+                                "type": "rounded_rectangle",
+                                "corner_radius": {
+                                    "type": "fixed",
+                                    "value": 2
+                                },
+                                "item_height": {
+                                    "type": "fixed",
+                                    "value": 2
+                                },
+                                "item_width": {
+                                    "type": "fixed",
+                                    "value": 10
+                                }
+                            }
+                        },
+                        {
+                            "type": "pager",
+                            "id": "pager_with_indicator",
+                            "item_spacing": {
+                                "type": "fixed",
+                                "value": 8
+                            },
+                            "height": {
+                                "type": "fixed",
+                                "value": 230
+                            },
+                            "items": [
+                                {
+                                    "type": "opportunity_page",
+                                    "icon_url": "https://i.ibb.co/t23xFTT/main-page-see-crop.png",
+                                    "page_text": "Просматривать список задач",
+                                    "icon_preview": "/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCACWAPoDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//EACkQAQACAAMHBQEAAwAAAAAAAAABEQIhMRJBUWGBobEiccHR8JEywuH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A6AAAAMTiqabc5i8VcgdGNr1VzojF6ecZfTMRU4eeYOo5z6sVXUQf4zEXlIOgxfrn2+IZiZnFE8dPbMHUHPFniiOX2DoOeHLFMXu+iZuZuaiAdBzwznV3G4q8Uxc9OgOg54dZjgZZ7WLPluB0GME3Hs2AAAAAAAAAAAAAAAxU7d7q+GwHOcM7Vbpm5WY9UZNgMTcYriLidUzxTE1URxdAHOYmcXKazWY9UZZRH22AjnEze1Uzwp0IiooHOJ9VzExeXhaqZmriWpi6ng0DETrOzWXUwxNzM5W2AxETtYki4y2ZmXQBjBcXcb2wAAAAAAABLBRIm1AAAAARQEFAQUBBQEFARQAAAAAAAAAAAAAYqvtsBmNb05NAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTrHtPwlz515S0lRwAv4/kpteJ7NFQCXPJJmsvZahQZuc+S2oDN/Hf8Aalz/ACIlahagGb169mkqOCgAAAAAAAAAAAAgqAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJapMZ9J31wSp7R25A1YzXiYK8xN+1A0M1/t3Knjw7A1cDNebWpvr+yBRmbzy3f8ASvNg0M1OXKYnrv8A3Mqc/aY/vQGhmpvrfaip7TH9oGhmvN3vKntHSv2QNCTrG/X4Spy6dgW1tmvnP3v90K100ryDQzMZx36ad2gAAEAFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//2Q=="
+                                },
+                                {
+                                    "type": "opportunity_page",
+                                    "icon_url": "https://i.ibb.co/8DgJyyq/delete-crop.png",
+                                    "page_text": "Удалять текущую задачу"
+                                },
+                                {
+                                    "type": "opportunity_page",
+                                    "icon_url": "https://i.ibb.co/p3NQ8bD/main-page-done.png",
+                                    "page_text": "Отмечать задачу как сделанную"
+                                },
+                                {
+                                    "type": "opportunity_page",
+                                    "icon_url": "https://i.ibb.co/wBQfFjg/add-cropped.png",
+                                    "page_text": "Создавать новую задачу",
+                                    "icon_preview": "/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCABmATkDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//EACMQAQACAQMEAgMAAAAAAAAAAAABETEhQVECEmFxQoHB0eH/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAWEQEBAQAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/AOgAAAAAJRSgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9wNDHdKd0rhroMx1NIAAAAAAM34lbSMfc/lOOKBsYxV41/hO3HkGxitJxPCzpVA1YxWk75onYGxIZnE+wbGN9fonMx4BsY4rjX0TrOnAN3BcMbR+j4g2MTEXH2beLkGxmN/bQAAAAAAAJOAZmWQaZAFBYlBB0VnMNMtAAAICggKIAogCiKACAogCgAAAUAAAAAAAAAAz1YaSYuAcwG2VijTlBAABvpw0kYVloAAAAAAABBQAAAAAAAAAAAAAAAAAAAAAAGJhl1YnpWVGRaKlURYhaahNWKAigAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJSgAAAAAACb0Rv7AFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASwBQAAAf/2Q=="
+                                },
+                                {
+                                    "type": "opportunity_page",
+                                    "icon_url": "https://i.ibb.co/sqt92g5/image-2.png",
+                                    "page_text": "Изменять данные задачи",
+                                    "icon_preview": "/9j/4AAQSkZJRgABAQEASABIAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAE1ATUDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAECA//EACcQAQACAAUDAwUBAAAAAAAAAAABESExQWFxobHwUcHREoGR4fEi/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAXEQEBAQEAAAAAAAAAAAAAAAAAAREh/9oADAMBAAIRAxEAPwDbP1TlX+unPDXCfT+fXf42BVTlQAAAAAAAAAAAAAAAAAAAAAAAAEVKAvoXp5RRSiWXgtYFHES1vGiYspFS8lKy2AUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEuFZjKIrHzE730vtQNDOv5vPykjON5n9A2Mxn+bz6zqVhINCR5hSa63fT4BoZrPj2OLyx5+QaGPXj0lZvHiMuQaGcceI7md8RX2BoSPX1x+Exw5n3BpLSM4+959ZXX7Aoz6cz1ManaK86A1YzlceupGccA0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMzOOmV4rfa0mMbwnCsf4VOW1agtx26lwkxfT9lZbdgW482LhKmOvWbKmPN7BbjyJCsY2j4SIx0zmeQaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABP13JACyyihSyyihCyCgFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABnOa2MYrWVpK6eSB9WW5e2llb/wAWu1Al+3Vbm6wSuVAibSZr8WsRSVnjn2AvPbPu0zX73aAAAAAAAAAAAAAAAAAAAAAABJQFQZtZZWI1EtuTpCVYoCKkmooJfsl+7QDN+xfupQJft1WVAZ1+/Q/ny0AkaqAAAAAAAAAAAAAAAAAAAAAJKNICM1LdFLqYxENqFqgCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACXAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACTkw2zUosa0I85BQssooC+1llAFqlAigAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//9k="
+                                }
+                            ],
+                            "layout_mode": {
+                                "type": "fixed",
+                                "neighbour_page_width": {
+                                    "type": "fixed",
+                                    "value": 16
+                                }
+                            },
+                            "paddings": {
+                                "right": 4,
+                                "left": 4
+                            }
+                        },
+                        {
+                            "type": "state",
+                            "div_id": "library_list",
+                            "states": [
+                                {
+                                    "state_id": "collapsed",
+                                    "div": {
+                                        "type": "container",
+                                        "items": [
+                                            {
+                                                "type": "text_subheader",
+                                                "paddings": {
+                                                    "top": 20,
+                                                    "start": 24,
+                                                    "end": 24
+                                                },
+                                                "text": "Библиотеки (раскрыть): ",
+                                                "actions": [
+                                                    {
+                                                        "log_id": "expand_libs",
+                                                        "url": "div-action://set_state?state_id=0/library_list/expanded"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "container",
+                                                "item_builder": {
+                                                    "data": "@{libraries}",
+                                                    "data_element_name": "lib",
+                                                    "prototypes": [
+                                                        {
+                                                            "div": {
+                                                                "type": "container",
+                                                                "orientation": "horizontal",
+                                                                "items": [
+                                                                    {
+                                                                        "type": "library_title",
+                                                                        "text": "@{getStringFromDict(lib, 'title')}: ",
+                                                                        "width": {
+                                                                            "type": "wrap_content"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "orientation": "horizontal",
+                                                                        "type": "container",
+                                                                        "item_builder": {
+                                                                            "data": "@{getArrayFromDict(lib, 'elements')}",
+                                                                            "data_element_name": "element",
+                                                                            "prototypes": [
+                                                                                {
+                                                                                    "div": {
+                                                                                        "type": "library_item",
+                                                                                        "text": "· @{getStringFromDict(element, 'name')} ",
+                                                                                        "width": {
+                                                                                            "type": "wrap_content"
+                                                                                        },
+                                                                                        "paddings": {
+                                                                                            "end": 3
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "paddings": {
+                                                    "top": 4,
+                                                    "start": 24,
+                                                    "end": 24
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "state_id": "expanded",
+                                    "div": {
+                                        "type": "container",
+                                        "items": [
+                                            {
+                                                "type": "text_subheader",
+                                                "paddings": {
+                                                    "top": 20,
+                                                    "start": 24,
+                                                    "end": 24
+                                                },
+                                                "text": "Библиотеки (cкрыть): ",
+                                                "actions": [
+                                                    {
+                                                        "log_id": "collapse_libs",
+                                                        "url": "div-action://set_state?state_id=0/library_list/collapsed"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "container",
+                                                "item_builder": {
+                                                    "data": "@{libraries}",
+                                                    "data_element_name": "lib",
+                                                    "prototypes": [
+                                                        {
+                                                            "div": {
+                                                                "type": "container",
+                                                                "orientation": "vertical",
+                                                                "items": [
+                                                                    {
+                                                                        "type": "library_title",
+                                                                        "text": "@{getStringFromDict(lib, 'title')}: ",
+                                                                        "width": {
+                                                                            "type": "wrap_content"
+                                                                        }
+                                                                    },
+                                                                    {
+                                                                        "orientation": "vertical",
+                                                                        "type": "container",
+                                                                        "item_builder": {
+                                                                            "data": "@{getArrayFromDict(lib, 'elements')}",
+                                                                            "data_element_name": "element",
+                                                                            "prototypes": [
+                                                                                {
+                                                                                    "div": {
+                                                                                        "type": "library_item",
+                                                                                        "text": "@{getStringFromDict(element, 'name')}, @{getStringFromDict(element, 'version')}, @{getStringFromDict(element, 'license')}"
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        }
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                "paddings": {
+                                                    "top": 4,
+                                                    "start": 24,
+                                                    "end": 24
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "text_subheader",
+                            "text": "Выполнено @{author_name}",
+                            "paddings": {
+                                "top": 12,
+                                "start": 24,
+                                "end": 24
+                            }
+                        },
+                        {
+                            "type": "container",
+                            "orientation": "vertical",
+                            "items": [
+                                {
+                                    "type": "subtitle",
+                                    "text": "Контакты для связи: "
+                                },
+                                {
+                                    "type": "container",
+                                    "orientation": "vertical",
+                                    "paddings": {
+                                        "start": 24,
+                                        "top": 4
+                                    },
+                                    "item_builder": {
+                                        "data": "@{contacts}",
+                                        "data_element_name": "contact",
+                                        "prototypes": [
+                                            {
+                                                "div": {
+                                                    "type": "contact_card",
+                                                    "contact_name": "@{getStringFromDict(contact, 'text')}",
+                                                    "contact_icon": "@{getStringFromDict(contact, 'icon_url')}",
+                                                    "contact_preview": "@{getStringFromDict(contact, 'preview')}",
+                                                    "actions": [
+                                                        {
+                                                        "log_id": "copy_contact",
+                                                        "typed": {
+                                                            "type": "copy_to_clipboard",
+                                                            "content": {
+                                                                "type": "text",
+                                                                "value": "@{getStringFromDict(contact, 'text')}"
+                                                            }
+                                                        }
+                                                        },
+                                                        {
+                                                            "log_id": "contact_toast",
+                                                            "url": "todo-action://toast?@{getStringFromDict(contact, 'short_name')}%20copied%21"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ],
+                            "paddings": {
+                                "top": 4,
+                                "end": 24
+                            }
+                        },
+                        {
+                            "type": "separator",
+                            "paddings": {
+                                "top": 15,
+                                "start": 10,
+                                "end": 10,
+                                "bottom": 5
+                            }
+                        },
+                        {
+                            "type": "container",
+                            "orientation": "vertical",
+                            "paddings": {
+                                "top": 12
+                            },
+                            "alignment_horizontal": "center",
+                            "items": [
+                                {
+                                    "type": "build_info",
+                                    "text": "Build type: @{buildType}"
+                                },
+                                {
+                                    "type": "build_info",
+                                    "text": "Code: @{versionCode}, name: @{versionName}"
+                                },
+                                {
+                                    "type": "build_info",
+                                    "text": "Version: @{flavour}"
+                                },
+                                {
+                                    "type": "build_info",
+                                    "text": "Built at @{buildTime}"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

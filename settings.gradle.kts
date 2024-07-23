@@ -18,3 +18,12 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+

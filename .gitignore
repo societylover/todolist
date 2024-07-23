@@ -17,3 +17,10 @@ local.properties
 /app/release
 gradle.properties
 /build-logic/build
+/.env
+/core/common/build
+/core/datastore/build
+/core/model/build
+/core/ui/build
+*.hprof
+.env

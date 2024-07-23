@@ -5,6 +5,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.homework.todolist.data.repository.TodoItemsRepository
+import com.homework.todolist.shared.data.result.RepeatableRemoteErrors
+import com.homework.todolist.shared.data.result.Result
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +25,8 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         return withContext(Dispatchers.IO) {
             val result = repository.fetchItems()
-            if (result is com.homework.todolist.shared.data.result.Result.Error) {
+            if (result is com.homework.todolist.shared.data.result.Result.Error
+                    && result.errorType is RepeatableRemoteErrors) {
                 Result.failure()
             } else {
                 Result.success()

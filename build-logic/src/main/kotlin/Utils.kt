@@ -1,4 +1,6 @@
 import com.android.build.gradle.BaseExtension
+import java.time.LocalDateTime
+import java.util.Locale
 
 fun BaseExtension.baseAndroidConfig() {
     namespace = AndroidConst.NAMESPACE
@@ -9,6 +11,11 @@ fun BaseExtension.baseAndroidConfig() {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        versionCode = 1
+        versionName = "1.0-hw-5"
+
+        buildConfigField("String", "BUILD_TIME", "\"${LocalDateTime.now().asString()}\"")
     }
     buildTypes {
         getByName("release") {
@@ -24,4 +31,10 @@ fun BaseExtension.baseAndroidConfig() {
         jvmTarget = AndroidConst.KOTLIN_JVM_TARGET
     }
 }
+
+internal fun LocalDateTime.asString(
+    pattern: String = "d.MM.yyyy HH:mm:ss",
+    locale: Locale = Locale.getDefault()
+): String =
+    this.format(java.time.format.DateTimeFormatter.ofPattern(pattern, locale))
 

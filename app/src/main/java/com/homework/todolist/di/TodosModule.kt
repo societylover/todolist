@@ -1,6 +1,5 @@
 package com.homework.todolist.di
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
@@ -20,6 +19,9 @@ import com.homework.todolist.data.provider.ApiParamsProviderImpl.Companion.API_P
 import com.homework.todolist.data.provider.DeviceParams
 import com.homework.todolist.data.repository.TodoItemsRepository
 import com.homework.todolist.data.repository.TodoItemsRepositoryImpl
+import com.homework.todolist.data.userpreferences.UserPreferencesProvider
+import com.homework.todolist.data.userpreferences.UserPreferencesProviderImpl
+import com.homework.todolist.data.userpreferences.UserPreferencesProviderImpl.Companion.USER_PREFERENCES
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -35,6 +37,14 @@ import javax.inject.Singleton
 @Qualifier
 annotation class DeviceSensitive
 
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class ApiParamsPreferences
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class UserAppPreferences
+
 @Module
 @InstallIn(SingletonComponent::class)
 object TodosModule {
@@ -48,6 +58,7 @@ object TodosModule {
     ): TodoItemsRepository =
         TodoItemsRepositoryImpl(localDataSource, remoteDataSource, externalScope)
 
+    @ApiParamsPreferences
     @Provides
     @Singleton
     fun providerApiParamsProvider(@ApplicationContext appContext: Context): DataStore<Preferences> =
@@ -59,15 +70,33 @@ object TodosModule {
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = { appContext.preferencesDataStoreFile(API_PREFERENCES) })
 
+    @UserAppPreferences
+    @Provides
+    @Singleton
+    fun provideUserAppPreferences(@ApplicationContext appContext: Context): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            migrations = listOf(SharedPreferencesMigration(appContext, USER_PREFERENCES)),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { appContext.preferencesDataStoreFile(USER_PREFERENCES) })
 
-    @SuppressLint("HardwareIds")
+
     @Singleton
     @Provides
     fun provideApiParamsProvider(
         @DeviceSensitive deviceParams: DeviceParams,
-        dataStore: DataStore<Preferences>,
+        @ApiParamsPreferences dataStore: DataStore<Preferences>,
     ): ApiParamsProvider =
         ApiParamsProviderImpl(dataStore = dataStore, deviceParams = deviceParams)
+
+    @Singleton
+    @Provides
+    fun provideUserPreferencesProvider(
+        @UserAppPreferences dataStore: DataStore<Preferences>,
+    ): UserPreferencesProvider =
+        UserPreferencesProviderImpl(dataStore = dataStore)
 
     @Provides
     @DeviceSensitive
@@ -90,5 +119,7 @@ object TodosModule {
     fun provideDao(todoDatabase: TodoDatabase) : TodoItemDao {
         return todoDatabase.todoItemDao()
     }
+
+
 
 }

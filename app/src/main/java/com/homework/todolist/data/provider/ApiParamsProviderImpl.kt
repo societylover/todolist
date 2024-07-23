@@ -7,9 +7,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
 
-internal class ApiParamsProviderImpl @Inject constructor(
+internal class ApiParamsProviderImpl(
     private val dataStore: DataStore<Preferences>,
     private val deviceParams: DeviceParams
 ) : ApiParamsProvider {

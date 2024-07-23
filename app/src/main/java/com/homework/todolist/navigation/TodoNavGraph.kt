@@ -1,5 +1,9 @@
 package com.homework.todolist.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -9,9 +13,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.homework.todolist.navigation.TodoDestinationsArgs.TODO_ID
-import com.homework.todolist.startdetails.StartScreen
-import com.homework.todolist.tododetails.TodoListDetailsScreen
-import com.homework.todolist.todos.TodoListScreen
+import com.homework.todolist.navigation.divkit.DivKitInterop
+import com.homework.todolist.ui.screen.about.AboutScreen
+import com.homework.todolist.ui.screen.settings.SettingsScreen
+import com.homework.todolist.ui.screen.startdetails.StartScreen
+import com.homework.todolist.ui.screen.tododetails.TodoListDetailsScreen
+import com.homework.todolist.ui.screen.todos.TodoListScreen
 import kotlin.system.exitProcess
 
 /**
@@ -28,7 +35,8 @@ internal fun TodoNavGraph(
         TodoNavigationActions(
             navController
         )
-    }
+    },
+    divKitInterop: DivKitInterop
 ) {
     NavHost(
         navController = navController,
@@ -38,14 +46,32 @@ internal fun TodoNavGraph(
         { _ ->
             StartScreen(
                 onSuccessAuthed = { navActions.navigateToTodoList(true) },
-                onFailureAuthed = { exitProcess(1) })
+                onFailureAuthed = { exitProcess(EXIT_FROM_APPLICATION_CODE) })
         }
 
         composable(TodoDestinations.TODO_LIST_ROUTE)
         { _ ->
             TodoListScreen(
                 onItemClick = { navActions.navigateToTodoDetails(it) },
-                onCreateItemClick = { navActions.navigateToTodoDetails() }
+                onCreateItemClick = { navActions.navigateToTodoDetails() },
+                onSettingsClicked = { navActions.navigateToSettings() }
+            )
+        }
+
+        composable(TodoDestinations.SETTINGS_ROUTE)
+        { _ ->
+            SettingsScreen(
+                onActionClick = { navActions.navigateToTodoList(false) },
+                onAboutAppClick = { navActions.navigateToAbout() }
+            )
+        }
+
+        composable(TodoDestinations.ABOUT_ROUTE)
+        { _ ->
+            AboutScreen(
+                contextThemeWrapper = divKitInterop.context,
+                isDark = divKitInterop.isDark,
+                onBackPressed = { navActions.navigateToSettings() }
             )
         }
 
@@ -54,6 +80,18 @@ internal fun TodoNavGraph(
          */
         composable(
             TodoDestinations.DETAILS_ROUTE,
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { 1000 }) + fadeIn()
+            },
+            exitTransition = {
+                slideOutHorizontally(targetOffsetX = { -1000 }) + fadeOut()
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { 1000 }) + fadeOut()
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -1000 }) + fadeIn()
+            },
             arguments = listOf(
                 navArgument(TODO_ID) {
                     type = NavType.StringType
@@ -66,3 +104,5 @@ internal fun TodoNavGraph(
         }
     }
 }
+
+private const val EXIT_FROM_APPLICATION_CODE = 1

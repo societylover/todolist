@@ -71,6 +71,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -146,7 +148,6 @@ internal fun TodoListScreen(
         topBar = {
             TopAppBarContent(
                 topBarHeight = topBarHeight,
-                expandedHeight = expandedHeight,
                 collapsedHeight = collapsedHeight,
                 uiState = uiState,
                 onSettingsClicked = { onSettingsClicked() },
@@ -187,7 +188,6 @@ private fun FABContent(onCreateItemClick: () -> Unit) {
 @Composable
 private fun TopAppBarContent(
     topBarHeight: Dp,
-    expandedHeight: Dp,
     collapsedHeight: Dp,
     uiState: TodoListUiState,
     onVisibilityClicked: () -> Unit,
@@ -199,6 +199,8 @@ private fun TopAppBarContent(
         animationSpec = spring(dampingRatio = 0.9f, stiffness = Spring.StiffnessHigh),
         label = "ExpandableTopAppBar.animateDpAsState dynamicTopPadding"
     )
+
+    val context = LocalContext.current
 
     ExpandableTopAppBar(
         modifier = Modifier.padding(start = 16.dp),
@@ -220,7 +222,8 @@ private fun TopAppBarContent(
                     uiState.doneCount
                 ),
                 color = LocalTodoColorsPalette.current.labelTertiaryColor,
-                style = LocalTodoAppTypography.current.body
+                style = LocalTodoAppTypography.current.body,
+                modifier = Modifier.semantics { contentDescription = context.getString(R.string.todo_list_completed_subtitle_desc, uiState.doneCount) }
             )
         },
         scrollableAction = {
@@ -293,9 +296,7 @@ private fun ListContent(
         LazyColumn(
             state = lazyListState,
             modifier = Modifier
-        )
-        {
-
+        ) {
             item { TodosTopBorder() }
 
             items(uiState.todoList, key = { it.id }) {
@@ -524,6 +525,8 @@ private fun TodoListItem(
     onItemDoneStateChange: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     val dismissState = SwipeToDismissBoxState(
         initialValue = Settled,
         density = LocalDensity.current,
@@ -605,6 +608,9 @@ private fun TodoListItem(
                             textDecoration = TextDecoration.LineThrough,
                             color = LocalTodoColorsPalette.current.labelTertiaryColor
                         ),
+                        modifier = Modifier.semantics {
+                            contentDescription = context.getString(R.string.todo_list_item_description, item.text)
+                        },
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
                     )

@@ -5,24 +5,35 @@
     <!-- To-do list screen -->
     <string name="todo_list_screen_title">My tasks</string>
     <string name="todo_list_completed_subtitle">Completed - %d</string>
-    <string name="todo_list_visibility_on_description">Icon for showing hidden to-do list items</string>
-    <string name="todo_list_visibility_off_description">Hide to-do list icon</string>
+    <string name="todo_list_completed_subtitle_desc">%d tasks completed</string>
+    <string name="todo_list_visibility_on_description">Show all to-do items</string>
+    <string name="todo_list_visibility_off_description">Show only undone items</string>
     <string name="todo_list_create_button_description">Create new todo item icon</string>
     <string name="todo_list_info_description">Open todo list details</string>
     <string name="todo_list_bottom_item_text">New</string>
+    <string name="todo_list_item_description">Task description: %s</string>
 
     <!-- To-do item creating screen -->
     <string name="todo_item_create_text_input_hint">What need to do...</string>
     <string name="todo_item_create_save_icon_text">SAVE</string>
     <string name="todo_item_select_importance_title">Select item importance:</string>
     <string name="todo_item_create_importance_title">Importance</string>
-    <string name="todo_item_create_do_until_title">Done until</string>
+    <string name="todo_item_create_do_until_title">Do until</string>
+    <string name="todo_item_create_do_until_set_desc">Do until %s</string>
+    <string name="todo_item_create_do_until_unset_desc">Do until not set</string>
     <string name="todo_item_create_delete_button_text">Delete</string>
+    <string name="todo_item_create_delete_button_desc">Delete opened task</string>
+    <string name="todo_item_importance_description">Current: %s</string>
+    <string name="todo_item_text_desc">Current task text is %s</string>
+    <string name="todo_item_create_do_until_switch_desc">Select do until date</string>
 
     <!-- To-do importance translates -->
     <string name="todo_item_importance_ordinary">No</string>
+    <string name="todo_item_importance_ordinary_desc">Not important</string>
     <string name="todo_item_importance_low">Low</string>
+    <string name="todo_item_importance_low_desc">Low</string>
     <string name="todo_item_importance_urgent">!! High</string>
+    <string name="todo_item_importance_urgent_desc">High</string>
 
     <!-- To-do calendar action buttons -->
     <string name="todo_calendar_cancel_button_text">CANCEL</string>
@@ -61,6 +72,7 @@
     <!-- User app preferences -->
     <string name="setting_select_back_text">Back to previous screen</string>
     <string name="setting_select_app_theme">Select application theme:</string>
+    <string name="setting_select_app_theme_desc">Select application theme (current is %s)</string>
     <string name="setting_theme_dark">Dark</string>
     <string name="setting_theme_light">Light</string>
     <string name="setting_theme_system">System</string>

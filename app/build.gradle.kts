@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
-    id("telegram-reporter")
     alias(libs.plugins.org.jetbrains.kotlin.android)
 }
 

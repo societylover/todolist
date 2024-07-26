@@ -32,12 +32,12 @@ internal fun TodoItem.toTodoItemUiState() =
     )
 
 internal fun Importance.toImportanceItem() : ImportanceItem {
-    val (resId, isHighlighted) =
+    val (resId, descId, isHighlighted) =
         when(this) {
-            Importance.LOW -> Pair(R.string.todo_item_importance_low, false)
-            Importance.ORDINARY -> Pair(R.string.todo_item_importance_ordinary, false)
-            Importance.URGENT -> Pair(R.string.todo_item_importance_urgent, true)
+            Importance.LOW -> Triple(R.string.todo_item_importance_low, R.string.todo_item_importance_low_desc, false)
+            Importance.ORDINARY -> Triple(R.string.todo_item_importance_ordinary, R.string.todo_item_importance_ordinary_desc,false)
+            Importance.URGENT -> Triple(R.string.todo_item_importance_urgent, R.string.todo_item_importance_urgent_desc, true)
         }
 
-    return ImportanceItem(this, resId, isHighlighted)
+    return ImportanceItem(this, resId, descId, isHighlighted)
 }

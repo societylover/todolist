@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.kotlin.serialization) version libs.versions.kotlin
     kotlin("kapt")
-    id("telegram-reporter")
     alias(libs.plugins.org.jetbrains.kotlin.android)
 }
 
@@ -30,11 +29,11 @@ android {
         viewBinding = true
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
@@ -78,11 +77,7 @@ dependencies {
 
     implementation(libs.bundles.ktor)
     implementation(libs.bundles.divkit)
-}
-
-tgReporter {
-    val tgToken = providers.environmentVariable("TG_TOKEN")
-    token.set(tgToken.toString())
-    val tgChat = providers.environmentVariable("TG_CHAT")
-    chatId.set(tgChat.toString())
+    testImplementation(libs.bundles.testing.ui)
+    androidTestImplementation(libs.bundles.testing.unit)
+    androidTestImplementation(libs.espresso.core)
 }

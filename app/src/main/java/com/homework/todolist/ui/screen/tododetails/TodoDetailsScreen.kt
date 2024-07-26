@@ -62,12 +62,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -141,7 +146,9 @@ private fun DetailsContent(
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             TodoTextInput(
-                modifier = Modifier.padding(bottom = 12.dp, top = 2.dp),
+                modifier = Modifier
+                    .padding(bottom = 12.dp, top = 2.dp)
+                    ,
                 text = itemUiState.text,
                 enabled = !itemUiState.isDone
             ) {
@@ -155,6 +162,7 @@ private fun DetailsContent(
                 modifier = Modifier
                     .padding(vertical = 16.dp)
                     .fillMaxWidth(),
+                isEnabled = !itemUiState.isDone,
                 importance = itemUiState.importanceState,
                 onClick = { showSheet = true }
             )
@@ -201,13 +209,19 @@ private fun DetailsContent(
 
         HorizontalDivider(color = LocalTodoColorsPalette.current.separatorColor)
 
+        val context = LocalContext.current
+
         EpicPulsarButton(
             isActive = itemUiState.id != null,
             onDeleteClick = {
                 eventHandler(TodoDetailsViewModel.Companion.DetailsEvent.OnDeleteEvent)
                 onActionClick()
             },
-            modifier = Modifier.padding(start = 16.dp, top = 12.dp, bottom = 12.dp)
+            modifier = Modifier
+                .padding(start = 16.dp, top = 12.dp, bottom = 12.dp)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = context.getString(R.string.todo_item_create_delete_button_desc)
+                }
         )
     }
 }
@@ -287,6 +301,7 @@ private fun EffectsHandler(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun TodoTextInput(
     modifier: Modifier = Modifier,
@@ -480,6 +495,7 @@ private fun ImportanceItemContent(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ImportanceView(
     modifier: Modifier = Modifier,
@@ -489,6 +505,7 @@ private fun ImportanceView(
     onItemSelected: () -> Unit
 ) {
     var animationTriggered by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val colorAnimation by animateColorAsState(
         targetValue = if (animationTriggered) LocalTodoColorsPalette.current.redColor.copy(alpha = 0.1f)
@@ -502,9 +519,12 @@ private fun ImportanceView(
             indication = null,
             interactionSource = remember { MutableInteractionSource() },
             onClick = onItemSelected
-        )
+        ).semantics(mergeDescendants = false) {
+            contentDescription = context.getString(item.importanceDescResId)
+        }
         .padding(vertical = 10.dp)) {
         Text(text = stringResource(id = item.importanceResId),
+            modifier = Modifier.semantics { invisibleToUser() },
             style = if (isItemSelected) LocalTodoAppTypography.current.body else LocalTodoAppTypography.current.subhead,
             fontWeight = if (isItemSelected) FontWeight.Bold else FontWeight.Medium,
             color = if (item.isHighlighted) colorAnimation else LocalTodoColorsPalette.current.labelPrimaryColor)
@@ -519,34 +539,51 @@ private fun ImportanceView(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun ImportanceView(
     modifier: Modifier = Modifier,
     importance: ImportanceItem,
+    isEnabled: Boolean,
     onClick: () -> Unit
 ) {
-    Column(modifier = modifier) {
+    val context = LocalContext.current
+    Column(modifier = modifier
+        .semantics(mergeDescendants = true) {
+            contentDescription =
+                context.getString(R.string.todo_item_importance_description,
+                    context.getString(importance.importanceDescResId))
+        }
+        .clickable(
+            enabled = isEnabled,
+            onClickLabel = context.getString(R.string.todo_item_select_importance_title),
+            role = Role.DropdownList,
+            onClick = onClick
+        )
+    ) {
         Text(
             text = stringResource(id = R.string.todo_item_create_importance_title),
             color = LocalTodoColorsPalette.current.labelPrimaryColor,
-            style = LocalTodoAppTypography.current.body
+            style = LocalTodoAppTypography.current.body,
+            modifier = Modifier.semantics { this.invisibleToUser() }
         )
         
         Spacer(modifier = Modifier.padding(vertical = 4.dp))
         
         Text(
-            text = stringResource(id = importance.importanceResId),
-            color = if (importance.isHighlighted ) LocalTodoColorsPalette.current.redColor else
+            text = stringResource(importance.importanceResId),
+            color = if (importance.isHighlighted) LocalTodoColorsPalette.current.redColor else
             LocalTodoColorsPalette.current.labelTertiaryColor,
             style = LocalTodoAppTypography.current.subhead,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onClick() }
+                .semantics { this.invisibleToUser() }
                 .padding(vertical = 4.dp)
         )
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DoUntilView(
     enabled: Boolean,
@@ -556,8 +593,14 @@ private fun DoUntilView(
     onDoUntilSelected: (LocalDate?) -> Unit
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = modifier.semantics(mergeDescendants = true) {
+            contentDescription =
+                if (isDoUntilSet) context.getString(R.string.todo_item_create_do_until_set_desc, doUntil.asString())
+                else context.getString(R.string.todo_item_create_do_until_unset_desc)
+        },
+        verticalAlignment = Alignment.CenterVertically) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -680,9 +723,13 @@ private fun DoUntilSwitch(
     isDoUntilSet: Boolean,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Switch(
         enabled = enabled,
         checked = isDoUntilSet,
+        modifier = Modifier.semantics {
+          contentDescription = context.getString(R.string.todo_item_create_do_until_switch_desc)
+        },
         onCheckedChange = { onClick() },
         colors = SwitchDefaults.colors(
             checkedThumbColor = LocalTodoColorsPalette.current.blueColor,
@@ -718,6 +765,7 @@ private fun DoUntilSwitchPreview() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun EpicPulsarButton(
     isActive: Boolean,
@@ -763,7 +811,8 @@ private fun EpicPulsarButton(
             .padding(8.dp) // Adding padding for better touch target
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.semantics { invisibleToUser() }
         ) {
             Icon(
                 imageVector = Icons.Default.Delete,

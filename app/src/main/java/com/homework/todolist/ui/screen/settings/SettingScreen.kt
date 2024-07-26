@@ -22,8 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -83,12 +86,17 @@ private fun ShowSelectableModes(
     screenState: SettingsScreenState.Loaded,
     onSectionClick: (ThemeParams) -> Unit
 ) {
+    val context = LocalContext.current
+
     Column(modifier) {
         androidx.compose.material3.Text(
             text = stringResource(id = R.string.setting_select_app_theme),
+            modifier = Modifier.padding(bottom = 4.dp).semantics {
+                contentDescription = context.getString(R.string.setting_select_app_theme_desc,
+                    context.getString(screenState.current.titleResId))
+            },
             style = LocalTodoAppTypography.current.title,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 4.dp),
             color = LocalTodoColorsPalette.current.labelPrimaryColor
         )
             LazyColumn {

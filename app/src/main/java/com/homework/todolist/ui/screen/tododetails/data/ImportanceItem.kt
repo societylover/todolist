@@ -10,5 +10,6 @@ import com.homework.todolist.data.model.Importance
 data class ImportanceItem(
     val importance: Importance = Importance.LOW,
     @StringRes val importanceResId: Int = R.string.todo_item_importance_low,
+    @StringRes val importanceDescResId: Int = R.string.todo_item_importance_low_desc,
     val isHighlighted: Boolean = false
 )

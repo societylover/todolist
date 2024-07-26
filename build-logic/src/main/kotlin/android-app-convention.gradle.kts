@@ -28,9 +28,9 @@ configure<BaseAppModuleExtension> {
     }
 
     defaultConfig {
-        val baseUrl = providers.environmentVariable("BASE_URL")
-        buildConfigField("String", "BASE_URL", "\"${baseUrl.get()}\"")
-        manifestPlaceholders["YANDEX_CLIENT_ID"] = providers.environmentVariable("CLIENT_ID")
+        val baseUrl = "https://hive.mrdekk.ru/todo/" // providers.environmentVariable("BASE_URL")
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"") //"\"${baseUrl.get()}\"")
+        manifestPlaceholders["YANDEX_CLIENT_ID"] = "f9466f41f83c4266b6b55d1d67649709" //providers.environmentVariable("CLIENT_ID")
     }
 }
 

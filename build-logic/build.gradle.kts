@@ -8,12 +8,6 @@ repositories {
     gradlePluginPortal()
 }
 
-gradlePlugin {
-    plugins.register("telegram-reporter") {
-        id = "telegram-reporter"
-        implementationClass = "com.homework.todolist.telegramTask.TelegramReporterPlugin"
-    }
-}
 dependencies {
     implementation(libs.agp)
     implementation(libs.kotlin.gradle.plugin)
